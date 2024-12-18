@@ -1,13 +1,14 @@
-package com.example.backend.authenticate;
+package com.example.backend.service;
 
-import com.example.backend.service.EmailSenderService;
-import com.example.backend.service.JwtService;
+import com.example.backend.DTO.Auth.AuthenticationRequest;
+import com.example.backend.DTO.Auth.AuthenticationResponse;
+import com.example.backend.DTO.Auth.RegisterRequest;
 import com.example.backend.entity.Role;
 import com.example.backend.entity.User;
+import com.example.backend.exception.ValidationException;
 import com.example.backend.repository.UserRepository;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,11 +24,23 @@ public class AuthenticationService {
   private final AuthenticationManager authenticationManager;
   private final EmailSenderService emailSenderService;
 
-  public void register(RegisterRequest request) {
+  public AuthenticationResponse register(RegisterRequest request) {
 
-    //check if the user already exists
-    if(userRepository.findByEmail(request.getEmail()).isPresent()) {
-      throw new RuntimeException("User already exists");
+    // Validate email
+    if (!request.getEmail().contains("@")) {
+      throw new ValidationException("Invalid email format");
+    }
+    // Validate password
+    if (request.getPassword().length() <= 8 || !request.getPassword().matches(".*\\d.*") || !request.getPassword().matches(".*[a-zA-Z].*")) {
+      throw new ValidationException("Password must be more than 8 characters long and contain both numbers and letters");
+    }
+    // Validate name
+    if (request.getName().isEmpty()) {
+      throw new ValidationException("Name cannot be empty");
+    }
+    // Check if the user already exists
+    if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+      throw new ValidationException("User already exists");
     }
 
     //create new user and save it to the database
@@ -41,22 +54,18 @@ public class AuthenticationService {
       .build();
     userRepository.save(user);
 
-    try {
-      userRepository.save(user);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to save user to the database", e);
-    }
-
-    // Generate jwt token for the user
+    //generate jwt token for the user
     var jwt = jwtService.generateToken(user);
 
-    // Send email to verify the email
-    try {
-      emailSenderService.sendEmail(request.getEmail(), "Activate your account",
-          "http://localhost:8080/api/auth/activate/" + jwt);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to send verification email", e);
-    }
+    //send email to verify the email
+    emailSenderService.sendEmail(request.getEmail(), "Activate your account",
+        "http://localhost:8080/api/auth/activate/" + jwt);
+
+    //return the jwt token as an AuthenticationResponse
+    return AuthenticationResponse.builder()
+        .token(jwt)
+            .role(user.getRole().name())
+        .build();
   }
 
   public AuthenticationResponse authenticate(AuthenticationRequest request) {
@@ -72,6 +81,7 @@ public class AuthenticationService {
 
     return AuthenticationResponse.builder()
         .token(jwt)
+            .role(user.getRole().name())
         .build();
   }
 
@@ -95,4 +105,5 @@ public class AuthenticationService {
     }
 
   }
+
 }

@@ -1,5 +1,6 @@
-package com.example.backend.authenticate;
+package com.example.backend.DTO.QuizSet;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,8 +10,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequest {
-  private String email;
-  private String password;
-  private String name;
+public class ListQuizSetDTO {
+  private List<QuizSetResponseDTO> quizSets;
 }

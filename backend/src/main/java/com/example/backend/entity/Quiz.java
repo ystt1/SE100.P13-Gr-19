@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -23,10 +24,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Question {
+public class Quiz {
 
   @Id
-  @GeneratedValue
+  @GeneratedValue(strategy = GenerationType.SEQUENCE)
   private int id;
 
   private String content;
@@ -39,19 +40,9 @@ public class Question {
 
   private String correctAnswer;
 
-  @Enumerated(EnumType.STRING)
-  private DifficultyLevel difficulty;
-
   private Date createdAt=new Date();
-
-  private Date lastUpdate=new Date();
-
-  @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-  @JoinColumn(name="topic_id")
-  private Topic topic;
 
   @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
   @JoinColumn(name="quiz_set_id")
   private QuizSet quizSet;
-
 }

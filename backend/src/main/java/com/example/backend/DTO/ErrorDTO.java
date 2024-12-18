@@ -1,15 +1,14 @@
-package com.example.backend.authenticate;
+package com.example.backend.DTO;
 
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationResponse {
+public class ErrorDTO {
   private String message;
-  private String token;
+  private LocalDateTime timestamp;
 }

@@ -1,9 +1,9 @@
 package com.example.backend.controller;
 
-import com.example.backend.authenticate.AuthenticationRequest;
-import com.example.backend.authenticate.AuthenticationResponse;
-import com.example.backend.authenticate.AuthenticationService;
-import com.example.backend.authenticate.RegisterRequest;
+import com.example.backend.DTO.Auth.AuthenticationRequest;
+import com.example.backend.DTO.Auth.AuthenticationResponse;
+import com.example.backend.service.AuthenticationService;
+import com.example.backend.DTO.Auth.RegisterRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,12 +22,7 @@ public class AuthenticateController {
 
   @PostMapping("/register")
   public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest registerRequest) {
-    try {
-      service.register(registerRequest);
-      return ResponseEntity.ok(AuthenticationResponse.builder().message("User registered successfully, check your email to activate your account").build());
-    } catch (Exception e) {
-      return ResponseEntity.badRequest().body(AuthenticationResponse.builder().message(e.getMessage()).build());
-    }
+    return ResponseEntity.ok(service.register(registerRequest));
   }
 
   @PostMapping("/login")
