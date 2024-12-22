@@ -19,11 +19,6 @@ public class QuizController {
 
   private final QuizService quizService;
 
-  @GetMapping("/all")
-  public ResponseEntity<List<QuizDTO>> getQuizzesByQuizSetId(@RequestParam int quizSetId) {
-    return quizService.getQuizzesByQuizSetId(quizSetId);
-  }
-
   @DeleteMapping("/{id}")
   public ResponseEntity<String> deleteQuiz(@PathVariable int id) {
     return quizService.deleteQuiz(id);

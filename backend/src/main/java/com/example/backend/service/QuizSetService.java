@@ -175,32 +175,6 @@ public class QuizSetService {
 
   }
 
-  public ResponseEntity<QuizSetResponseDTO> addMultipleQuizToQuizSet(String email, int id, List<QuizDTO> quizDTOs) {
-    var quizSet = quizSetRepository.findById(id);
-    if (quizSet.isEmpty()) {
-      throw new ResourceNotFoundException("Quiz set not found");
-    }
-
-    if (!quizSet.get().getCreator().getEmail().equals(email)) {
-      throw new ForbiddenException("You are not authorized to add quizzes to this quiz set");
-    }
-
-    List<Quiz> quizzes = quizDTOs.stream()
-        .map(quizDTO -> {
-          Quiz quiz = modelMapper.map(quizDTO, Quiz.class);
-          quiz.setQuizSet(quizSet.get());
-          return quizService.saveQuiz(quiz);
-        })
-        .collect(Collectors.toList());
-
-    quizSet.get().setQuizList(Optional.ofNullable(quizSet.get().getQuizList()).orElse(new ArrayList<>()));
-    quizSet.get().getQuizList().addAll(quizzes);
-    var updatedQuizSet = quizSetRepository.save(quizSet.get());
-
-    var resultDTO = modelMapper.map(updatedQuizSet, QuizSetResponseDTO.class);
-    return ResponseEntity.status(200).body(resultDTO);
-  }
-
   public ResponseEntity<QuizSetResponseDTO> allowShowAnswer(String email, int id) {
     var quizSet = quizSetRepository.findById(id);
     if (quizSet.isEmpty()) {

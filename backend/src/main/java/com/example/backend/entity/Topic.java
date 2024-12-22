@@ -42,7 +42,7 @@ public class Topic {
   private String description;
 
   @OneToMany(mappedBy = "topic", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
-  private List<QuizSet> quizSetList;
+  private List<Quiz> quizList;
 
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "creator_id")

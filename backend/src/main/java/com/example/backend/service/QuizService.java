@@ -21,11 +21,6 @@ public class QuizService {
     return quizRepository.save(quiz);
   }
 
-  public ResponseEntity<List<QuizDTO>> getQuizzesByQuizSetId(int id) {
-    var quizzes = quizRepository.findAllByQuizSetId(id);
-    return ResponseEntity.ok(quizzes.stream().map(quiz -> modelMapper.map(quiz, QuizDTO.class)).toList());
-  }
-
   public ResponseEntity<String> deleteQuiz(int id) {
     quizRepository.deleteById(id);
     return ResponseEntity.ok("Quiz deleted successfully");

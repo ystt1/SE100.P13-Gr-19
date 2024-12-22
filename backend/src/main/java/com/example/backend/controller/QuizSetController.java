@@ -85,11 +85,6 @@ public class QuizSetController {
       return quizSetService.addQuizToQuizSet(principal.getName(),id, quizDTO);
   }
 
-  @PostMapping("/{id}/quizzes")
-  public ResponseEntity<QuizSetResponseDTO> addMultipleQuizToQuizSet(Principal principal,@PathVariable int id,@RequestBody List<QuizDTO> quizDTOs) {
-      return quizSetService.addMultipleQuizToQuizSet(principal.getName(),id, quizDTOs);
-  }
-
   @PatchMapping("/{id}/allow-show-answer")
   public ResponseEntity<QuizSetResponseDTO> allowShowAnswer(Principal principal, @PathVariable int id) {
       return quizSetService.allowShowAnswer(principal.getName(), id);

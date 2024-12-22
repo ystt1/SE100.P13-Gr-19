@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -36,7 +37,7 @@ public class QuizSet {
 
   private Date createdTime;
 
-  private Integer totalQuestions;
+  private Date updatedTime;
 
   private Boolean allowShowAnswer=true;
 
@@ -44,14 +45,6 @@ public class QuizSet {
   @JoinColumn(name = "creator_id")
   private User creator;
 
-  @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "topic_id")
-  private Topic topic;
-
-  @OneToMany(mappedBy = "quizSet", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
+  @ManyToMany(fetch = FetchType.LAZY)
   private List<Quiz> quizList;
-
-  public void addQuiz(Quiz quiz) {
-    quizList.add(quiz);
-  }
 }
