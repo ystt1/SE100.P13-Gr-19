@@ -12,6 +12,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.Date;
 import java.util.List;
@@ -34,17 +36,25 @@ public class Quiz {
 
   private String content;
 
-  @ElementCollection
-  private List<String> answers;
-
   @Enumerated(EnumType.STRING)
   private QuestionType type;
-
-  private String correctAnswer;
-
-  private Date createdAt=new Date();
 
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "topic_id")
   private Topic topic;
+
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "creator_id")
+  private User creator;
+
+  private Date createdAt=new Date();
+
+  @OneToMany(mappedBy = "quiz", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
+  private List<QuizOption> options;
+
+  @OneToMany(mappedBy = "quiz", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
+  private List<Blank> blanks;
+
+  @OneToOne(mappedBy = "quiz", cascade = {CascadeType.ALL})
+  private ShortAnswer shortAnswer;
 }

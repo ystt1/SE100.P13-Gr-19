@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -46,5 +47,10 @@ public class QuizSet {
   private User creator;
 
   @ManyToMany(fetch = FetchType.LAZY)
+  @JoinTable(
+      name = "quiz_set_detail",
+      joinColumns = @JoinColumn(name = "quiz_set_id"),
+      inverseJoinColumns = @JoinColumn(name = "quiz_id")
+  )
   private List<Quiz> quizList;
 }
