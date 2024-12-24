@@ -31,7 +31,7 @@ public class TopicService {
 
   private ModelMapper modelMapper;
 
-  public ResponseEntity<TopicResponseDTO> createTopic(String email, TopicRequestDTO topicRequestDTO) {
+  public TopicResponseDTO createTopic(String email, TopicRequestDTO topicRequestDTO) {
       Topic topic = modelMapper.map(topicRequestDTO, Topic.class);
       if(isTopicExistsByNameAndCreatorEmail(topic.getName(), email)){
         throw new ConflictException("Topic name already exists");
@@ -43,10 +43,10 @@ public class TopicService {
 
       var resultTopic = topicRepository.save(topic);
       var responseTopic = modelMapper.map(resultTopic, TopicResponseDTO.class);
-      return ResponseEntity.status(200).body(responseTopic);
+      return responseTopic;
   }
 
-  public ResponseEntity<TopicResponseDTO> deleteTopic(String email, int id) {
+  public void deleteTopic(String email, int id) {
       var topic = topicRepository.findById(id);
       if(topic.isEmpty()){
         throw new ResourceNotFoundException("Topic not found");
@@ -57,13 +57,10 @@ public class TopicService {
         throw new ForbiddenException("You are not allowed to delete this topic, only creator can delete this topic");
       }
 
-      var topicResponse = modelMapper.map(topic.get(), TopicResponseDTO.class);
-
       topicRepository.deleteById(id);
-      return ResponseEntity.status(200).body(topicResponse);
   }
 
-  public ResponseEntity<TopicResponseDTO> updateTopic(String email, int id, TopicRequestDTO topicRequestDTO) {
+  public TopicResponseDTO updateTopic(String email, int id, TopicRequestDTO topicRequestDTO) {
       var topic = topicRepository.findById(id);
       if(topic.isEmpty()){
         throw new ResourceNotFoundException("Topic not found");
@@ -79,14 +76,14 @@ public class TopicService {
       updatedTopic.setCreator(topic.get().getCreator());
       var resultTopic = topicRepository.save(updatedTopic);
       var responseTopic = modelMapper.map(resultTopic, TopicResponseDTO.class);
-      return ResponseEntity.status(200).body(responseTopic);
+      return responseTopic;
   }
 
   private boolean isTopicExistsByNameAndCreatorEmail(String name, String email){
     return topicRepository.findByNameAndCreatorEmail(name,email).isPresent();
   }
 
-  public ResponseEntity<ListTopicResponseDTO> getAllTopics(String email, int page, int limit, String sortElement, String direction, String search) {
+  public ListTopicResponseDTO getAllTopics(String email, int page, int limit, String sortElement, String direction, String search) {
     if (direction == null) {
       direction = "asc";
     }
@@ -111,6 +108,6 @@ public class TopicService {
     listTopicResponseDTO.setTotalPages(topicsPage.getTotalPages());
     listTopicResponseDTO.setCurrentPage(page);
 
-    return ResponseEntity.ok(listTopicResponseDTO);
+    return listTopicResponseDTO;
   }
 }

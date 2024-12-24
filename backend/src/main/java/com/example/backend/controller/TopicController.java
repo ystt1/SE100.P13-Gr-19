@@ -27,17 +27,18 @@ public class TopicController {
 
   @PostMapping("/topic")
   public ResponseEntity<TopicResponseDTO> createTopic(Principal principal,@RequestBody TopicRequestDTO topicRequestDTO) {
-    return topicService.createTopic(principal.getName(), topicRequestDTO);
+    return ResponseEntity.status(200).body(topicService.createTopic(principal.getName(), topicRequestDTO));
   }
 
   @DeleteMapping("/topic/{id}")
   public ResponseEntity<TopicResponseDTO> deleteTopic(Principal principal,@PathVariable int id) {
-    return topicService.deleteTopic(principal.getName(),id);
+    topicService.deleteTopic(principal.getName(),id);
+    return ResponseEntity.status(204).build();
   }
 
   @PatchMapping("/topic/{id}")
   public ResponseEntity<TopicResponseDTO> updateTopic(Principal principal,@PathVariable int id,@RequestBody TopicRequestDTO topicRequestDTO) {
-    return topicService.updateTopic(principal.getName(),id, topicRequestDTO);
+    return ResponseEntity.status(200).body(topicService.updateTopic(principal.getName(),id, topicRequestDTO));
   }
 
   @GetMapping("/topics")
@@ -47,7 +48,7 @@ public class TopicController {
       @RequestParam(required = false) String search,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int limit) {
-    return topicService.getAllTopics(principal.getName(), page, limit, sortElement, direction, search);
+    return ResponseEntity.status(200).body(topicService.getAllTopics(principal.getName(), page, limit, sortElement, direction, search));
   }
 
 //  @GetMapping("/topic/{id}")
