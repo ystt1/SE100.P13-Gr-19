@@ -40,7 +40,7 @@ public class QuizSetService {
 
   private ModelMapper modelMapper;
 
-  public ResponseEntity<QuizSetResponseDTO> createQuizSet(String email, QuizSetRequestDTO quizSetRequestDTO) {
+  public QuizSetResponseDTO createQuizSet(String email, QuizSetRequestDTO quizSetRequestDTO) {
     User user = userRepository.findByEmail(email)
         .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -63,7 +63,7 @@ public class QuizSetService {
     var resultDTO = modelMapper.map(quizSetRepository.save(quizSet), QuizSetResponseDTO.class);
 
     //return
-    return ResponseEntity.status(200).body(resultDTO);
+    return resultDTO;
   }
 
   public ListQuizSetDTO getAllQuizSetsByUserEmail(String email, String sortElement, String direction, String search, int page, int limit, int topicId) {
@@ -102,7 +102,7 @@ public class QuizSetService {
   }
 
 
-  public ResponseEntity<QuizSetResponseDTO> getQuizSetById(String email, int id) {
+  public QuizSetResponseDTO getQuizSetById(String email, int id) {
     var quizSet = quizSetRepository.findById(id);
     if (quizSet.isEmpty()) {
       throw new ResourceNotFoundException("Quiz set with id " + id + " not found");
@@ -113,12 +113,12 @@ public class QuizSetService {
 //    if(quizSet.get().getCreator().getEmail().equals(email)){
 //      result.setIsYourQuizSet(true);
 //    }
-    return ResponseEntity.status(200).body(result);
+    return result;
   }
 
 
 
-  public ResponseEntity<String> deleteQuizSet(String email,int id) {
+  public void deleteQuizSet(String email,int id) {
     var quizSet = quizSetRepository.findById(id);
     if (quizSet.isEmpty()) {
       throw new ResourceNotFoundException("Quiz set not found");
@@ -128,10 +128,9 @@ public class QuizSetService {
       throw new ForbiddenException("You are not authorized to delete this quiz set");
     }
     quizSetRepository.deleteById(id);
-    return ResponseEntity.status(204).build();
   }
 
-  public ResponseEntity<QuizSetResponseDTO> updateQuizSet(String email, int id, QuizSetRequestDTO quizSetRequestDTO) {
+  public QuizSetResponseDTO updateQuizSet(String email, int id, QuizSetRequestDTO quizSetRequestDTO) {
     var quizSet = quizSetRepository.findById(id);
     if (quizSet.isEmpty()) {
       throw new ResourceNotFoundException("Quiz set not found");
@@ -146,10 +145,10 @@ public class QuizSetService {
     quizSet.get().setAllowShowAnswer(quizSetRequestDTO.getAllowShowAnswer());
     quizSet.get().setUpdatedTime(new java.util.Date());
     var resultDTO = modelMapper.map(quizSetRepository.save(quizSet.get()), QuizSetResponseDTO.class);
-    return ResponseEntity.status(200).body(resultDTO);
+    return resultDTO;
   }
 
-  public ResponseEntity<QuizDTO> addQuizToQuizSet(String email, int id, QuizDTO quizDTO) {
+  public QuizDTO addQuizToQuizSet(String email, int id, QuizDTO quizDTO) {
     var quizSet = quizSetRepository.findById(id);
     if (quizSet.isEmpty()) {
       throw new ResourceNotFoundException("Quiz set not found");
@@ -163,11 +162,11 @@ public class QuizSetService {
 
     var quizResponseDTO = modelMapper.map(quizService.saveQuiz(quiz), QuizDTO.class);
 
-    return ResponseEntity.status(200).body(quizResponseDTO);
+    return quizResponseDTO;
 
   }
 
-  public ResponseEntity<QuizSetResponseDTO> allowShowAnswer(String email, int id) {
+  public QuizSetResponseDTO allowShowAnswer(String email, int id) {
     var quizSet = quizSetRepository.findById(id);
     if (quizSet.isEmpty()) {
       throw new ResourceNotFoundException("Quiz set not found");
@@ -181,10 +180,10 @@ public class QuizSetService {
     quizSetRepository.save(quizSet.get());
 
     var resultDTO = modelMapper.map(quizSet.get(), QuizSetResponseDTO.class);
-    return ResponseEntity.status(200).body(resultDTO);
+    return resultDTO;
   }
 
-  public ResponseEntity<QuizSetResponseDTO> disableShowAnswer(String email, int id) {
+  public QuizSetResponseDTO disableShowAnswer(String email, int id) {
     var quizSet = quizSetRepository.findById(id);
     if (quizSet.isEmpty()) {
       throw new ResourceNotFoundException("Quiz set not found");
@@ -198,10 +197,10 @@ public class QuizSetService {
     quizSetRepository.save(quizSet.get());
 
     var resultDTO = modelMapper.map(quizSet.get(), QuizSetResponseDTO.class);
-    return ResponseEntity.status(200).body(resultDTO);
+    return resultDTO;
   }
 
-  public ResponseEntity<String> addToBookmark(String email, int id) {
+  public void addToBookmark(String email, int id) {
     var quizSet = quizSetRepository.findById(id);
     if (quizSet.isEmpty()) {
       throw new ResourceNotFoundException("Quiz set not found");
@@ -211,11 +210,9 @@ public class QuizSetService {
 
     user.getBookmarks().add(quizSet.get());
     userRepository.save(user);
-
-    return ResponseEntity.status(200).body("Quiz set added to bookmarks successfully");
   }
 
-  public ResponseEntity<String> removeFromBookmark(String email, int id) {
+  public void removeFromBookmark(String email, int id) {
     var quizSet = quizSetRepository.findById(id);
     if (quizSet.isEmpty()) {
       throw new ResourceNotFoundException("Quiz set not found");
@@ -228,8 +225,6 @@ public class QuizSetService {
     }
 
     userRepository.save(user);
-
-    return ResponseEntity.status(200).body("Quiz set removed from bookmarks successfully");
   }
 
   public ListQuizSetDTO getAllBookmarkQuizSetsByUserEmail(String email, String sortElement, String direction, String search, int page,
@@ -261,8 +256,6 @@ public class QuizSetService {
         .collect(Collectors.toList());
 
     return ListQuizSetDTO.builder().quizSets(quizSetDTOs).build();
-
-
   }
 
   public ListQuizSetDTO getRandomQuizSet(int limit) {
