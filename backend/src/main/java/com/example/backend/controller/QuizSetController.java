@@ -34,8 +34,8 @@ public class QuizSetController {
 
   @GetMapping("/all")
   public ListQuizSetDTO getAllQuizSetsOfUser(Principal principal,
-      @RequestParam(required = false) String sortElement,
-      @RequestParam(required = false) String direction,
+      @RequestParam(defaultValue = "name") String sortElement,
+      @RequestParam(defaultValue = "asc") String direction,
       @RequestParam(required = false) String search,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int limit,
@@ -45,8 +45,8 @@ public class QuizSetController {
 
   @GetMapping("/all-of-all-user")
   public ListQuizSetDTO getAllQuizSetsOfAllUser(
-      @RequestParam(required = false) String sortElement,
-      @RequestParam(required = false) String direction,
+      @RequestParam(defaultValue = "name") String sortElement,
+      @RequestParam(defaultValue = "asc") String direction,
       @RequestParam(required = false) String search,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int limit,
@@ -75,11 +75,14 @@ public class QuizSetController {
       return quizSetService.getQuizSetById(principal.getName(),id);
   }
 
-
-
   @DeleteMapping("/{id}")
   public ResponseEntity<String> deleteQuizSet(Principal principal, @PathVariable int id) {
       return quizSetService.deleteQuizSet(principal.getName(), id);
+  }
+
+  @PatchMapping("/{id}")
+  public ResponseEntity<QuizSetResponseDTO> updateQuizSet(Principal principal, @PathVariable int id, @RequestBody QuizSetRequestDTO quizSetRequestDTO) {
+      return quizSetService.updateQuizSet(principal.getName(), id, quizSetRequestDTO);
   }
 
   @PostMapping("/{id}")

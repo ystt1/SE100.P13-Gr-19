@@ -67,13 +67,12 @@ public class QuizSetService {
   }
 
   public ListQuizSetDTO getAllQuizSetsByUserEmail(String email, String sortElement, String direction, String search, int page, int limit, int topicId) {
-    if(direction == null) {
-      direction = "asc";
-    }
 
-    Sort sort = Sort.by(Sort.Direction.fromString(direction), sortElement != null ? sortElement : "name");
-    Pageable pageable = PageRequest.of(page, limit, sort);
+    //Pageable for pagination and sorting
+    Sort sort = Sort.by(Sort.Direction.fromString(direction), sortElement);
+    Pageable pageable = PageRequest.of(page-1, limit, sort);
 
+    //specification for searching
     Specification<QuizSet> spec = (root, query, criteriaBuilder) -> {
       Predicate predicate = criteriaBuilder.conjunction(); // Initialize predicate
 
@@ -95,7 +94,11 @@ public class QuizSetService {
         .map(quizSet -> modelMapper.map(quizSet, QuizSetResponseDTO.class))
         .collect(Collectors.toList());
 
-    return ListQuizSetDTO.builder().quizSets(quizSetDTOs).build();
+    var result = ListQuizSetDTO.builder().quizSets(quizSetDTOs).build();
+    result.setTotalElements((int) quizSetPage.getTotalElements());
+    result.setTotalPages(quizSetPage.getTotalPages());
+    result.setCurrentPage(page);
+    return result;
   }
 
 
@@ -125,7 +128,7 @@ public class QuizSetService {
       throw new ForbiddenException("You are not authorized to delete this quiz set");
     }
     quizSetRepository.deleteById(id);
-    return ResponseEntity.status(200).body("Quiz set deleted successfully");
+    return ResponseEntity.status(204).build();
   }
 
   public ResponseEntity<QuizSetResponseDTO> updateQuizSet(String email, int id, QuizSetRequestDTO quizSetRequestDTO) {
@@ -140,6 +143,8 @@ public class QuizSetService {
 
     quizSet.get().setName(quizSetRequestDTO.getName());
     quizSet.get().setDescription(quizSetRequestDTO.getDescription());
+    quizSet.get().setAllowShowAnswer(quizSetRequestDTO.getAllowShowAnswer());
+    quizSet.get().setUpdatedTime(new java.util.Date());
     var resultDTO = modelMapper.map(quizSetRepository.save(quizSet.get()), QuizSetResponseDTO.class);
     return ResponseEntity.status(200).body(resultDTO);
   }
