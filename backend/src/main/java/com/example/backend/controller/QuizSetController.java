@@ -27,6 +27,11 @@ public class QuizSetController {
 
   private final QuizSetService quizSetService;
 
+  @PostMapping
+  public ResponseEntity<QuizSetResponseDTO> createQuizSet(Principal principal,@RequestBody QuizSetRequestDTO quizSetRequestDTO) {
+    return quizSetService.createQuizSet(principal.getName(), quizSetRequestDTO);
+  }
+
   @GetMapping("/all")
   public ListQuizSetDTO getAllQuizSetsOfUser(Principal principal,
       @RequestParam(required = false) String sortElement,
@@ -70,10 +75,7 @@ public class QuizSetController {
       return quizSetService.getQuizSetById(principal.getName(),id);
   }
 
-  @PostMapping
-  public ResponseEntity<QuizSetResponseDTO> createQuizSet(Principal principal,@RequestBody QuizSetRequestDTO quizSetRequestDTO) {
-      return quizSetService.createQuizSet(principal.getName(), quizSetRequestDTO);
-  }
+
 
   @DeleteMapping("/{id}")
   public ResponseEntity<String> deleteQuizSet(Principal principal, @PathVariable int id) {

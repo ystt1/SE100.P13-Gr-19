@@ -40,30 +40,31 @@ public class QuizSetService {
 
   private ModelMapper modelMapper;
 
-//  public ListQuizSetDTO getAllQuizSetsByUserEmail(String email, String sortElement, String direction, String search, int page, int limit) {
-//    if(direction == null) {
-//      direction = "asc";
-//    }
-//
-//    Sort sort = Sort.by(Sort.Direction.fromString(direction), sortElement != null ? sortElement : "name");
-//    Pageable pageable = PageRequest.of(page, limit, sort);
-//
-//    Specification<QuizSet> spec = (root, query, criteriaBuilder) -> {
-//      Predicate predicate = criteriaBuilder.equal(root.get("creator").get("email"), email);
-//      if (search != null && !search.isEmpty()) {
-//        predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("name"), "%" + search + "%"));
-//      }
-//      return predicate;
-//    };
-//
-//    Page<QuizSet> quizSetPage = quizSetRepository.findAll(spec, pageable);
-//
-//    List<QuizSetResponseDTO> quizSetDTOs = quizSetPage.getContent().stream()
-//        .map(quizSet -> modelMapper.map(quizSet, QuizSetResponseDTO.class))
-//        .collect(Collectors.toList());
-//
-//    return ListQuizSetDTO.builder().quizSets(quizSetDTOs).build();
-//  }
+  public ResponseEntity<QuizSetResponseDTO> createQuizSet(String email, QuizSetRequestDTO quizSetRequestDTO) {
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new RuntimeException("User not found"));
+
+    //check if quiz set with name already exists of this account
+    var quizSets = quizSetRepository.findAllByNameAndCreatorEmail(quizSetRequestDTO.getName(),email);
+
+    if(!quizSets.isEmpty()){
+      throw new ConflictException("Quiz set with name " + quizSetRequestDTO.getName() + " already exists");
+    }
+
+    //map to entity
+    QuizSet quizSet = modelMapper.map(quizSetRequestDTO, QuizSet.class);
+
+    //set other value for the entity
+    quizSet.setCreatedTime(new java.util.Date());
+    quizSet.setUpdatedTime(quizSet.getCreatedTime());
+    quizSet.setCreator(user);
+
+    //save entity and map to response dto
+    var resultDTO = modelMapper.map(quizSetRepository.save(quizSet), QuizSetResponseDTO.class);
+
+    //return
+    return ResponseEntity.status(200).body(resultDTO);
+  }
 
   public ListQuizSetDTO getAllQuizSetsByUserEmail(String email, String sortElement, String direction, String search, int page, int limit, int topicId) {
     if(direction == null) {
@@ -112,21 +113,7 @@ public class QuizSetService {
     return ResponseEntity.status(200).body(result);
   }
 
-  public ResponseEntity<QuizSetResponseDTO> createQuizSet(String email, QuizSetRequestDTO quizSetRequestDTO) {
-    User user = userRepository.findByEmail(email)
-        .orElseThrow(() -> new RuntimeException("User not found"));
 
-    var quizs = quizSetRepository.findAllByNameAndCreatorEmail(quizSetRequestDTO.getName(),email);
-
-    if(quizs.size()>0) {
-      throw new ConflictException("Quiz set with name " + quizSetRequestDTO.getName() + " already exists");
-    }
-
-    QuizSet quizSet = modelMapper.map(quizSetRequestDTO, QuizSet.class);
-    quizSet.setCreator(user);
-    var resultDTO = modelMapper.map(quizSetRepository.save(quizSet), QuizSetResponseDTO.class);
-    return ResponseEntity.status(200).body(resultDTO);
-  }
 
   public ResponseEntity<String> deleteQuizSet(String email,int id) {
     var quizSet = quizSetRepository.findById(id);
