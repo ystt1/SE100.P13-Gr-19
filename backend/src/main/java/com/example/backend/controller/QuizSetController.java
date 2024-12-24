@@ -78,7 +78,7 @@ public class QuizSetController {
   @DeleteMapping("/{id}")
   public ResponseEntity<String> deleteQuizSet(Principal principal, @PathVariable int id) {
     quizSetService.deleteQuizSet(principal.getName(), id);
-    return ResponseEntity.status(200).build();
+    return ResponseEntity.status(204).build();
   }
 
   @PatchMapping("/{id}")
