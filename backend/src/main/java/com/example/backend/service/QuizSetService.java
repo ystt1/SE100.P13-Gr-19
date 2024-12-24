@@ -1,6 +1,6 @@
 package com.example.backend.service;
 
-import com.example.backend.DTO.Quiz.QuizDTO;
+import com.example.backend.DTO.Quiz.QuizRequestDTO;
 import com.example.backend.DTO.QuizSet.ListQuizSetDTO;
 import com.example.backend.DTO.QuizSet.QuizSetRequestDTO;
 import com.example.backend.DTO.QuizSet.QuizSetResponseDTO;
@@ -14,9 +14,7 @@ import com.example.backend.repository.QuizSetRepository;
 import com.example.backend.repository.UserRepository;
 import jakarta.persistence.criteria.Predicate;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -25,7 +23,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -148,7 +145,7 @@ public class QuizSetService {
     return resultDTO;
   }
 
-  public QuizDTO addQuizToQuizSet(String email, int id, QuizDTO quizDTO) {
+  public QuizRequestDTO addQuizToQuizSet(String email, int id, QuizRequestDTO quizRequestDTO) {
     var quizSet = quizSetRepository.findById(id);
     if (quizSet.isEmpty()) {
       throw new ResourceNotFoundException("Quiz set not found");
@@ -158,9 +155,9 @@ public class QuizSetService {
       throw new ForbiddenException("You are not authorized to add quiz to this quiz set");
     }
 
-    var quiz = modelMapper.map(quizDTO, Quiz.class);
+    var quiz = modelMapper.map(quizRequestDTO, Quiz.class);
 
-    var quizResponseDTO = modelMapper.map(quizService.saveQuiz(quiz), QuizDTO.class);
+    var quizResponseDTO = modelMapper.map(quizService.saveQuiz(quiz), QuizRequestDTO.class);
 
     return quizResponseDTO;
 

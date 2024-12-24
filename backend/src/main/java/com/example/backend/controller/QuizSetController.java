@@ -1,13 +1,11 @@
 package com.example.backend.controller;
 
-import com.example.backend.DTO.Quiz.QuizDTO;
+import com.example.backend.DTO.Quiz.QuizRequestDTO;
 import com.example.backend.DTO.QuizSet.ListQuizSetDTO;
 import com.example.backend.DTO.QuizSet.QuizSetRequestDTO;
 import com.example.backend.DTO.QuizSet.QuizSetResponseDTO;
-import com.example.backend.service.QuizService;
 import com.example.backend.service.QuizSetService;
 import java.security.Principal;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -87,8 +85,8 @@ public class QuizSetController {
   }
 
   @PostMapping("/{id}")
-  public ResponseEntity<String> addQuizToQuizSet(Principal principal,@PathVariable int id,@RequestBody QuizDTO quizDTO) {
-    quizSetService.addQuizToQuizSet(principal.getName(),id, quizDTO);
+  public ResponseEntity<String> addQuizToQuizSet(Principal principal,@PathVariable int id,@RequestBody QuizRequestDTO quizRequestDTO) {
+    quizSetService.addQuizToQuizSet(principal.getName(),id, quizRequestDTO);
     return ResponseEntity.status(200).body("Quiz added to quiz set");
   }
 

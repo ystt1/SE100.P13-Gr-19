@@ -1,8 +1,7 @@
 package com.example.backend.DTO.QuizSet;
 
-import com.example.backend.DTO.Quiz.QuizDTO;
+import com.example.backend.DTO.Auth.UserResponseDTO;
 import java.util.Date;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,5 +24,5 @@ public class QuizSetResponseDTO {
 
   private Boolean allowShowAnswer=true;
 
-  private int creatorId;
+  private UserResponseDTO creator;
 }

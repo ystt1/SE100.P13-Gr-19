@@ -1,5 +1,6 @@
 package com.example.backend.DTO.Topic;
 
+import com.example.backend.DTO.Auth.UserResponseDTO;
 import com.example.backend.DTO.QuizSet.QuizSetResponseDTO;
 import com.example.backend.entity.Quiz;
 import java.util.List;
@@ -19,7 +20,7 @@ public class TopicResponseDTO {
 
   private String description;
 
-  private int creatorId;
+  private UserResponseDTO creator;
 
   private List<QuizSetResponseDTO> quizSets;
 }
