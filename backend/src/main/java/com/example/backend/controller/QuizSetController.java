@@ -28,7 +28,7 @@ public class QuizSetController {
   private final QuizSetService quizSetService;
 
   @GetMapping("/all")
-  public ListQuizSetDTO getAllQuizSets(Principal principal,
+  public ListQuizSetDTO getAllQuizSetsOfUser(Principal principal,
       @RequestParam(required = false) String sortElement,
       @RequestParam(required = false) String direction,
       @RequestParam(required = false) String search,

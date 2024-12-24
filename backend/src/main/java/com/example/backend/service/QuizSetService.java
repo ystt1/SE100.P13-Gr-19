@@ -106,9 +106,9 @@ public class QuizSetService {
 
     QuizSetResponseDTO result = modelMapper.map(quizSet.get(), QuizSetResponseDTO.class);
 
-    if(quizSet.get().getCreator().getEmail().equals(email)){
-      result.setIsYourQuizSet(true);
-    }
+//    if(quizSet.get().getCreator().getEmail().equals(email)){
+//      result.setIsYourQuizSet(true);
+//    }
     return ResponseEntity.status(200).body(result);
   }
 

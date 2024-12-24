@@ -1,7 +1,7 @@
-package com.example.backend.DTO.QuizSet;
+package com.example.backend.DTO.Topic;
 
-import com.example.backend.DTO.Quiz.QuizDTO;
-import java.util.Date;
+import com.example.backend.DTO.QuizSet.QuizSetResponseDTO;
+import com.example.backend.entity.Quiz;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,18 +12,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class QuizSetResponseDTO {
+public class TopicResponseDTO {
   private int id;
 
   private String name;
 
   private String description;
 
-  private Date createdTime;
-
-  private Date updatedTime;
-
-  private Boolean allowShowAnswer=true;
-
   private int creatorId;
+
+  private List<QuizSetResponseDTO> quizSets;
 }

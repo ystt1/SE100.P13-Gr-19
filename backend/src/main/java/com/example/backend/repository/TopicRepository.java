@@ -15,6 +15,7 @@ public interface TopicRepository extends JpaRepository<Topic, Integer> {
   @Query("SELECT t FROM Topic t WHERE t.name = :name AND t.creator.email = :creatorEmail")
   Optional<Topic> findByNameAndCreatorEmail(@Param("name") String name, @Param("creatorEmail") String creatorEmail);
 
-  Page<Topic> findAllByCreatorEmail(String email, Pageable pageable);
+  Page<Topic> findByCreatorEmailAndNameContainingIgnoreCase(String email, String search, Pageable pageable);
 
+  Page<Topic> findByCreatorEmail(String email, Pageable pageable);
 }

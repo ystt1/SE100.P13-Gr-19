@@ -1,7 +1,8 @@
 package com.example.backend.controller;
 
-import com.example.backend.DTO.Topic.ListTopicDTO;
-import com.example.backend.DTO.Topic.TopicDTO;
+import com.example.backend.DTO.Topic.ListTopicResponseDTO;
+import com.example.backend.DTO.Topic.TopicRequestDTO;
+import com.example.backend.DTO.Topic.TopicResponseDTO;
 import com.example.backend.service.TopicService;
 import java.security.Principal;
 import lombok.AllArgsConstructor;
@@ -20,35 +21,37 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 @AllArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000/")
 public class TopicController {
 
   private final TopicService topicService;
 
   @PostMapping("/topic")
-  public ResponseEntity<TopicDTO> createTopic(Principal principal,@RequestBody TopicDTO topicDTO) {
-    return topicService.createTopic(principal.getName(),topicDTO);
+  public ResponseEntity<TopicResponseDTO> createTopic(Principal principal,@RequestBody TopicRequestDTO topicRequestDTO) {
+    return topicService.createTopic(principal.getName(), topicRequestDTO);
   }
 
   @DeleteMapping("/topic/{id}")
-  public ResponseEntity<String> deleteTopic(Principal principal,@PathVariable int id) {
+  public ResponseEntity<TopicResponseDTO> deleteTopic(Principal principal,@PathVariable int id) {
     return topicService.deleteTopic(principal.getName(),id);
   }
 
   @PatchMapping("/topic/{id}")
-  public ResponseEntity<TopicDTO> updateTopic(Principal principal,@PathVariable int id,@RequestBody TopicDTO topicDTO) {
-    return topicService.updateTopic(principal.getName(),id,topicDTO);
+  public ResponseEntity<TopicResponseDTO> updateTopic(Principal principal,@PathVariable int id,@RequestBody TopicRequestDTO topicRequestDTO) {
+    return topicService.updateTopic(principal.getName(),id, topicRequestDTO);
   }
 
   @GetMapping("/topics")
-  public ResponseEntity<ListTopicDTO> getAllTopics(Principal principal,
-      @RequestParam(defaultValue = "1") int page,
+  public ResponseEntity<ListTopicResponseDTO> getAllTopics(Principal principal,
+      @RequestParam(required = false) String sortElement,
+      @RequestParam(required = false) String direction,
+      @RequestParam(required = false) String search,
+      @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int limit) {
-    return topicService.getAllTopics(principal.getName(), page, limit);
+    return topicService.getAllTopics(principal.getName(), page, limit, sortElement, direction, search);
   }
 
-  @GetMapping("/topic/{id}")
-  public ResponseEntity<TopicDTO> getTopicById(Principal principal,@PathVariable int id) {
-    return topicService.getTopicById(principal.getName(),id);
-  }
+//  @GetMapping("/topic/{id}")
+//  public ResponseEntity<TopicRequestDTO> getTopicById(Principal principal,@PathVariable int id) {
+//    return topicService.getTopicById(principal.getName(),id);
+//  }
 }

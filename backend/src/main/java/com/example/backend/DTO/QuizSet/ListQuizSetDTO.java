@@ -11,5 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ListQuizSetDTO {
+  private int totalElements;
+  private int totalPages;
+  private int currentPage;
   private List<QuizSetResponseDTO> quizSets;
 }
