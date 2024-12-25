@@ -1,11 +1,13 @@
-const QuizsetCard = ({ name, description }) => {
-    return (
-      <div className="p-4 bg-white shadow-md rounded-lg">
-        <h3 className="font-bold text-xl">{name}</h3>
-        <p className="text-gray-500">{description}</p>
+import React from "react";
+
+export const QuizSetCard = ({ headline, supportingText, label }) => {
+  return (
+    <div className="flex items-center justify-between p-4 bg-gray-100 rounded-lg shadow-sm mb-4">
+      <div>
+        <h3 className="text-lg font-semibold">{headline}</h3>
+        <p className="text-sm text-gray-600">{supportingText}</p>
       </div>
-    );
-  };
-  
-  export default QuizsetCard;
-  
+      <span className="text-sm text-blue-600">{label}</span>
+    </div>
+  );
+};
