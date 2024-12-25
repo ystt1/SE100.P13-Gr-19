@@ -1,5 +1,8 @@
 package com.example.backend.entity;
 
+import com.example.backend.DTO.Quiz.BlankQuizRequestDTO;
+import com.example.backend.DTO.Quiz.MultipleChoiceQuizRequestDTO;
+import com.example.backend.DTO.Quiz.ShortAnswerQuizRequestDTO;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
@@ -57,4 +60,17 @@ public class Quiz {
 
   @OneToOne(mappedBy = "quiz", cascade = {CascadeType.ALL})
   private ShortAnswer shortAnswer;
+
+  public void setAnswerFromDTO(ShortAnswerQuizRequestDTO answer){
+
+  }
+
+  public void setAnswerFromDTO(MultipleChoiceQuizRequestDTO answer){
+
+  }
+
+  public void setAnswerFromDTO(BlankQuizRequestDTO answer){
+
+  }
+
 }
