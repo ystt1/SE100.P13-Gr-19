@@ -34,7 +34,3 @@ export const updateQuizSet = async (quizSetId, updatedData) => {
   return response.data;
 };
 
-export const addQuiz = async (quizData) => {
-  const response = await axios.post(`${API_BASE_URL}/quiz`, quizData);
-  return response.data;
-};
