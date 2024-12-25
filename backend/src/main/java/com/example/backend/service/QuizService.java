@@ -1,5 +1,7 @@
 package com.example.backend.service;
 
+import com.example.backend.DTO.Quiz.QuizRequestDTO;
+import com.example.backend.DTO.Quiz.ShortAnswerQuizRequestDTO;
 import com.example.backend.entity.Quiz;
 import com.example.backend.repository.QuizRepository;
 import lombok.AllArgsConstructor;
@@ -14,7 +16,11 @@ public class QuizService {
 
   private ModelMapper modelMapper;
 
-  public Quiz saveQuiz(Quiz quiz) {
-    return quizRepository.save(quiz);
+  public void createQuiz(QuizRequestDTO quizRequestDTO) {
+    Quiz quiz = Quiz.builder()
+        .content(quizRequestDTO.getContent())
+        .type(quizRequestDTO.getType())
+        .build();
+    System.out.println(quiz);
   }
 }

@@ -146,21 +146,21 @@ public class QuizSetService {
   }
 
   public QuizRequestDTO addQuizToQuizSet(String email, int id, QuizRequestDTO quizRequestDTO) {
-    var quizSet = quizSetRepository.findById(id);
-    if (quizSet.isEmpty()) {
-      throw new ResourceNotFoundException("Quiz set not found");
-    }
-
-    if (!quizSet.get().getCreator().getEmail().equals(email)) {
-      throw new ForbiddenException("You are not authorized to add quiz to this quiz set");
-    }
-
-    var quiz = modelMapper.map(quizRequestDTO, Quiz.class);
-
-    var quizResponseDTO = modelMapper.map(quizService.saveQuiz(quiz), QuizRequestDTO.class);
-
-    return quizResponseDTO;
-
+//    var quizSet = quizSetRepository.findById(id);
+//    if (quizSet.isEmpty()) {
+//      throw new ResourceNotFoundException("Quiz set not found");
+//    }
+//
+//    if (!quizSet.get().getCreator().getEmail().equals(email)) {
+//      throw new ForbiddenException("You are not authorized to add quiz to this quiz set");
+//    }
+//
+//    var quiz = modelMapper.map(quizRequestDTO, Quiz.class);
+//
+//    var quizResponseDTO = modelMapper.map(quizService.saveQuiz(quiz), QuizRequestDTO.class);
+//
+//    return quizResponseDTO;
+      return null;
   }
 
   public QuizSetResponseDTO allowShowAnswer(String email, int id) {

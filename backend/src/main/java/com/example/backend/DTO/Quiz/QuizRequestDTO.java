@@ -24,5 +24,9 @@ public class QuizRequestDTO {
 
   protected String content;
 
-  protected String type;
+  protected QuestionType type;
+
+  public  Object getAnswer(){
+    return null;
+  }
 }

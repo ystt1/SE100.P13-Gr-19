@@ -21,8 +21,9 @@ public class QuizController {
 
   @PostMapping
   public ResponseEntity<String> createQuiz(@RequestBody QuizRequestDTO quizRequestDTO) {
-    System.out.println(quizRequestDTO);
-    return ResponseEntity.ok("Quiz created successfully");
+
+    quizService.createQuiz(quizRequestDTO);
+    return null;
   }
 
 }
