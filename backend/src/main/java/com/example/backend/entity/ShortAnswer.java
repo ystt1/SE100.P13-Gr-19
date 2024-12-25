@@ -25,10 +25,11 @@ public class ShortAnswer {
 
   private String content;
 
-  @OneToOne
+  @OneToOne(fetch = jakarta.persistence.FetchType.LAZY)
   @JoinColumn(name = "quiz_id")
   private Quiz quiz;
 
-
-
+  public String toString() {
+    return "ShortAnswer(content=" + this.getContent() + ")";
+  }
 }

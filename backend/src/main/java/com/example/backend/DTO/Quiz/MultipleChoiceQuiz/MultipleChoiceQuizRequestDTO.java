@@ -1,8 +1,8 @@
-package com.example.backend.DTO.Quiz;
+package com.example.backend.DTO.Quiz.MultipleChoiceQuiz;
 
+import com.example.backend.DTO.Quiz.QuizRequestDTO;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class BlankQuizRequestDTO extends QuizRequestDTO {
-  List<Blank> blanks;
+public class MultipleChoiceQuizRequestDTO extends QuizRequestDTO {
+  List<OptionDTO> options;
 }

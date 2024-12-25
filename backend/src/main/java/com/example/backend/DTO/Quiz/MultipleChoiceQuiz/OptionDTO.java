@@ -1,4 +1,4 @@
-package com.example.backend.DTO.Quiz;
+package com.example.backend.DTO.Quiz.MultipleChoiceQuiz;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Option {
+public class OptionDTO {
   private String content;
-  private boolean isCorrect;
+  private Boolean isCorrect;
 }

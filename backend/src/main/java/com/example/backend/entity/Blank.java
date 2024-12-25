@@ -29,4 +29,8 @@ public class Blank {
   @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
   @JoinColumn(name = "quiz_id")
   private Quiz quiz;
+
+  public String toString() {
+    return "Blank(content=" + this.getContent() + ", blankOrder=" + this.getBlankOrder() + ")";
+  }
 }

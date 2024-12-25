@@ -1,4 +1,4 @@
-package com.example.backend.DTO.Quiz;
+package com.example.backend.DTO.Quiz.BlankQuiz;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Blank {
+public class BlankDTO {
   private String content;
-  private int order;
+  private Integer order;
 }
