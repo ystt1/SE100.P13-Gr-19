@@ -7,9 +7,12 @@ import com.example.backend.DTO.Quiz.QuizResponseDTO;
 import com.example.backend.DTO.Quiz.ShortAnswerQuiz.ShortAnswerQuizRequestDTO;
 import com.example.backend.DTO.QuizSet.QuizSetResponseDTO;
 import com.example.backend.entity.Quiz;
+import com.example.backend.entity.Topic;
 import com.example.backend.exception.ForbiddenException;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.QuizRepository;
+import com.example.backend.repository.TopicRepository;
+import com.example.backend.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -20,12 +23,21 @@ public class QuizService {
 
   QuizRepository quizRepository;
 
+  UserRepository userRepository;
+
+  TopicRepository topicRepository;
+
   private ModelMapper modelMapper;
 
-  public QuizResponseDTO createQuiz(QuizRequestDTO quizRequestDTO) {
+  public QuizResponseDTO createQuiz(String email, QuizRequestDTO quizRequestDTO) {
+    var user = userRepository.findByEmail(email).orElseThrow(()-> new ResourceNotFoundException("User not found with email: " + email));
+    var topic = topicRepository.findById(quizRequestDTO.getTopicId()).orElseThrow(()-> new ResourceNotFoundException("Topic not found with id: " + quizRequestDTO.getTopicId()));
     Quiz quiz = Quiz.builder()
         .content(quizRequestDTO.getContent())
         .type(quizRequestDTO.getType())
+        .topic(topic)
+        .creator(user)
+        .createdAt(new java.util.Date())
         .build();
 
     switch (quizRequestDTO.getType()) {
@@ -60,7 +72,7 @@ public class QuizService {
     if(!quiz.getCreator().getEmail().equals(email)){
       throw new ForbiddenException("You are not allowed to delete this quiz");
     }
-    
+
     quizRepository.deleteById(id);
   }
 }

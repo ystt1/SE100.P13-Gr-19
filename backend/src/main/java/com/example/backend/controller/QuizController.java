@@ -22,8 +22,8 @@ public class QuizController {
   private final QuizService quizService;
 
   @PostMapping
-  public ResponseEntity<QuizResponseDTO> createQuiz(@RequestBody QuizRequestDTO quizRequestDTO) {
-    return ResponseEntity.status(200).body(quizService.createQuiz(quizRequestDTO));
+  public ResponseEntity<QuizResponseDTO> createQuiz(Principal principal, @RequestBody QuizRequestDTO quizRequestDTO) {
+    return ResponseEntity.status(200).body(quizService.createQuiz(principal.getName(), quizRequestDTO));
   }
 
   @GetMapping("/{id}")

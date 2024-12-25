@@ -27,4 +27,6 @@ public class QuizRequestDTO {
   protected String content;
 
   protected QuestionType type;
+
+  protected Integer topicId;
 }
