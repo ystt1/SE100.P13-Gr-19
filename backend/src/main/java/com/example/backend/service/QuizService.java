@@ -5,7 +5,10 @@ import com.example.backend.DTO.Quiz.MultipleChoiceQuiz.MultipleChoiceQuizRequest
 import com.example.backend.DTO.Quiz.QuizRequestDTO;
 import com.example.backend.DTO.Quiz.QuizResponseDTO;
 import com.example.backend.DTO.Quiz.ShortAnswerQuiz.ShortAnswerQuizRequestDTO;
+import com.example.backend.DTO.QuizSet.QuizSetResponseDTO;
 import com.example.backend.entity.Quiz;
+import com.example.backend.exception.ForbiddenException;
+import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.QuizRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -44,5 +47,20 @@ public class QuizService {
     var quizResult = quizRepository.save(quiz);
 
     return modelMapper.map(quizResult, QuizResponseDTO.class);
+  }
+
+  public QuizResponseDTO getQuizById(int id) {
+    var quiz = quizRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Quiz not found with id: " + id));
+    return modelMapper.map(quiz, QuizResponseDTO.class);
+  }
+
+  public void deleteQuizById(String email, int id) {
+    var quiz = quizRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Quiz not found with id: " + id));
+
+    if(!quiz.getCreator().getEmail().equals(email)){
+      throw new ForbiddenException("You are not allowed to delete this quiz");
+    }
+    
+    quizRepository.deleteById(id);
   }
 }
