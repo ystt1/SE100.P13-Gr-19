@@ -189,10 +189,16 @@ const AddQuizModal = ({ onClose, onSubmit }) => {
                   </button>
                 </div>
               ))}
+              
               <button
-                onClick={() =>
-                  setQuizData({ ...quizData, dragOptions: [...quizData.dragOptions, ""] })
-                }
+                onClick={() => {
+                  const blankCount = (quizData.fillText.match(/_/g) || []).length;
+                  if (quizData.dragOptions.length < blankCount) {
+                    setQuizData({ ...quizData, dragOptions: [...quizData.dragOptions, ""] });
+                  } else {
+                    alert("Số lượng blank không được vượt quá số lượng '_' trong câu hỏi.");
+                  }
+                }}
                 className="text-blue-500"
               >
                 + Blank
@@ -247,14 +253,20 @@ const AddQuizModal = ({ onClose, onSubmit }) => {
                     -
                   </button>
                 </div>
-              ))}
+              ))}          
+
               <button
-                onClick={() =>
-                  setQuizData({ ...quizData, dragOptions: [...quizData.dragOptions, ""] })
-                }
+                onClick={() => {
+                  const blankCount = (quizData.fillText.match(/_/g) || []).length;
+                  if (quizData.dragOptions.length < blankCount) {
+                    setQuizData({ ...quizData, dragOptions: [...quizData.dragOptions, ""] });
+                  } else {
+                    alert("Số lượng options không được vượt quá số lượng blank ('_')");
+                  }
+                }}
                 className="text-blue-500"
               >
-                + Add Option
+                + Option
               </button>
             </div>
           </div>
