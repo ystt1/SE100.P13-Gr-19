@@ -1,11 +1,21 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { FaHome, FaListAlt, FaQuestion, FaHistory, FaUser, FaUsers, FaSignOutAlt } from "react-icons/fa";
+import quizlogo from "../images/quiz-logo.ico";
 
 const Sidebar = () => {
   return (
     <div className="fixed top-0 left-0 h-screen w-64 bg-white text-gray-600 flex flex-col shadow-md">
-      <div className="p-4 text-xl font-bold text-blue-600 text-center">Quiz App</div>
+      <div className="p-4 text-xl font-bold text-blue-600 text-center flex items-center justify-center gap-2">
+        <a href="/dashboard">
+          <img
+            src={quizlogo}
+            alt="Logo"
+            className="h-8 w-8"
+          />
+        </a>
+        <a href="/dashboard">Quiz App </a> 
+      </div>
       <nav className="flex-1">
         <NavLink
           to="/dashboard"
