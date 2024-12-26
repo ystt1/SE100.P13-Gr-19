@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import Sidebar from "../components/Sidebar";
-import SearchBar from "../components/SearchBar";
-import AddQuizButton from "../components/AddQuizButton";
-import QuizListItem from "../components/QuizListItem";
-import AddQuizModal from "../components/AddQuizModal"; 
-import avatar from "../images/avatar.png";
+import Sidebar from "../../components/Sidebar";
+import SearchBar from "../../components/SearchBar";
+import AddQuizButton from "../../components/AddQuizButton";
+import QuizListItem from "../../components/QuizListItem";
+import AddQuizModal from "../../components/AddQuizModal"; 
+import avatar from "../../images/avatar.png";
 
 const mockData = [
   {

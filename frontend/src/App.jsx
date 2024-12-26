@@ -1,10 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import QuizsetList from "./pages/QuizsetList";
-import AddQuizset from "./pages/AddQuizset";
-import QuizsetDetail from "./pages/QuizsetDetail";
+import QuizsetList from "./pages/QuizSet/QuizsetList";
+import AddQuizset from "./pages/QuizSet/AddQuizset";
+import QuizsetDetail from "./pages/QuizSet/QuizsetDetail";
 import AddQuiz from "./pages/AddQuiz";
-import Quiz from "./pages/Quiz";
-import QuizSetPage from "./pages/QuizSetPage";
+import Quiz from "./pages/Quiz/Quiz";
+import QuizSetPage from "./pages/QuizSet/QuizSetPage";
 import { LoginForm } from "./pages/auth/login_page";
 import { RegisterPage } from "./pages/auth/register_page";
 import { SnackbarProvider } from "./components/NotificationBat";
@@ -62,7 +62,7 @@ function App() {
           />
           <Route
             path="/"
-            element={
+            element={            
               <ProtectedRoute>
                 <Quiz />
               </ProtectedRoute>

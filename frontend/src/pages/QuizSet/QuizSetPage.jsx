@@ -1,7 +1,7 @@
 import React from "react";
-import QuizSetDashboard from "../components/QuizSetDashboard";
-import SearchBar from "../components/SearchBar";
-import Sidebar from "../components/Sidebar";
+import QuizSetDashboard from "../../components/QuizSetDashboard";
+import SearchBar from "../../components/SearchBar";
+import Sidebar from "../../components/Sidebar";
 
 
 const QuizSetPage = () => {
