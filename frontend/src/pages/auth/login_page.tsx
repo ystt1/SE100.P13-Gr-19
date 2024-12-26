@@ -1,6 +1,5 @@
 import React, { useState } from "react"; 
 import { InputField } from "./component/input_field";
-// import picture from "../../assets/auth_picture.png";
 import AuthService from "../../data/service/auth_service";
 import { useSnackbar } from "../../components/NotificationBat";
 
@@ -36,7 +35,7 @@ export const LoginForm: React.FC = () => {
     <div className="flex items-center justify-enter h-screen pr-20">
       <div className="flex items-center space-x-10 w-full max-w-[1400px]">
         <div className="hidden md:block w-1/2 mr-auto">
-          <img src={"picture"} alt="Login Illustration" className="w-full" />
+          <img src={"../../../public/auth_picture.png"} alt="Login Illustration" className="w-full" />
         </div>
 
 
