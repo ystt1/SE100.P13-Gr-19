@@ -31,4 +31,8 @@ public class QuizOption {
   @JoinColumn(name = "quiz_id")
   private Quiz quiz;
 
+  public String toString() {
+    return "QuizOption(content=" + this.getContent() + ", isCorrect=" + this.getIsCorrect() + ")";
+  }
+
 }
