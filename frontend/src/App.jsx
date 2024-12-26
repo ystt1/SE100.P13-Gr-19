@@ -55,9 +55,9 @@ function App() {
           <Route
             path="/quiz"
             element={
-              <ProtectedRoute>
+             <ProtectedRoute>
                 <Quiz />
-              </ProtectedRoute>
+             </ProtectedRoute>
             }
           />
           <Route
