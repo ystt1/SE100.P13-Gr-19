@@ -2,6 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import { FaHome, FaListAlt, FaQuestion, FaHistory, FaUser, FaUsers, FaSignOutAlt } from "react-icons/fa";
 import quizlogo from "../images/quiz-logo.ico";
+import AuthService from "../data/service/auth_service";
 
 const Sidebar = () => {
   return (
@@ -85,12 +86,15 @@ const Sidebar = () => {
         </NavLink>
       </nav>
       <NavLink
-        to="/logout"
-        className="flex items-center gap-4 py-3 px-5 bg-red-600 hover:bg-red-700 text-white mt-auto"
-      >
-        <FaSignOutAlt className="text-lg" />
-        Log Out
-      </NavLink>
+      to="/login"
+      onClick={() => {
+        AuthService.logout(); 
+      }}
+      className="flex items-center space-x-2 p-2 rounded hover:bg-gray-200"
+    >
+      <FaSignOutAlt className="text-lg" />
+      <span>Log Out</span>
+    </NavLink>
     </div>
   );
 };

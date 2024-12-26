@@ -7,10 +7,8 @@ import Sidebar from "../components/Sidebar";
 const QuizSetPage = () => {
   return (
     <div className="flex">
-        {/* Sidebar */}
         <Sidebar />
         <div className="flex-1 ml-64 p-6 bg-gray-50">
-          {/* Header */}
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-3xl font-bold">Quiz</h1>
             <div className="flex items-center space-x-4">
