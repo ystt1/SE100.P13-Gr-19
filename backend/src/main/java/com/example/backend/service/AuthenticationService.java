@@ -5,6 +5,7 @@ import com.example.backend.DTO.Auth.AuthenticationResponse;
 import com.example.backend.DTO.Auth.RegisterRequest;
 import com.example.backend.entity.Role;
 import com.example.backend.entity.User;
+import com.example.backend.exception.ForbiddenException;
 import com.example.backend.exception.ValidationException;
 import com.example.backend.repository.UserRepository;
 import java.util.Date;
@@ -70,12 +71,19 @@ public class AuthenticationService {
 
   public AuthenticationResponse authenticate(AuthenticationRequest request) {
 
+//    var user = userRepository.findByEmail(request.getEmail())
+//        .orElseThrow(() -> new RuntimeException("User not found"));
+    var user = userRepository.findByEmail(request.getEmail())
+        .orElseThrow(() -> new RuntimeException("User not found"));
+
+    if(!user.isEnabled()) {
+      throw new ForbiddenException("User not activated");
+    }
     authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
     );
 
-    var user = userRepository.findByEmail(request.getEmail())
-        .orElseThrow(() -> new RuntimeException("User not found"));
+
 
     var jwt = jwtService.generateToken(user);
 
