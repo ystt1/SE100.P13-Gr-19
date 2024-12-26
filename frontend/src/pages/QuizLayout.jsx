@@ -1,80 +1,119 @@
-import * as React from "react";
-import SearchBar from "../components/SearchBar";
-import QuestionCard from "../components/QuestionCard";
-import Pagination from "../components/Pagination";
-import AddQuizButton from "../components/AddQuizButton";
+import React, { useState } from "react";
 import Sidebar from "../components/Sidebar";
+import SearchBar from "../components/SearchBar";
+import AddQuizButton from "../components/AddQuizButton";
+import QuizListItem from "../components/QuizListItem";
+import AddQuizModal from "../components/AddQuizModal"; 
+import avatar from "../images/avatar.png";
 
-const questions = [
-    {
-      id: 1,
-      number: "1",
-      question: "1+1= ?",
-      topic: "Math",
-      answers: [
-        { text: "This is a correct Answer", isCorrect: true },
-        { text: "This is a wrong Answer", isCorrect: false },
-        { text: "This is a wrong Answer", isCorrect: false },
-        { text: "This is a wrong Answer", isCorrect: false }
-      ]
-    },
-    {
-      id: 2,
-      number: "2",
-      question: "1+1= ?",
-      topic: "Math",
-      isTextInput: true,
-      answer: "ABCD"
-    },
-    {
-      id: 3,
-      number: "3",
-      question: "1+1= ?",
-      topic: "Math",
-      isMultiChoice: true,
-      answers: [
-        { text: "This is a wrong Answer", isCorrect: false },
-        { text: "This is a wrong Answer", isCorrect: true },
-        { text: "This is a wrong Answer", isCorrect: false },
-        { text: "This is a wrong Answer", isCorrect: false }
-      ]
-    },
-    
-  ];
+const mockData = [
+  {
+    id: 1,
+    content: "Question 1",
+    createdDate: "25/12/2024",
+    type: "Multiple choice",
+    topic: "Math",
+  },
+  {
+    id: 2,
+    content: "Question 2",
+    createdDate: "25/12/2024",
+    type: "Short answer",
+    topic: "Math",
+  },  
+  {
+    id: 3,
+    content: "Question 3",
+    createdDate: "25/12/2024",
+    type: "Short answer",
+    topic: "Math",
+  },
+  {
+    id: 4,
+    content: "Question 4",
+    createdDate: "25/12/2024",
+    type: "Short answer",
+    topic: "Math",
+  },
+  {
+    id: 5,
+    content: "Question 5",
+    createdDate: "25/12/2024",
+    type: "Short answer",
+    topic: "Math",
+  },
+];
 
-function QuizLayout() {
-    return (
-      <div className="flex">
-        {/* Sidebar */}
-        <Sidebar />
-        <div className="flex-1 ml-64 p-6 bg-gray-50">
-          {/* Header */}
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="text-3xl font-bold">Quiz</h1>
-            <div className="flex items-center space-x-4">
-              <div className="text-xl">Trung huynh</div>
-              <img
-                src="https://static.vecteezy.com/system/resources/previews/011/483/813/original/guy-anime-avatar-free-vector.jpg"
-                alt="User Avatar"
-                className="w-10 h-10 rounded-full border-2 border-gray-300"
-              />
-            </div>
-          </div>          
+const QuizLayout = () => {
+  const [questions, setQuestions] = useState(mockData); 
+  const [showModal, setShowModal] = useState(false); 
 
-          <SearchBar />    
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-            {questions.map((question) => (
-              <QuestionCard key={question.id} question={question} />
-            ))}
-          </div>
+  const handleDelete = (id) => {
+    setQuestions(questions.filter((question) => question.id !== id));
+  };
   
-    
-          <Pagination />
-          <AddQuizButton />
+  const handleAddQuiz = (quizData) => {
+    const newQuiz = {
+      id: questions.length + 1, 
+      ...quizData,
+    };
+    setQuestions([...questions, newQuiz]);
+    setShowModal(false); 
+  };
+
+  return (
+    <div className="flex">
+      <Sidebar />
+      <div className="flex-1 ml-64 p-8 bg-gray-50">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold">Quiz</h1>
+          <div className="flex items-center space-x-4">
+            <div className="text-lg">Trung Huynh</div>
+            <img
+              src={avatar}
+              alt="User Avatar"
+              className="w-10 h-10 rounded-full border-2"
+            />
+          </div>
         </div>
+
+        {/* Search Bar */}
+        <div className="mb-6">
+          <SearchBar />
+        </div>
+
+        {/* Quiz List */}
+        <div className="space-y-4">
+          {questions.map((question) => (
+            <QuizListItem
+              key={question.id}
+              question={question}
+              onDelete={handleDelete}
+            />
+          ))}
+        </div>
+
+        {/* Add Quiz Button */}
+        <div className="fixed bottom-6 right-6">
+          <button
+            onClick={() => setShowModal(true)} 
+            className="px-4 py-2 bg-purple-600 text-white rounded-full shadow-lg"
+          >
+            Add Quiz
+          </button>
+        </div>
+
+        {/* Add Quiz Modal */}
+        {showModal && (
+          <AddQuizModal
+            onClose={() => setShowModal(false)} 
+            onSubmit={handleAddQuiz} 
+          />
+        )}
       </div>
-    );
-  }
+    </div>
+  );
+};
 
 export default QuizLayout;
