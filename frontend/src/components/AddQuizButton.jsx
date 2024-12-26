@@ -13,7 +13,7 @@ function AddQuizButton({ onSubmit }) {
       <div className="fixed bottom-4 right-4">
         <button
           onClick={handleOpenModal}
-          className="flex items-center px-4 py-2 text-white bg-purple-600 rounded-full shadow-lg"
+          className="bg-purple-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-purple-700"
         >
           <span className="text-xl">Add Quiz</span>
         </button>

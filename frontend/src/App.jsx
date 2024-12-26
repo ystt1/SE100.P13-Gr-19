@@ -14,7 +14,7 @@ function App() {
         <Route path="/add-quiz" element={<AddQuiz />} />
         <Route path="/quiz-set" element={<QuizSetPage />} />
         <Route path="/add-quiz-set" element={<AddQuizset />} />
-        <Route path="/quiz" element={<Quiz />} />
+        <Route path="/quiz" element={<Quiz />} />  
       </Routes>
     </Router>
   );
