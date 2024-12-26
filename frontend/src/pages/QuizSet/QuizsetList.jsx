@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchQuizzes, deleteQuizSet } from "../services/api";
+import { fetchQuizzes, deleteQuizSet } from "../../services/api";
 
 const QuizList = () => {
   const [quizSets, setQuizSets] = useState([]);
