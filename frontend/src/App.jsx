@@ -21,7 +21,7 @@ function App() {
 
      
           <Route
-            path="/quizset/:id"
+            path="/quizset-detail/:id"
             element={
               <ProtectedRoute>
                 <QuizsetDetail />
