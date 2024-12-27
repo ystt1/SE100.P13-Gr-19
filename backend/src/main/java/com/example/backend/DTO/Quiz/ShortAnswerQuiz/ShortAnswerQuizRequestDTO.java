@@ -1,7 +1,6 @@
 package com.example.backend.DTO.Quiz.ShortAnswerQuiz;
 
 import com.example.backend.DTO.Quiz.QuizRequestDTO;
-import com.example.backend.entity.ShortAnswer;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

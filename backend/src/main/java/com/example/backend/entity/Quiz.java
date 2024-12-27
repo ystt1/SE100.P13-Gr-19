@@ -57,10 +57,10 @@ public class Quiz {
   private List<Blank> blanks;
 
   @OneToOne(mappedBy = "quiz", cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
-  private ShortAnswer shortAnswer;
+  private Short shortAnswer;
 
   public void setAnswerFromDTO(ShortAnswerQuizRequestDTO shortAnswerQuizRequestDTO){
-    ShortAnswer shortAnswer = ShortAnswer.builder().content(shortAnswerQuizRequestDTO.getAnswer().getContent()).quiz(this).build();
+    Short shortAnswer = Short.builder().content(shortAnswerQuizRequestDTO.getAnswer().getContent()).quiz(this).build();
     this.setShortAnswer(shortAnswer);
   }
 

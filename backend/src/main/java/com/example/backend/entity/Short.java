@@ -12,12 +12,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "short_answer")
+@Table(name = "short")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ShortAnswer {
+public class Short {
 
   @Id
   @GeneratedValue(strategy = jakarta.persistence.GenerationType.SEQUENCE)
@@ -30,6 +30,6 @@ public class ShortAnswer {
   private Quiz quiz;
 
   public String toString() {
-    return "ShortAnswer(content=" + this.getContent() + ")";
+    return "Short(content=" + this.getContent() + ")";
   }
 }
