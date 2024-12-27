@@ -4,12 +4,12 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "short_answer")
+@Table(name = "quiz_option_answer")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ShortAnswer {
+public class QuizOptionAnswer {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int id;
@@ -19,4 +19,7 @@ public class ShortAnswer {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_answer_id")
     private UserAnswer userAnswer;
+
+    @Column(name = "is_correct")
+    private boolean isCorrect;
 }
