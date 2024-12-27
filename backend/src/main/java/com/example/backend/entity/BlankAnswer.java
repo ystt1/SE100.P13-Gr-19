@@ -1,0 +1,24 @@
+package com.example.backend.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(name = "blank_answer")
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class BlankAnswer {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private int id;
+
+    private String content;
+
+    private String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_answer_id")
+    private UserAnswer userAnswer;
+}
