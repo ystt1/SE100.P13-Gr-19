@@ -69,8 +69,7 @@ const AddQuizModal = ({ onClose, onSubmit }) => {
           <option value="Fill in the blank">Fill in the Blank</option>
           <option value="Drag and drop">Drag and Drop</option>
         </select>
-
-        {/* Type question */}
+      
         {quizData.type === "Short answer" && (
           <input
             type="text"

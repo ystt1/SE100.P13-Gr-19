@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import Sidebar from "../../components/Sidebar";
 import SearchBar from "../../components/SearchBar";
-import AddQuizButton from "../../components/AddQuizButton";
-import QuizListItem from "../../components/QuizListItem";
-import AddQuizModal from "../../components/AddQuizModal"; 
+import AddQuizButton from "./AddQuizButton";
+import QuizListItem from "./QuizListItem";
+import AddQuizModal from "./AddQuizModal"; 
 import avatar from "../../images/avatar.png";
 
 const mockData = [
@@ -94,7 +94,7 @@ const QuizLayout = () => {
           ))}
         </div>
 
-        {/* Add Quiz Button */}
+       
         <div className="fixed bottom-6 right-6">
           <button
             onClick={() => setShowModal(true)} 
@@ -104,7 +104,7 @@ const QuizLayout = () => {
           </button>
         </div>
 
-        {/* Add Quiz Modal */}
+    
         {showModal && (
           <AddQuizModal
             onClose={() => setShowModal(false)} 
