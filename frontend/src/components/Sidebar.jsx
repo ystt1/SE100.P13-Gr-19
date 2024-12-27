@@ -1,6 +1,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { FaHome, FaListAlt, FaQuestion, FaHistory, FaUser, FaUsers, FaSignOutAlt } from "react-icons/fa";
+import { FaHome, FaListAlt, FaQuestion, FaHistory, FaUser, FaUsers, FaSignOutAlt, FaTags } from "react-icons/fa";
 import quizlogo from "../images/quiz-logo.ico";
 import AuthService from "../data/service/auth_service";
 
@@ -51,6 +51,7 @@ const Sidebar = () => {
           <FaQuestion className="text-lg" />
           Quiz
         </NavLink>
+        
         <NavLink
           to="/quiz-history"
           className={({ isActive }) =>
@@ -62,6 +63,20 @@ const Sidebar = () => {
           <FaHistory className="text-lg" />
           Quiz History
         </NavLink>
+
+
+        <NavLink
+          to="/topic"
+          className={({ isActive }) =>
+            `flex items-center gap-4 py-3 px-5 hover:bg-gray-100 ${
+              isActive ? "bg-blue-500 text-white rounded-md" : ""
+            }`
+          }
+        >
+          <FaTags className="text-lg" />
+          Topic
+        </NavLink>
+
         <NavLink
           to="/profile"
           className={({ isActive }) =>

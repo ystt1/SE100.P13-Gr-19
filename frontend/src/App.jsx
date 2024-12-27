@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import QuizsetList from "./pages/QuizSet/QuizsetList";
 import AddQuizset from "./pages/QuizSet/AddQuizset";
 import QuizsetDetail from "./pages/QuizSet/QuizsetDetail";
 import AddQuiz from "./pages/AddQuiz";
@@ -9,6 +8,7 @@ import { LoginForm } from "./pages/auth/login_page";
 import { RegisterPage } from "./pages/auth/register_page";
 import { SnackbarProvider } from "./components/NotificationBat";
 import { ProtectedRoute } from "./components/ProtectedRoute"; 
+import TopicsPage from "./pages/topic/topic_page";
 
 function App() {
   return (
@@ -18,8 +18,14 @@ function App() {
         <Routes>
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginForm />} />
-
-     
+          <Route
+            path="/topic"
+            element={
+              // <ProtectedRoute>
+                <TopicsPage />
+              // </ProtectedRoute>
+            }
+          />
           <Route
             path="/quizset-detail/:id"
             element={
