@@ -81,11 +81,14 @@ public class AnswerService {
         return quiz.getShortAnswer().getContent().equalsIgnoreCase(userAnswer.trim());
     }
 
-    private boolean validateBlankAnswers(Quiz quiz, List<String> blankAnswers) {
-        List<Blank> blanks = quiz.getBlanks();
+    private boolean validateBlankAnswers(Quiz quiz, List<QuestionAnswerDTO.BlankAnswerDTO> blankAnswers) {
+        List<Blank> blanks = quiz.getBlanks().stream()
+                .sorted((b1, b2) -> Integer.compare(b1.getBlankOrder(), b2.getBlankOrder()))
+                .toList();
+
         if (blanks.size() != blankAnswers.size()) return false;
         for (int i = 0; i < blanks.size(); i++) {
-            if (!blanks.get(i).getContent().equalsIgnoreCase(blankAnswers.get(i).trim())) {
+            if (!blanks.get(i).getContent().equalsIgnoreCase(blankAnswers.get(i).getContent().trim())) {
                 return false;
             }
         }
@@ -109,9 +112,10 @@ public class AnswerService {
                     .build();
             // Save shortAnswer to repository
         } else if (quiz.getType() == QuestionType.FILL_IN_THE_BLANK) {
-            for (String blankContent : answer.getBlankAnswers()) {
+            for (QuestionAnswerDTO.BlankAnswerDTO blankAnswerDTO : answer.getBlankAnswers()) {
                 BlankAnswer blankAnswer = BlankAnswer.builder()
-                        .content(blankContent)
+                        .content(blankAnswerDTO.getContent())
+                        .blankOrder(blankAnswerDTO.getBlankOrder())
                         .userAnswer(userAnswer)
                         .build();
                 // Save blankAnswer to repository
@@ -122,5 +126,9 @@ public class AnswerService {
     public List<Result> getQuizHistory(String userEmail) {
         User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new RuntimeException("User not found"));
         return resultRepository.findByUserId(user.getId());
+    }
+
+    public long getQuizAttemptCount(int quizSetId) {
+        return resultRepository.countAttemptsByQuizSetId(quizSetId);
     }
 }
