@@ -16,7 +16,7 @@ public class BlankAnswer {
 
     private String content;
 
-    private String description;
+    private int blankOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_answer_id")

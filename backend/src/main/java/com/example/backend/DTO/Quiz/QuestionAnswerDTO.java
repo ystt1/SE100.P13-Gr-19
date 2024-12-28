@@ -15,5 +15,14 @@ public class QuestionAnswerDTO {
     private int quizId;
     private List<Integer> selectedOptionIds;
     private String shortAnswer;
-    private List<String> blankAnswers;
+    private List<BlankAnswerDTO> blankAnswers;
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class BlankAnswerDTO {
+        private String content;
+        private int blankOrder;
+    }
 }
