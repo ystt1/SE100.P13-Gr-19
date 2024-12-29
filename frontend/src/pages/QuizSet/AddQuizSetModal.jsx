@@ -4,7 +4,6 @@ const AddQuizSetModal = ({ onClose, onSubmit }) => {
   const [quizSetName, setQuizSetName] = useState("");
   const [description, setDescription] = useState("");
   const [timeLimit, setTimeLimit] = useState("");
-  const [attempts, setAttempts] = useState("");
 
   const handleSubmit = () => {
     const newQuizSet = {
@@ -46,14 +45,7 @@ const AddQuizSetModal = ({ onClose, onSubmit }) => {
           value={timeLimit}
           onChange={(e) => setTimeLimit(e.target.value)}
         />
-
-        <input
-          type="number"
-          placeholder="Attempts (e.g., 2)"
-          className="w-full mb-3 px-4 py-2 border rounded-lg"
-          value={attempts}
-          onChange={(e) => setAttempts(e.target.value)}
-        />
+       
 
         <div className="flex justify-end space-x-2">
           <button
