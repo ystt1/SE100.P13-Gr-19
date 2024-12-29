@@ -8,14 +8,25 @@ interface TopicAddPayload {
 
 
 
-const TopicService={
-  getTopics : async (page: number, limit: number, search = "", sortElement = "", direction = "") => {
+const TopicService = {
+  getAllTopic: async () => {
+    try {
+      const response = await axiosInstance.get("/topics?page=1");
+
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching topics:", error);
+      throw error;
+    }
+  },
+
+  getTopics: async (page: number, limit: number, search = "", sortElement = "", direction = "") => {
     try {
       const params: any = { page, limit };
       if (search) params.search = search;
       if (sortElement) params.sortElement = sortElement;
       if (direction) params.direction = direction;
-  
+
       const response = await axiosInstance.get("/topics", { params });
       return response.data;
     } catch (error) {
@@ -25,65 +36,49 @@ const TopicService={
   },
 
 
-  addTopic : async (topicAddPayload:TopicAddPayload) => {
-    try{
-    const response = await axiosInstance.post("/topic", topicAddPayload);
-    if(response.status==200)
-        {
-            return "success";
-        }
-        return "Something went wrong";
+  addTopic: async (topicAddPayload: TopicAddPayload) => {
+    try {
+      const response = await axiosInstance.post("/topic", topicAddPayload);
+      if (response.status == 200) {
+        return "success";
+      }
+      return response.data.message;
     }
     catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response) {
           const { status, data } = error.response;
-          if (status === 400) {
-  
-            console.log("Error 400:",  data.message);
-            return data.message;
-          }
-        } else {
-  
-          return "some thing went wrong";
+          return data.message;
         }
       } else {
         return "Unexpected error";
       }
-      console.log(error);
+
       return "Add Topic Fail";
     }
   },
 
 
-  editTopic : async (topicAddPayload:TopicAddPayload,id:String) => {
-    try{
-    console.log(localStorage.getItem("authToken"));
-    const response = await axiosInstance.patch(`/topic/${id}`, topicAddPayload);
-    
-    if(response.status==200)
-        {
-            return "success";
-        }
-        return `Something went wrong + ${response.status}` ;
+  editTopic: async (topicAddPayload: TopicAddPayload, id: String) => {
+    try {
+      console.log(localStorage.getItem("authToken"));
+      const response = await axiosInstance.patch(`/topic/${id}`, topicAddPayload);
+
+      if (response.status == 200) {
+        return "success";
+      }
+      return `Something went wrong + ${response.status}`;
     }
     catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response) {
           const { status, data } = error.response;
-          if (status === 400) {
-            console.log("Error 400:",  data.message);
-            return data.message;
-          }
-        } else {
-  
-          return "some thing went wrong";
+          return data.message;
         }
       } else {
         return "Unexpected error";
       }
-      console.log(error);
-      return "Edit Topic fail";
+      return "Add Topic Fail";
     }
   },
 }

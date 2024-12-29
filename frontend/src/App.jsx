@@ -22,9 +22,9 @@ function App() {
           <Route
             path="/topic"
             element={
-              // <ProtectedRoute>
+              <ProtectedRoute>
                 <TopicsPage />
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
           <Route

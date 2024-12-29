@@ -8,18 +8,18 @@ const Sidebar = () => {
   return (
     <div className="fixed top-0 left-0 h-screen w-64 bg-white text-gray-600 flex flex-col shadow-md">
       <div className="p-4 text-xl font-bold text-blue-600 text-center flex items-center justify-center gap-2">
-        <a href="/dashboard">
+        <a href="/">
           <img
             src={quizlogo}
             alt="Logo"
             className="h-8 w-8"
           />
         </a>
-        <a href="/dashboard">Quiz App </a> 
+        <a href="/">Quiz App </a> 
       </div>
       <nav className="flex-1">
         <NavLink
-          to="/dashboard"
+          to="/"
           className={({ isActive }) =>
             `flex items-center gap-4 py-3 px-5 hover:bg-gray-100 ${
               isActive ? "bg-blue-500 text-white rounded-md" : ""
