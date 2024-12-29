@@ -3,17 +3,24 @@ import { InputField } from "./component/input_field";
 
 import AuthService from "../../data/service/auth_service";
 import { useSnackbar } from "../../components/NotificationBat";
+
 export const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState(""); 
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState("");
-const { showSnackbar } = useSnackbar();
+  const { showSnackbar } = useSnackbar();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-   
-    const response= await AuthService.register({ email, password ,name});
-    if(response=="success")
-    {
+
+    if (password !== confirmPassword) {
+      showSnackbar("Passwords do not match");
+      return;
+    }
+
+    const response = await AuthService.register({ email, password, name });
+    if (response === "success") {
       window.location.href = "/quiz";
     }
     showSnackbar(response);
@@ -23,25 +30,22 @@ const { showSnackbar } = useSnackbar();
     window.location.href = "/login";
   };
 
- 
   return (
-    <div className="flex items-center justify-enter h-screen pr-20">
+    <div className="flex items-center justify-center h-screen pr-20">
       <div className="flex items-center space-x-10 w-full max-w-[1400px]">
         <div className="hidden md:block w-1/2 mr-auto">
           <img src={"../../../public/auth_picture.png"} alt="Login Illustration" className="w-full" />
         </div>
 
-
-        
         <form
           onSubmit={handleSubmit}
           className="flex flex-col rounded-xl max-w-[300px] w-full ml-[-10px]"
         >
           <h1 className="self-start text-2xl font-bold text-blue-700">
-            Login to your Account
+            Register an Account
           </h1>
           <p className="self-start text-sm leading-loose text-blue-700">
-            with your registered Email Address
+            Sign up with your details
           </p>
 
           <div className="mt-5">
@@ -54,10 +58,9 @@ const { showSnackbar } = useSnackbar();
             />
           </div>
 
-
           <div className="mt-4">
             <InputField
-              label="What you want we to call you*"
+              label="What should we call you?*"
               placeholder="Enter name"
               type="text"
               value={name}
@@ -76,7 +79,16 @@ const { showSnackbar } = useSnackbar();
             />
           </div>
 
-          
+          <div className="mt-4">
+            <InputField
+              label="Confirm password*"
+              placeholder="Confirm password"
+              type="password"
+              showPasswordToggle
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+          </div>
 
           <div className="mt-10">
             <button
