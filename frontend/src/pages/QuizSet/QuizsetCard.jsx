@@ -1,19 +1,23 @@
 import React from "react";
 
-export const QuizSetCard = ({ headline, supportingText, label, onClick }) => {
+export const QuizSetCard = ({ name, description, questionCount, topic, createdDate, onClick }) => {
   return (
     <div
-      className="cursor-pointer flex relative flex-col w-full bg-white border border-black border-solid min-h-[84px] shadow-md"
       onClick={onClick}
+      className="cursor-pointer border p-4 rounded-lg shadow-md hover:bg-gray-100"
     >
-      <div className="flex flex-wrap gap-3 items-center py-3 pr-5 pl-4">
-        <div className="flex-1">
-          <div className="text-base font-medium">{headline}</div>
-          <div className="text-sm text-gray-600">{supportingText}</div>
-        </div>
-        <div className="text-sm text-gray-500">{label}</div>
-      </div>
+      <h3 className="text-lg font-bold">{name}</h3>
+      <p className="text-gray-600 mb-2">
+        {description.length > 50
+          ? `${description.substring(0, 50)}...`
+          : description}
+        <span className="ml-4 text-sm text-blue-600">{topic}</span>
+        <span className="ml-4 text-sm text-gray-500">Created: {createdDate}</span>
+      </p>
+      <p className="text-sm text-gray-500">Questions: {questionCount}</p>
     </div>
   );
 };
+
+
 
