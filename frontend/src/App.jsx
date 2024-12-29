@@ -9,6 +9,7 @@ import { RegisterPage } from "./pages/auth/register_page";
 import { SnackbarProvider } from "./components/NotificationBat";
 import { ProtectedRoute } from "./components/ProtectedRoute"; 
 import TopicsPage from "./pages/topic/topic_page";
+import DashboardPage from "./pages/dash_board/dash_board_page";
 
 function App() {
   return (
@@ -69,9 +70,9 @@ function App() {
           <Route
             path="/"
             element={            
-              <ProtectedRoute>
-                <Quiz />
-              </ProtectedRoute>
+              // <ProtectedRoute>
+                <DashboardPage />
+              // </ProtectedRoute>
             }
           />
         </Routes>
