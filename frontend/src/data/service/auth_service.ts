@@ -16,7 +16,9 @@ interface RegisterPayload {
 const AuthService = {
   login: async (payload: LoginPayload)=> {
     try{
+      console.log(payload);
     const response = await axiosInstance.post("/auth/login", payload);
+    console.log(response);
     if(response.status==200)
         {
           console.log(response);
@@ -41,6 +43,7 @@ const AuthService = {
       } else {
         return "Unexpected error";
       }
+      console.log(error);
       return "Login Fail";
     }
   },

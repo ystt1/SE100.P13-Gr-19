@@ -2,14 +2,21 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:8080/api", // Thay thế bằng URL API của bạn
-  timeout: 10000, // 10 giây
+  baseURL: "http://localhost:8080/api", 
+  timeout: 10000,
 });
 
 axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem("authToken");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  // Chỉ thêm token nếu endpoint không phải là '/auth/login' hoặc '/auth/register'
+  if (!config.url?.includes('/auth/login') && !config.url?.includes('/auth/register')) {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  else 
+  {
+    
   }
   return config;
 });

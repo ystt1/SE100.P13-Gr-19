@@ -11,10 +11,8 @@ export const LoginForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const response= await AuthService.login({ email, password });
-    console.log(response);
     if(response=="success")
     {
-
       window.location.href = "/quiz";
     }
     else
