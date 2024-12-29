@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "user_answer")
@@ -26,9 +27,21 @@ public class UserAnswer {
 
     private double score;
 
+    private boolean isCorrect; // Trạng thái đúng/sai
+
     @Column(name = "date_created")
     private LocalDateTime dateCreated;
 
     @Enumerated(EnumType.STRING)
     private QuestionType type;
+
+    @OneToMany(mappedBy = "userAnswer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ShortAnswer> shortAnswer;
+
+    @OneToMany(mappedBy = "userAnswer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<BlankAnswer> blankAnswers;
+
+    @OneToMany(mappedBy = "userAnswer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<QuizOptionAnswer> quizOptionAnswers;
 }
+
