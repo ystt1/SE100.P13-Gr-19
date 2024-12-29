@@ -1,5 +1,6 @@
 package com.example.backend.controller;
 
+import com.example.backend.DTO.Quiz.QuizHistoryDetailDTO;
 import com.example.backend.DTO.Quiz.QuizSubmissionDTO;
 import com.example.backend.DTO.Quiz.QuizResultDTO;
 import com.example.backend.service.AnswerService;
@@ -28,4 +29,12 @@ public class AnswerController {
         var history = answerService.getQuizHistory(userEmail);
         return ResponseEntity.ok(history);
     }
+
+    @GetMapping("/history/{resultId}/details")
+    public ResponseEntity<List<QuizHistoryDetailDTO>> getHistoryDetails(@RequestHeader("Authorization") String userEmail,
+                                                                        @PathVariable int resultId) {
+        List<QuizHistoryDetailDTO> details = answerService.getHistoryDetail(resultId);
+        return ResponseEntity.ok(details);
+    }
+
 }

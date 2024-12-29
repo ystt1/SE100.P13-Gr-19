@@ -19,7 +19,4 @@ public class QuizOptionAnswer {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_answer_id")
     private UserAnswer userAnswer;
-
-    @Column(name = "is_correct")
-    private boolean isCorrect;
 }

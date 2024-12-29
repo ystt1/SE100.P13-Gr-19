@@ -1,6 +1,7 @@
 package com.example.backend.service;
 
 import com.example.backend.DTO.Quiz.QuizRequestDTO;
+import com.example.backend.DTO.Quiz.QuizResponseDTO;
 import com.example.backend.DTO.QuizSet.ListQuizSetDTO;
 import com.example.backend.DTO.QuizSet.QuizSetRequestDTO;
 import com.example.backend.DTO.QuizSet.QuizSetResponseDTO;
@@ -268,4 +269,13 @@ public class QuizSetService {
 
     return ListQuizSetDTO.builder().quizSets(quizSetDTOs).build();
   }
+
+  public List<QuizResponseDTO> getQuestionsByQuizSet(int quizSetId) {
+    var quizSet = quizSetRepository.findById(quizSetId)
+            .orElseThrow(() -> new ResourceNotFoundException("Quiz set không tồn tại"));
+    return quizSet.getQuizList().stream()
+            .map(quiz -> modelMapper.map(quiz, QuizResponseDTO.class))
+            .toList();
+  }
+
 }

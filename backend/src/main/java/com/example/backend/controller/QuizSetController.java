@@ -1,11 +1,14 @@
 package com.example.backend.controller;
 
 import com.example.backend.DTO.Quiz.QuizRequestDTO;
+import com.example.backend.DTO.Quiz.QuizResponseDTO;
 import com.example.backend.DTO.QuizSet.ListQuizSetDTO;
 import com.example.backend.DTO.QuizSet.QuizSetRequestDTO;
 import com.example.backend.DTO.QuizSet.QuizSetResponseDTO;
 import com.example.backend.service.QuizSetService;
 import java.security.Principal;
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -112,6 +115,12 @@ public class QuizSetController {
   public ResponseEntity<String> removeFromBookmark(Principal principal, @PathVariable int id) {
     quizSetService.removeFromBookmark(principal.getName(), id);
     return ResponseEntity.status(200).body("Quiz set removed from bookmark");
+  }
+
+  @GetMapping("/{id}/questions")
+  public ResponseEntity<List<QuizResponseDTO>> getQuestions(@PathVariable int id) {
+    var questions = quizSetService.getQuestionsByQuizSet(id);
+    return ResponseEntity.ok(questions);
   }
 
 }
