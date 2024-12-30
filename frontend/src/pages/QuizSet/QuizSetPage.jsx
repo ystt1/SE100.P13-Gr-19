@@ -7,6 +7,7 @@ import Sidebar from "../../components/Sidebar";
 import { useNavigate } from "react-router-dom";
 import avatar from "../../images/avatar.png";
 
+
 const quizSets = [
   {
     id: 1,
@@ -15,6 +16,7 @@ const quizSets = [
     createdDate: "2024-12-01",
     questionCount: 10,
     topic: "Math",
+    isSaved: true, 
   },
   {
     id: 2,
@@ -23,6 +25,7 @@ const quizSets = [
     createdDate: "2024-11-25",
     questionCount: 8,
     topic: "Science",
+    isSaved: false,
   },
   {
     id: 3,
@@ -31,26 +34,30 @@ const quizSets = [
     createdDate: "2024-11-15",
     questionCount: 12,
     topic: "Programming",
+    isSaved: false, 
   },
 ];
-
 
 const QuizSetPage = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [showAddModal, setShowAddModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
-  const [sortOption, setSortOption] = useState("name"); // Default sort by name
+  const [sortOption, setSortOption] = useState("name"); 
+  const [quizSetData, setQuizSetData] = useState(quizSets); //get quizset
+
   const handleQuizSetClick = (id) => {
     navigate(`/quizset-detail/${id}`);
   };
 
-  // Lọc theo search
-  const filteredQuizSets = quizSets.filter((quizSet) =>
-    quizSet.name.toLowerCase().includes(searchQuery.toLowerCase())
+  
+
+  // Lọc danh sách quiz set theo tab
+  const filteredQuizSets = quizSetData.filter((quizSet) =>
+    activeTab === 0
+      ? quizSet.name.toLowerCase().includes(searchQuery.toLowerCase())
+      : quizSet.isSaved // Hiển thị saved khi ở tab "Save Quizset"
   );
-
-
 
   const sortQuizSets = (quizSets, option) => {
     return [...quizSets].sort((a, b) => {
@@ -67,12 +74,20 @@ const QuizSetPage = () => {
     });
   };
 
-  const sortedQuizSets = sortQuizSets(quizSets, sortOption);
+  const sortedQuizSets = sortQuizSets(filteredQuizSets, sortOption);
 
+  
+  const [quizSetsState, setQuizSetsState] = useState(quizSets);
+
+  const toggleSaveStatus = (id) => {
+    const updatedQuizSets = quizSetsState.map((quizSet) =>
+      quizSet.id === id ? { ...quizSet, isSaved: !quizSet.isSaved } : quizSet
+    );
+    setQuizSetsState(updatedQuizSets); 
+  };
 
   const handleAddQuizSet = (newQuizSet) => {
-    console.log("New Quiz Set:", newQuizSet);
-    // Logic để thêm quiz set mới vào danh sách
+    console.log("New Quiz Set:", newQuizSet);  
   };
 
   return (
@@ -135,7 +150,9 @@ const QuizSetPage = () => {
               questionCount={quizSet.questionCount}
               topic={quizSet.topic}
               createdDate={quizSet.createdDate}
+              isSaved={quizSet.isSaved} 
               onClick={() => handleQuizSetClick(quizSet.id)}
+              onToggleSave={() => toggleSaveStatus(quizSet.id)} 
             />
           ))}
         </div>
