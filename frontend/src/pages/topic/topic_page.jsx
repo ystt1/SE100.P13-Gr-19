@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import  TopicService  from "../../data/service/topic_service";
+import TopicService from "../../data/service/topic_service";
 import { FaSortAlphaDown, FaSortAlphaUp } from "react-icons/fa";
 import TopicCard from "./component/topic_card";
 import Modal from "./component/topic_model";
@@ -16,7 +16,7 @@ const TopicsPage = () => {
   const [sortElement, setSortElement] = useState("name");
   const [direction, setDirection] = useState("asc");
   const [isModalOpen, setModalOpen] = useState(false);
-  const [modalData, setModalData] = useState({ name: "", description: "",id:"" });
+  const [modalData, setModalData] = useState({ name: "", description: "", id: "" });
 
   const fetchTopics = async () => {
     try {
@@ -46,34 +46,43 @@ const TopicsPage = () => {
   };
 
   const handleAddTopic = () => {
-    setModalData({ name: "", description: "",id:"" }); 
+    setModalData({ name: "", description: "", id: "" });
     setModalOpen(true);
   };
 
+  const handleDeleteTopic = async (topic) => {
+    var response = await TopicService.deleteTopic(topic.id);
+    if (response == "success") {
+      showSnackbar("Delete success");
+      fetchTopics();
+    }
+    else {
+      alert(response);
+    }
+  }
+
   const handleModalSubmit = async () => {
-    console.log("Submitting topic:", modalData);
     var response;
-    const name=modalData.name;
-    const description=modalData.description;
-    if(modalData.id=="")
-    {
-      response= await TopicService.addTopic({name,description});
-      
+    const { name, description } = modalData;
+
+    if (modalData.id === "") {
+      response = await TopicService.addTopic({ name, description });
+    } else {
+      response = await TopicService.editTopic({ name, description }, modalData.id);
     }
-    else{
-      response= await TopicService.editTopic({name,description},modalData.id);
-    }
+
     showSnackbar(response);
-    if(response=="success")
-    {
-      setModalOpen(false);
+
+    if (response === "success") {
+      setModalOpen(false); // Đóng modal
+      setModalData({ name: "", description: "", id: "" }); // Reset modalData
+      fetchTopics(); // Refresh danh sách topics
     }
-    fetchTopics(); 
   };
 
 
   const handleEditTopic = (topic) => {
-    setModalData({ name: topic.name, description: topic.description,id: topic.id });
+    setModalData({ name: topic.name, description: topic.description, id: topic.id });
     setModalOpen(true);
   };
 
@@ -91,7 +100,7 @@ const TopicsPage = () => {
               + Add Topic
             </button>
 
-      
+
             <div className="flex items-center gap-4 text-lg">
               <span>Sorting:</span>
               <div
@@ -136,9 +145,9 @@ const TopicsPage = () => {
                 name={topic.name}
                 description={topic.description}
                 owner={topic.creator?.name || "Unknown"}
-                usageCount={topic.quizSets?.length || 0} 
+                usageCount={topic.quizSets?.length || 0}
                 onEdit={() => handleEditTopic(topic)}
-                onDelete={() => console.log("Delete topic:", topic.id)}
+                onDelete={() => handleDeleteTopic(topic)}
               />
             ))}
           </div>
@@ -153,7 +162,7 @@ const TopicsPage = () => {
 
       <Modal
         isOpen={isModalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={() => { setModalOpen(false); setModalData({ name: "", description: "", id: "" }); }}
         title={modalData.name ? "Edit Topic" : "Add Topic"}
         onSubmit={handleModalSubmit}
         name={modalData.name}
