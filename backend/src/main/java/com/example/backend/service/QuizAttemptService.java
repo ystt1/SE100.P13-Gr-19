@@ -1,54 +1,65 @@
 package com.example.backend.service;
 
-import com.example.backend.DTO.Quiz.QuizHistoryDetailDTO;
-import com.example.backend.DTO.Quiz.QuizSubmissionDTO;
-import com.example.backend.DTO.Quiz.QuizResultDTO;
 import com.example.backend.DTO.Quiz.QuestionAnswerDTO;
+import com.example.backend.DTO.Quiz.QuizResultDTO;
+import com.example.backend.DTO.Quiz.QuizSubmissionDTO;
+import com.example.backend.DTO.QuizSet.QuizSetResponseDTO;
 import com.example.backend.entity.*;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.*;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class AnswerService {
+public class QuizAttemptService {
 
-    private final QuizRepository quizRepository;
     private final QuizSetRepository quizSetRepository;
+    private final QuizRepository quizRepository;
     private final UserRepository userRepository;
     private final ResultRepository resultRepository;
+    private final ModelMapper modelMapper;
     private final UserAnswerRepository userAnswerRepository;
     private final ShortAnswerRepository shortAnswerRepository;
     private final BlankAnswerRepository blankAnswerRepository;
     private final QuizOptionAnswerRepository quizOptionAnswerRepository;
 
+    public QuizSetResponseDTO getQuizSetForAttempt(int quizSetId) {
+        QuizSet quizSet = quizSetRepository.findById(quizSetId)
+                .orElseThrow(() -> new ResourceNotFoundException("Quiz set not found"));
+        return modelMapper.map(quizSet, QuizSetResponseDTO.class);
+    }
+
     public QuizResultDTO submitQuiz(String userEmail, QuizSubmissionDTO submission) {
-        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        QuizSet quizSet = quizSetRepository.findById(submission.getQuizSetId()).orElseThrow(() -> new ResourceNotFoundException("Quiz set not found"));
+        var user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        var quizSet = quizSetRepository.findById(submission.getQuizSetId())
+                .orElseThrow(() -> new ResourceNotFoundException("Quiz set not found"));
 
         int correctAnswers = 0;
         int totalQuestions = submission.getAnswers().size();
 
         for (var answer : submission.getAnswers()) {
-            Quiz quiz = quizRepository.findById(answer.getQuizId()).orElseThrow(() -> new ResourceNotFoundException("Quiz not found"));
+            Quiz quiz = quizRepository.findById(answer.getQuizId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Quiz not found"));
             if (isCorrectAnswer(quiz, answer)) {
                 correctAnswers++;
             }
             saveUserAnswer(user, quiz, answer);
         }
+
         double score = (double) correctAnswers / totalQuestions;
 
         Result result = Result.builder()
                 .user(user)
                 .quizSet(quizSet)
                 .score(score)
-                .dateCreated(LocalDateTime.now())
+                .dateCreated(java.time.LocalDateTime.now())
                 .completeTime(submission.getCompletionTime())
                 .numberAnswerTime(totalQuestions)
                 .build();
@@ -135,76 +146,6 @@ public class AnswerService {
                         .build();
                 quizOptionAnswerRepository.save(optionAnswer);
             }
-        }
-    }
-
-
-    public List<Result> getQuizHistory(String userEmail) {
-        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new RuntimeException("User not found"));
-        return resultRepository.findByUserId(user.getId());
-    }
-
-    public long getQuizAttemptCount(int quizSetId) {
-        return resultRepository.countAttemptsByQuizSetId(quizSetId);
-    }
-
-    public List<QuizHistoryDetailDTO> getHistoryDetail(int resultId) {
-        Result result = resultRepository.findById(resultId)
-                .orElseThrow(() -> new ResourceNotFoundException("Result not found"));
-
-        List<UserAnswer> userAnswers = userAnswerRepository.findByResultId(resultId);
-        return userAnswers.stream().map(userAnswer -> {
-            Quiz quiz = userAnswer.getQuiz();
-            String correctAnswer = getCorrectAnswer(quiz);
-            String userAnswerContent = getUserAnswerContent(userAnswer);
-
-            return QuizHistoryDetailDTO.builder()
-                    .quizId(quiz.getId())
-                    .questionContent(quiz.getContent())
-                    .userAnswer(userAnswerContent)
-                    .correctAnswer(correctAnswer)
-                    .isCorrect(userAnswer.isCorrect())
-                    .build();
-        }).collect(Collectors.toList());
-    }
-
-    private String getCorrectAnswer(Quiz quiz) {
-        switch (quiz.getType()) {
-            case SINGLE_CHOICE:
-            case MULTIPLE_CHOICE:
-                return quiz.getOptions().stream()
-                        .filter(QuizOption::getIsCorrect)
-                        .map(QuizOption::getContent)
-                        .collect(Collectors.joining(", "));
-            case SHORT_ANSWER:
-                return quiz.getShortAnswer().getContent();
-            case FILL_IN_THE_BLANK:
-                return quiz.getBlanks().stream()
-                        .map(Blank::getContent)
-                        .collect(Collectors.joining(", "));
-            default:
-                throw new UnsupportedOperationException("Unsupported question type");
-        }
-    }
-
-    private String getUserAnswerContent(UserAnswer userAnswer) {
-        switch (userAnswer.getType()) {
-            case SINGLE_CHOICE:
-            case MULTIPLE_CHOICE:
-                return userAnswer.getQuizOptionAnswers().stream()
-                        .map(QuizOptionAnswer::getContent)
-                        .collect(Collectors.joining(", "));
-            case SHORT_ANSWER:
-                return userAnswer.getQuizOptionAnswers().stream()
-                        .map(QuizOptionAnswer::getContent)
-                        .collect(Collectors.joining(", "));
-            case FILL_IN_THE_BLANK:
-                return userAnswer.getBlankAnswers().stream()
-                        .sorted(Comparator.comparingInt(BlankAnswer::getBlankOrder))
-                        .map(BlankAnswer::getContent)
-                        .collect(Collectors.joining(", "));
-            default:
-                return "Unsupported question type";
         }
     }
 }
