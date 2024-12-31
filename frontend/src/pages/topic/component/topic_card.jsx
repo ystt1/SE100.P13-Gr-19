@@ -2,6 +2,8 @@ import React, { useState } from "react";
 
 export default function TopicCard({ name, description, usageCount, owner, onEdit, onDelete }) {
   const [isMenuOpen, setMenuOpen] = useState(false);
+  const [isConfirmOpen, setConfirmOpen] = useState(false);
+
 
   return (
     <div className="flex flex-col p-3 rounded-lg shadow-md border border-gray-200 bg-white text-gray-700 w-56 relative">
@@ -37,13 +39,39 @@ export default function TopicCard({ name, description, usageCount, owner, onEdit
             className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-left"
             onClick={() => {
               setMenuOpen(false); // Close the dropdown
-              onDelete(); // Trigger delete logic
+              setConfirmOpen(true); // Open confirmation modal
             }}
           >
             Delete
           </button>
+
         </div>
       )}
+      {isConfirmOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-md shadow-md text-center">
+            <p className="text-gray-700 text-lg mb-4">Are you sure you want to delete this topic?</p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => {
+                  setConfirmOpen(false); // Close modal
+                  onDelete(); // Trigger delete logic
+                }}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-500"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => setConfirmOpen(false)} // Close modal
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

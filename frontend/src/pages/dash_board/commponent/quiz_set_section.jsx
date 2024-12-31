@@ -1,17 +1,13 @@
 import * as React from "react";
-export default function QuizSetSection({ title, children }) {
+export default function QuizSetSection({ title, icon, children }) {
   return (
-    <div className="flex flex-col w-full">
-      {/* Tiêu đề Section */}
-      <div className="flex justify-between px-4 py-2 font-bold text-blue-700">
-        <div className="text-lg">{title}</div>
+    <section className="mb-8">
+      <div className="flex items-center gap-2 text-xl font-semibold text-gray-800 mb-4">
+        <span>{icon}</span> {title}
       </div>
-
-      {/* Card Container */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 px-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {children}
       </div>
-    </div>
+    </section>
   );
 }
-
