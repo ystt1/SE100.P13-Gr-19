@@ -1,5 +1,7 @@
 package com.example.backend.controller;
 
+import com.example.backend.DTO.Quiz.ListQuizResponseDTO;
+import com.example.backend.DTO.Quiz.ListSmallQuizResponseDTO;
 import com.example.backend.DTO.Quiz.QuizRequestDTO;
 import com.example.backend.DTO.Quiz.QuizResponseDTO;
 import com.example.backend.service.QuizService;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -35,5 +38,16 @@ public class QuizController {
   public ResponseEntity<String> deleteQuizById(Principal principal,@PathVariable int id) {
     quizService.deleteQuizById(principal.getName(),id);
     return ResponseEntity.status(204).build();
+  }
+
+  @GetMapping("/all")
+  public ResponseEntity<ListSmallQuizResponseDTO> getAllQuizzesOfUser(
+      Principal principal,
+      @RequestParam(defaultValue = "id") String sortElement,
+      @RequestParam(defaultValue = "asc") String direction,
+      @RequestParam(required = false) String search,
+      @RequestParam(defaultValue = "1") int page,
+      @RequestParam(defaultValue = "10") int limit) {
+    return ResponseEntity.status(200).body(quizService.getAllQuizzes(principal.getName(), page, limit, sortElement, direction, search));
   }
 }

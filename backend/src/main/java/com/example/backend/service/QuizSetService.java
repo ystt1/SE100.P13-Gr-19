@@ -1,7 +1,9 @@
 package com.example.backend.service;
 
+import com.example.backend.DTO.Quiz.ListSmallQuizResponseDTO;
 import com.example.backend.DTO.Quiz.QuizRequestDTO;
 import com.example.backend.DTO.Quiz.QuizResponseDTO;
+import com.example.backend.DTO.Quiz.SmallQuizResponseDTO;
 import com.example.backend.DTO.QuizSet.ListQuizSetDTO;
 import com.example.backend.DTO.QuizSet.QuizSetRequestDTO;
 import com.example.backend.DTO.QuizSet.QuizSetResponseDTO;
@@ -278,4 +280,16 @@ public class QuizSetService {
             .toList();
   }
 
+  public ListSmallQuizResponseDTO getQuizzesOfQuizSet(int id) {
+    var quizSet = quizSetRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Quiz set not found"));
+
+    List<SmallQuizResponseDTO> quizzes = quizSet.getQuizList().stream()
+        .map(quiz -> modelMapper.map(quiz, SmallQuizResponseDTO.class))
+        .collect(Collectors.toList());
+
+    return ListSmallQuizResponseDTO.builder()
+        .quizzes(quizzes)
+        .build();
+  }
 }

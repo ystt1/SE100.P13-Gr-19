@@ -1,4 +1,4 @@
-package com.example.backend.DTO.Quiz.User;
+package com.example.backend.DTO.User;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

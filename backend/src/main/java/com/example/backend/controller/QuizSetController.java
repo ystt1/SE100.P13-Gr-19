@@ -1,5 +1,6 @@
 package com.example.backend.controller;
 
+import com.example.backend.DTO.Quiz.ListSmallQuizResponseDTO;
 import com.example.backend.DTO.Quiz.QuizRequestDTO;
 import com.example.backend.DTO.Quiz.QuizResponseDTO;
 import com.example.backend.DTO.QuizSet.ListQuizSetDTO;
@@ -121,6 +122,12 @@ public class QuizSetController {
   public ResponseEntity<List<QuizResponseDTO>> getQuestions(@PathVariable int id) {
     var questions = quizSetService.getQuestionsByQuizSet(id);
     return ResponseEntity.ok(questions);
+  }
+
+  @GetMapping("/{id}/quizzes")
+  public ResponseEntity<ListSmallQuizResponseDTO> getQuizzes(@PathVariable int id) {
+    var quizzes = quizSetService.getQuizzesOfQuizSet(id);
+    return ResponseEntity.ok(quizzes);
   }
 
 }
