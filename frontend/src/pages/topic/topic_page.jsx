@@ -7,20 +7,30 @@ import Pagination from "./component/pagination";
 import Sidebar from "../../components/Sidebar";
 import { useSnackbar } from "../../components/NotificationBat";
 
+import { useSearchParams } from "react-router-dom";
+
 const TopicsPage = () => {
   const { showSnackbar } = useSnackbar();
   const [topics, setTopics] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [search, setSearch] = useState("");
-  const [sortElement, setSortElement] = useState("name");
-  const [direction, setDirection] = useState("asc");
+  const [searchParams, setSearchParams] = useSearchParams();
   const [isModalOpen, setModalOpen] = useState(false);
   const [modalData, setModalData] = useState({ name: "", description: "", id: "" });
 
+  const currentPage = parseInt(searchParams.get("page")) || 1;
+  const search = searchParams.get("search") || "";
+  const sortElement = searchParams.get("sortElement") || "name";
+  const direction = searchParams.get("direction") || "asc";
+
   const fetchTopics = async () => {
     try {
-      const data = await TopicService.getTopics(currentPage, 8, search, sortElement, direction);
+      const data = await TopicService.getTopics(
+        currentPage,
+        8,
+        search,
+        sortElement,
+        direction
+      );
       setTopics(data.topics);
       setTotalPages(data.totalPages);
     } catch (error) {
@@ -30,19 +40,23 @@ const TopicsPage = () => {
 
   useEffect(() => {
     fetchTopics();
-  }, [currentPage, search, sortElement, direction]);
+  }, [searchParams]);
 
   const handlePageChange = (page) => {
-    setCurrentPage(page);
+    setSearchParams({ page, search, sortElement, direction });
   };
 
   const handleSearchChange = (e) => {
-    setSearch(e.target.value);
-    setCurrentPage(1); // Reset về trang đầu khi tìm kiếm
+    setSearchParams({ page: 1, search: e.target.value, sortElement, direction });
   };
 
   const toggleSortDirection = () => {
-    setDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    setSearchParams({
+      page: currentPage,
+      search,
+      sortElement,
+      direction: direction === "asc" ? "desc" : "asc",
+    });
   };
 
   const handleAddTopic = () => {
@@ -92,15 +106,12 @@ const TopicsPage = () => {
       <div className="flex-1 ml-64 bg-gray-50 p-6">
         <div className="flex flex-col w-full max-w-5xl mx-auto">
           <div className="flex justify-between items-center bg-white p-4 rounded-lg shadow-md">
-
             <button
               onClick={handleAddTopic}
               className="px-6 py-2 text-sm font-medium text-white bg-blue-700 rounded-md hover:bg-blue-600"
             >
               + Add Topic
             </button>
-
-
             <div className="flex items-center gap-4 text-lg">
               <span>Sorting:</span>
               <div
@@ -115,8 +126,6 @@ const TopicsPage = () => {
                 )}
               </div>
             </div>
-
-
             <form
               className="flex items-center gap-2 border border-gray-300 rounded-md px-3 py-2 bg-gray-100 shadow-sm"
               onSubmit={(e) => e.preventDefault()}
@@ -132,7 +141,6 @@ const TopicsPage = () => {
                 value={search}
                 onChange={handleSearchChange}
               />
-              <img src="menu_down.png" alt="Search" className="w-5 cursor-pointer" />
             </form>
           </div>
 
@@ -160,10 +168,11 @@ const TopicsPage = () => {
         </div>
       </div>
 
+
       <Modal
         isOpen={isModalOpen}
         onClose={() => { setModalOpen(false); setModalData({ name: "", description: "", id: "" }); }}
-        title={modalData.name ? "Edit Topic" : "Add Topic"}
+        title={modalData.id=="" ? "Add Topic" : "Edit Topic"}
         onSubmit={handleModalSubmit}
         name={modalData.name}
         setName={(name) => setModalData((prev) => ({ ...prev, name }))}
