@@ -10,6 +10,9 @@ import { SnackbarProvider } from "./components/NotificationBat";
 import { ProtectedRoute } from "./components/ProtectedRoute"; 
 import TopicsPage from "./pages/topic/topic_page";
 import DashboardPage from "./pages/dash_board/dash_board_page";
+import QuizSetDetails from "./pages/dash_board/commponent/quizSetDetails";
+// import quizComplete from "./pages/dash_board/commponent/quizComplete";
+
 
 function App() {
   return (
@@ -22,17 +25,17 @@ function App() {
           <Route
             path="/topic"
             element={
-              <ProtectedRoute>
+             // <ProtectedRoute>
                 <TopicsPage />
-              </ProtectedRoute>
+            //  </ProtectedRoute>
             }
           />
           <Route
             path="/quizset-detail/:id"
             element={
-              <ProtectedRoute>
+           //   <ProtectedRoute>
                 <QuizsetDetail />
-              </ProtectedRoute>
+           //   </ProtectedRoute>
             }
           />
           <Route
@@ -46,25 +49,25 @@ function App() {
           <Route
             path="/quiz-set"
             element={
-              <ProtectedRoute>
+             // <ProtectedRoute>
                 <QuizSetPage />
-              </ProtectedRoute>
+           //   </ProtectedRoute>
             }
           />
           <Route
             path="/add-quiz-set"
             element={
-              <ProtectedRoute>
+            //  <ProtectedRoute>
                 <AddQuizset />
-              </ProtectedRoute>
+             // </ProtectedRoute>
             }
           />
           <Route
             path="/quiz"
             element={
-             <ProtectedRoute>
+           //  <ProtectedRoute>
                 <Quiz />
-             </ProtectedRoute>
+          ///   </ProtectedRoute>
             }
           />
           <Route
@@ -75,6 +78,25 @@ function App() {
               // </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/dashboard/quiz-set-card/:quizSetId"
+            element={            
+              // <ProtectedRoute>
+                <QuizSetDetails />
+              // </ProtectedRoute>
+            }
+          />
+  
+          {/* <Route
+            path="/quiz/attemp"
+            element={            
+              // <ProtectedRoute>
+                <quizComplete />
+              // </ProtectedRoute>
+            }
+          /> */}
+
         </Routes>
       </Router>
     </SnackbarProvider>

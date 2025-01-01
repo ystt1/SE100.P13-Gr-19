@@ -1,10 +1,13 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink , useLocation  } from "react-router-dom";
 import { FaHome, FaListAlt, FaQuestion, FaHistory, FaUser, FaUsers, FaSignOutAlt, FaTags } from "react-icons/fa";
 import quizlogo from "../images/quiz-logo.ico";
 import AuthService from "../data/service/auth_service";
 
 const Sidebar = () => {
+
+  const location = useLocation();
+
   return (
     <div className="fixed top-0 left-0 h-screen w-64 bg-white text-gray-600 flex flex-col shadow-md">
       <div className="p-4 text-xl font-bold text-blue-600 text-center flex items-center justify-center gap-2">
@@ -20,11 +23,11 @@ const Sidebar = () => {
       <nav className="flex-1">
         <NavLink
           to="/"
-          className={({ isActive }) =>
-            `flex items-center gap-4 py-3 px-5 hover:bg-gray-100 ${
-              isActive ? "bg-blue-500 text-white rounded-md" : ""
-            }`
-          }
+          className={`flex items-center gap-4 py-3 px-5 hover:bg-gray-100 ${
+            location.pathname === "/" || location.pathname.startsWith("/dashboard")
+              ? "bg-blue-500 text-white rounded-md"
+              : ""
+          }`}
         >
           <FaHome className="text-lg" />
           Dashboard
