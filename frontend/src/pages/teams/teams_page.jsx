@@ -31,6 +31,7 @@ const Teams = () => {
     {
         showSnackbar("Add Team success");
         setShowModal(false);
+        
     }
     else{
         alert(response);

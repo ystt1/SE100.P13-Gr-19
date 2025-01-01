@@ -85,7 +85,30 @@ const QuizService = {
       throw error;
     }
   },
-  
+  getAllQuiz:async(sortKey:String,direction:String)=>
+  {
+    try {
+      const response = await axiosInstance.get(`http://localhost:8080/api/quiz/all?&sortElement=${sortKey}&direction=${direction}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching topics:", error);
+      throw error;
+    }
+  },
+  delete:async(id)=>
+  {
+    try {
+      const response = await axiosInstance.delete(`http://localhost:8080/api/quiz/${id}`);
+      if(response.status==204)
+      {
+        return "success";
+      }
+      return ("error"+response.status);
+    } catch (error) {
+      console.error("Error fetching topics:", error);
+      throw error;
+    }
+  }
 };
 
 export default QuizService;
