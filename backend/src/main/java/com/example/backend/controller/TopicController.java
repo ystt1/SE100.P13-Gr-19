@@ -56,15 +56,14 @@ public class TopicController {
   }
 
   @GetMapping("/topic/{id}/quizzes")
-  public ResponseEntity<ListSmallQuizResponseDTO> getAllQuizzesOfUser(
-      Principal principal,
+  public ResponseEntity<ListSmallQuizResponseDTO> getAllQuizzes(
       @PathVariable int id,
       @RequestParam(defaultValue = "id") String sortElement,
       @RequestParam(defaultValue = "asc") String direction,
       @RequestParam(required = false) String search,
       @RequestParam(defaultValue = "1") int page,
       @RequestParam(defaultValue = "10") int limit) {
-    return ResponseEntity.status(200).body(quizService.getAllQuizzes(principal.getName(), page, limit, sortElement, direction, search, id));
+    return ResponseEntity.status(200).body(quizService.getAllQuizzes(page, limit, sortElement, direction, search, id));
   }
 
 

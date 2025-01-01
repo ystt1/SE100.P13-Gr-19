@@ -16,4 +16,10 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer> {
       Pageable pageable);
 
   Page<Quiz> findByCreatorEmailAndTopicId(String email, int topicId, Pageable pageable);
+
+  Page<Quiz> findByTopicId(int topicId, Pageable pageable);
+
+  Page<Quiz> findByContentContainingIgnoreCase(String search, Pageable pageable);
+
+  Page<Quiz> findByContentContainingIgnoreCaseAndTopicId(String search, int topicId, Pageable pageable);
 }

@@ -103,7 +103,7 @@ public class QuizService {
         .build();
   }
 
-  public ListSmallQuizResponseDTO getAllQuizzes(String email,int page,int limit,String sortElement,String direction,String search, int topicId) {
+  public ListSmallQuizResponseDTO getAllQuizzes(int page, int limit, String sortElement, String direction, String search, int topicId) {
     Sort sort = Sort.by(Sort.Direction.fromString(direction), sortElement);
     Pageable pageable = PageRequest.of(page - 1, limit, sort);
 
@@ -111,15 +111,15 @@ public class QuizService {
 
     if (search != null && !search.isEmpty()) {
       if (topicId != 0) {
-        quizzesPage = quizRepository.findByCreatorEmailAndContentContainingIgnoreCaseAndTopicId(email, search, topicId, pageable);
+        quizzesPage = quizRepository.findByContentContainingIgnoreCaseAndTopicId(search, topicId, pageable);
       } else {
-        quizzesPage = quizRepository.findByCreatorEmailAndContentContainingIgnoreCase(email, search, pageable);
+        quizzesPage = quizRepository.findByContentContainingIgnoreCase(search, pageable);
       }
     } else {
       if (topicId != 0) {
-        quizzesPage = quizRepository.findByCreatorEmailAndTopicId(email, topicId, pageable);
+        quizzesPage = quizRepository.findByTopicId(topicId, pageable);
       } else {
-        quizzesPage = quizRepository.findByCreatorEmail(email, pageable);
+        quizzesPage = quizRepository.findAll(pageable);
       }
     }
 
