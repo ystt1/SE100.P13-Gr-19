@@ -1,7 +1,7 @@
 package com.example.backend.controller;
 
+import com.example.backend.DTO.Quiz.ListQuizIdDTO;
 import com.example.backend.DTO.Quiz.ListSmallQuizResponseDTO;
-import com.example.backend.DTO.Quiz.QuizRequestDTO;
 import com.example.backend.DTO.Quiz.QuizResponseDTO;
 import com.example.backend.DTO.QuizSet.ListQuizSetDTO;
 import com.example.backend.DTO.QuizSet.QuizSetRequestDTO;
@@ -88,9 +88,10 @@ public class QuizSetController {
     return ResponseEntity.status(200).body(quizSetService.updateQuizSet(principal.getName(), id, quizSetRequestDTO));
   }
 
-  @PostMapping("/{id}")
-  public ResponseEntity<String> addQuizToQuizSet(Principal principal,@PathVariable int id,@RequestBody QuizRequestDTO quizRequestDTO) {
-    quizSetService.addQuizToQuizSet(principal.getName(),id, quizRequestDTO);
+  @PostMapping("/{id}/quiz")
+  public ResponseEntity<String> addQuizToQuizSet(Principal principal,@PathVariable int id,@RequestBody
+      List<Integer> listQuizId) {
+    quizSetService.addQuizToQuizSet(principal.getName(),id, listQuizId);
     return ResponseEntity.status(200).body("Quiz added to quiz set");
   }
 

@@ -1,5 +1,6 @@
 package com.example.backend.service;
 
+import com.example.backend.DTO.Quiz.ListQuizIdDTO;
 import com.example.backend.DTO.Quiz.ListSmallQuizResponseDTO;
 import com.example.backend.DTO.Quiz.QuizRequestDTO;
 import com.example.backend.DTO.Quiz.QuizResponseDTO;
@@ -13,6 +14,7 @@ import com.example.backend.entity.User;
 import com.example.backend.exception.ConflictException;
 import com.example.backend.exception.ForbiddenException;
 import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.repository.QuizRepository;
 import com.example.backend.repository.QuizSetRepository;
 import com.example.backend.repository.UserRepository;
 import jakarta.persistence.criteria.Predicate;
@@ -36,7 +38,7 @@ public class QuizSetService {
 
   private final UserRepository userRepository;
 
-  private final QuizService quizService;
+  private final QuizRepository quizRepository;
 
   private ModelMapper modelMapper;
 
@@ -156,22 +158,26 @@ public class QuizSetService {
     return resultDTO;
   }
 
-  public QuizRequestDTO addQuizToQuizSet(String email, int id, QuizRequestDTO quizRequestDTO) {
-//    var quizSet = quizSetRepository.findById(id);
-//    if (quizSet.isEmpty()) {
-//      throw new ResourceNotFoundException("Quiz set not found");
-//    }
-//
-//    if (!quizSet.get().getCreator().getEmail().equals(email)) {
-//      throw new ForbiddenException("You are not authorized to add quiz to this quiz set");
-//    }
-//
-//    var quiz = modelMapper.map(quizRequestDTO, Quiz.class);
-//
-//    var quizResponseDTO = modelMapper.map(quizService.saveQuiz(quiz), QuizRequestDTO.class);
-//
-//    return quizResponseDTO;
-      return null;
+  public void addQuizToQuizSet(String email, int id, List<Integer> listQuizId) {
+
+    var quizSet = quizSetRepository.findById(id);
+    if (quizSet.isEmpty()) {
+      throw new ResourceNotFoundException("Quiz set not found");
+    }
+    if (!quizSet.get().getCreator().getEmail().equals(email)) {
+      throw new ForbiddenException("You are not authorized to add quizzes to this quiz set");
+    }
+    listQuizId.forEach(quizId -> {
+      var quiz = quizRepository.findById(quizId);
+      if (quiz.isEmpty()) {
+        throw new ResourceNotFoundException("Quiz not found with id " + quizId);
+      }
+      if(checkQuizSetContainQuiz(quizSet.get(), quiz.get())){
+        throw new ConflictException("Quiz with id " + quizId + " already exists in this quiz set");
+      }
+      quizSet.get().getQuizList().add(quiz.get());
+    });
+    quizSetRepository.save(quizSet.get());
   }
 
   public QuizSetResponseDTO allowShowAnswer(String email, int id) {
@@ -308,5 +314,9 @@ public class QuizSetService {
     return ListSmallQuizResponseDTO.builder()
         .quizzes(quizzes)
         .build();
+  }
+
+  public Boolean checkQuizSetContainQuiz(QuizSet quizSet, Quiz quiz) {
+    return quizSet.getQuizList().contains(quiz);
   }
 }
