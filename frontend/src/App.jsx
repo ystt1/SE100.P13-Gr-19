@@ -7,7 +7,7 @@ import QuizSetPage from "./pages/QuizSet/QuizSetPage";
 import { LoginForm } from "./pages/auth/login_page";
 import { RegisterPage } from "./pages/auth/register_page";
 import { SnackbarProvider } from "./components/NotificationBat";
-import { ProtectedRoute } from "./components/ProtectedRoute"; 
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import TopicsPage from "./pages/topic/topic_page";
 import Dashboard from "./pages/dash_board/dash_board_page";
 import Teams from "./pages/teams/teams_page";
@@ -71,17 +71,17 @@ function App() {
           <Route
             path="/quiz"
             element={
-             <ProtectedRoute>
+              <ProtectedRoute>
                 <Quiz />
-             </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/"
-            element={            
+            element={
               <ProtectedRoute>
                 <Dashboard />
-               </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
         </Routes>

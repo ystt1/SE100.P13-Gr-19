@@ -8,6 +8,7 @@ import avatar from "../../images/avatar.png";
 import QuizService from "../../data/service/quiz_service";
 import Pagination from "../topic/component/pagination"; // Add Pagination component
 import { useSnackbar } from "../../components/NotificationBat";
+import ConfirmationModal from "../../components/ConfirmModal";
 
 const QuizLayout = () => {
   const { showSnackbar } = useSnackbar();
@@ -15,15 +16,16 @@ const QuizLayout = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showModal, setShowModal] = useState(false);
+  const [tempSearchQuery, setTempSearchQuery] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [tempSearchQuery, setTempSearchQuery] = useState(""); 
   const [sortKey, setSortKey] = useState("createdAt");
   const [direction, setDirection] = useState("desc");
+  const [quizToDelete, setQuizToDelete] = useState(null);
 
   const fetchData = async () => {
     try {
       const data = await QuizService.getAllQuiz(
-        searchQuery, 
+        searchQuery,
         currentPage,
         8,
         sortKey,
@@ -48,34 +50,39 @@ const QuizLayout = () => {
 
   useEffect(() => {
     fetchData();
-    const queryParams = new URLSearchParams({
-      search: searchQuery,
-      page: currentPage.toString(),
-      sortKey,
-      direction,
-    });
-    window.history.replaceState(null, "", `?${queryParams.toString()}`);
   }, [currentPage, searchQuery, sortKey, direction]);
 
   const handleSearch = () => {
-    setSearchQuery(tempSearchQuery); // Chỉ cập nhật khi nhấn nút hoặc Enter
+    setSearchQuery(tempSearchQuery);
     setCurrentPage(1);
   };
 
-  const handleDeleteButton = async (id) => {
+  const handleDeleteRequest = (id) => {
+    setQuizToDelete(id);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!quizToDelete) return;
+
     try {
-      const response = await QuizService.delete(id);
+      const response = await QuizService.delete(quizToDelete);
       if (response === "success") {
         showSnackbar("Delete success");
         setQuestions((prevQuestions) =>
-          prevQuestions.filter((question) => question.id !== id)
+          prevQuestions.filter((question) => question.id !== quizToDelete)
         );
       } else {
         alert(response);
       }
     } catch (error) {
       console.error("Error deleting quiz:", error);
+    } finally {
+      setQuizToDelete(null); // Đóng modal
     }
+  };
+
+  const handleCancelDelete = () => {
+    setQuizToDelete(null); // Hủy xóa và đóng modal
   };
 
   const handlePageChange = (page) => {
@@ -86,27 +93,16 @@ const QuizLayout = () => {
     <div className="flex">
       <Sidebar />
       <div className="flex-1 ml-64 p-8 bg-gray-50">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold">Quiz</h1>
-          <div className="flex items-center space-x-4">
-            <div className="text-lg">Trung Huynh</div>
-            <img
-              src={avatar}
-              alt="User Avatar"
-              className="w-10 h-10 rounded-full border-2"
-            />
-          </div>
-        </div>
+       
 
         {/* Search Bar and Sort */}
         <div className="flex items-center justify-between mb-6">
-        <SearchBar
-  value={tempSearchQuery}
-  onChange={(e) => setTempSearchQuery(e.target.value)}
-  onSearch={handleSearch} 
-  onClear={() => setTempSearchQuery("")}
-/>
+          <SearchBar
+            value={tempSearchQuery}
+            onChange={(e) => setTempSearchQuery(e.target.value)}
+            onSearch={handleSearch}
+            onClear={() => setTempSearchQuery("")}
+          />
           <div className="flex items-center space-x-2">
             <select
               className="border px-4 py-2 rounded-lg"
@@ -135,8 +131,11 @@ const QuizLayout = () => {
           {questions.map((question) => (
             <QuizListItem
               key={question.id}
-              question={question}
-              onDelete={() => handleDeleteButton(question.id)}
+              content={question.content}
+              createdAt={question.createdDate}
+              type={question.type}
+              topic={question.topic}
+              onDelete={() => handleDeleteRequest(question.id)}
             />
           ))}
         </div>
@@ -171,6 +170,15 @@ const QuizLayout = () => {
               setQuestions([...questions, newQuiz]);
               setShowModal(false);
             }}
+          />
+        )}
+
+        {quizToDelete && (
+          <ConfirmationModal
+            title="Confirm Delete"
+            message="Are you sure you want to delete this quiz? This action cannot be undone."
+            onConfirm={handleConfirmDelete}
+            onCancel={handleCancelDelete}
           />
         )}
       </div>
