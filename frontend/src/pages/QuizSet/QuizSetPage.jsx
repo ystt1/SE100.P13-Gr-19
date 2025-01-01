@@ -1,94 +1,105 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { QuizSetCard } from "./QuizSetCard";
 import TabNavigation from "../../components/TabNavigation";
 import AddQuizSetModal from "./AddQuizSetModal";
 import SearchBar from "../../components/SearchBar";
 import Sidebar from "../../components/Sidebar";
-import { useNavigate } from "react-router-dom";
+import Pagination from "../topic/component/pagination";
 import avatar from "../../images/avatar.png";
+import QuizSetService from "../../data/service/quiz_set_service";
+import { format } from "date-fns";
+import { useSnackbar } from "../../components/NotificationBat";
 
-
-const quizSets = [
-  {
-    id: 1,
-    name: "Quizset 1",
-    description: "Math Quiz covering basic arithmetic and algebra.",
-    createdDate: "2024-12-01",
-    questionCount: 10,
-    topic: "Math",
-    isSaved: true, 
-  },
-  {
-    id: 2,
-    name: "Quizset 2",
-    description: "Science Quiz with biology and chemistry basics.",
-    createdDate: "2024-11-25",
-    questionCount: 8,
-    topic: "Science",
-    isSaved: false,
-  },
-  {
-    id: 3,
-    name: "Quizset A",
-    description: "Advanced programming quiz.",
-    createdDate: "2024-11-15",
-    questionCount: 12,
-    topic: "Programming",
-    isSaved: false, 
-  },
-];
 
 const QuizSetPage = () => {
-  const [activeTab, setActiveTab] = useState(0);
+  const { showSnackbar } = useSnackbar();
+  const [quizSetData, setQuizSetData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [totalPages, setTotalPages] = useState(1);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [sortOption, setSortOption] = useState("name"); 
-  const [quizSetData, setQuizSetData] = useState(quizSets); //get quizset
+
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [tempSearchQuery, setTempSearchQuery] = useState("");
+  const sortOption = searchParams.get("sort") || "id";
+  const currentPage = parseInt(searchParams.get("page") || "1", 10);
+
+
+
+
+  const fetchQuizSets = async () => {
+    setLoading(true);
+    try {
+      const data = await QuizSetService.getAllQuizSet(
+        searchQuery,
+        currentPage,
+        10,
+        sortOption
+      );
+
+
+      setQuizSetData(
+        data.quizSets.map((quizSet) => ({
+          id: quizSet.id,
+          name: quizSet.name,
+          description: quizSet.description,
+          createdTime: format(new Date(quizSet.createdTime), "MMMM d, yyyy h:mm:ss a"),
+          isSaved: false,
+        }))
+      );
+      setTotalPages(data.totalPages);
+    } catch (error) {
+      console.error("Error fetching quiz sets:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchQuizSets();
+  }, [searchQuery, currentPage, sortOption]);
+
+  const handleSearch = () => {
+    setSearchQuery(tempSearchQuery);
+    setCurrentPage(1);
+  };
+
+  const handleSortChange = (option) => {
+    setSearchParams({ search: searchQuery, sort: option, page: 1 });
+  };
 
   const handleQuizSetClick = (id) => {
     navigate(`/quizset-detail/${id}`);
   };
 
-  
-
-  // Lọc danh sách quiz set theo tab
-  const filteredQuizSets = quizSetData.filter((quizSet) =>
-    activeTab === 0
-      ? quizSet.name.toLowerCase().includes(searchQuery.toLowerCase())
-      : quizSet.isSaved // Hiển thị saved khi ở tab "Save Quizset"
-  );
-
-  const sortQuizSets = (quizSets, option) => {
-    return [...quizSets].sort((a, b) => {
-      if (option === "name") {
-        return a.name.localeCompare(b.name);
-      }
-      if (option === "createdDate") {
-        return new Date(b.createdDate) - new Date(a.createdDate);
-      }
-      if (option === "questionCount") {
-        return b.questionCount - a.questionCount;
-      }
-      return 0;
-    });
-  };
-
-  const sortedQuizSets = sortQuizSets(filteredQuizSets, sortOption);
-
-  
-  const [quizSetsState, setQuizSetsState] = useState(quizSets);
-
   const toggleSaveStatus = (id) => {
-    const updatedQuizSets = quizSetsState.map((quizSet) =>
-      quizSet.id === id ? { ...quizSet, isSaved: !quizSet.isSaved } : quizSet
+    setQuizSetData((prevQuizSets) =>
+      prevQuizSets.map((quizSet) =>
+        quizSet.id === id ? { ...quizSet, isSaved: !quizSet.isSaved } : quizSet
+      )
     );
-    setQuizSetsState(updatedQuizSets); 
   };
 
-  const handleAddQuizSet = (newQuizSet) => {
-    console.log("New Quiz Set:", newQuizSet);  
+  const handleAddQuizSet = async (newQuizSet) => {
+    const { name, description } = newQuizSet;
+    try {
+      const response = await QuizSetService.addTopic({ name, description });
+      if (response === "success") {
+        showSnackbar("Quiz Set added successfully!", "success"); // Hiển thị thông báo thành công
+        fetchQuizSets(); // Tải lại danh sách quiz sets
+        setShowAddModal(false); // Chỉ đóng modal nếu thêm thành công
+      } else {
+        alert("Failed to add Quiz Set: " + response, "error"); // Hiển thị thông báo lỗi
+      }
+    } catch (error) {
+      alert("An unexpected error occurred. Please try again.", "error");
+    }
   };
+  
 
   return (
     <div className="flex">
@@ -110,27 +121,28 @@ const QuizSetPage = () => {
         {/* Search Bar */}
         <SearchBar
           placeholder="Search QuizSet"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          value={tempSearchQuery}
+          onChange={(e) => setTempSearchQuery(e.target.value)}
+          onSearch={handleSearch}
+          onClear={() => setTempSearchQuery("")}
         />
 
         {/* Tabs và Sort */}
         <div className="flex justify-between items-center mt-6 mb-6">
           <TabNavigation
             tabs={["Your Quiz Set", "Save Quizset"]}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
+            activeTab={0} // Chỉ dùng một tab ở đây
+            onTabChange={() => { }} // Không xử lý chuyển tab
           />
           <div className="flex items-center space-x-4">
-              <select
-                value={sortOption}
-                onChange={(e) => setSortOption(e.target.value)}
-                className="px-4 py-2 border rounded-lg"
-              >
-                <option value="name">Sort by Name</option>
-                <option value="createdDate">Sort by Created Date</option>
-                <option value="questionCount">Sort by Question Count</option>
-              </select>
+            <select
+              value={sortOption}
+              onChange={(e) => handleSortChange(e.target.value)}
+              className="px-4 py-2 border rounded-lg"
+            >
+              <option value="name">Sort by Name</option>
+              <option value="createdTime">Sort by Created Date</option>
+            </select>
             <button
               onClick={() => setShowAddModal(true)}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg"
@@ -141,23 +153,30 @@ const QuizSetPage = () => {
         </div>
 
         {/* Quiz Sets */}
-        <div>
-          {sortedQuizSets.map((quizSet) => (
-            <QuizSetCard
-              key={quizSet.id}
-              name={quizSet.name}
-              description={quizSet.description}
-              questionCount={quizSet.questionCount}
-              topic={quizSet.topic}
-              createdDate={quizSet.createdDate}
-              isSaved={quizSet.isSaved} 
-              onClick={() => handleQuizSetClick(quizSet.id)}
-              onToggleSave={() => toggleSaveStatus(quizSet.id)} 
-            />
-          ))}
-        </div>
+        {loading ? (
+          <p>Loading...</p>
+        ) : (
+          <div>
+            {quizSetData.map((quizSet) => (
+              <QuizSetCard
+                key={quizSet.id}
+                name={quizSet.name}
+                description={quizSet.description}
+                createdTime={quizSet.createdTime}
+                isSaved={quizSet.isSaved}
+                onClick={() => handleQuizSetClick(quizSet.id)}
+                onToggleSave={() => toggleSaveStatus(quizSet.id)}
+              />
+            ))}
+          </div>
+        )}
 
-
+        {/* Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => setSearchParams({ search: searchQuery, sort: sortOption, page })}
+        />
 
         {/* Modal */}
         {showAddModal && (

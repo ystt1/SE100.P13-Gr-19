@@ -6,7 +6,7 @@ export const QuizSetCard = ({
   description,
   questionCount,
   topic,
-  createdDate,
+  createdTime,
   isSaved,
   onClick,
   onToggleSave,
@@ -27,7 +27,7 @@ export const QuizSetCard = ({
         <p className="text-gray-600 mb-2">
           {truncatedDescription}
           <span className="ml-4 text-sm text-blue-600">{topic}</span>
-          <span className="ml-4 text-sm text-gray-500">Created: {createdDate}</span>
+          <span className="ml-4 text-sm text-gray-500">Created: {createdTime}</span>
         </p>
         <p className="text-sm text-gray-500">Questions: {questionCount}</p>
       </div>

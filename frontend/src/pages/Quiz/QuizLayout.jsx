@@ -16,7 +16,7 @@ const QuizLayout = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [tempSearchQuery, setTempSearchQuery] = useState(""); // Thêm state tạm thời
+  const [tempSearchQuery, setTempSearchQuery] = useState(""); 
   const [sortKey, setSortKey] = useState("createdAt");
   const [direction, setDirection] = useState("desc");
 
@@ -104,7 +104,7 @@ const QuizLayout = () => {
         <SearchBar
   value={tempSearchQuery}
   onChange={(e) => setTempSearchQuery(e.target.value)}
-  onSearch={handleSearch} // Đảm bảo hàm handleSearch được định nghĩa đúng
+  onSearch={handleSearch} 
   onClear={() => setTempSearchQuery("")}
 />
           <div className="flex items-center space-x-2">
