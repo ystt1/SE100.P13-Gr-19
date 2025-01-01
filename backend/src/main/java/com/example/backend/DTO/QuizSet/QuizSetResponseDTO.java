@@ -23,11 +23,13 @@ public class QuizSetResponseDTO {
 
   private Date updatedTime;
 
-  private Duration timeLimit;
+  private Long timeLimit;
 
   private Integer totalQuestion;
 
   private Boolean allowShowAnswer=true;
+
+  private Boolean isBookmarked;
 
   private UserResponseDTO creator;
 }

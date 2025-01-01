@@ -44,7 +44,7 @@ public class QuizSet {
 
   private Boolean allowShowAnswer=true;
 
-  private Duration timeLimit;
+  private Long timeLimit;
 
   private Integer totalQuestion;
 

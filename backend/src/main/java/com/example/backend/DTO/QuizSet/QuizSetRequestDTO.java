@@ -11,5 +11,5 @@ public class QuizSetRequestDTO {
 
   private Boolean allowShowAnswer=true;
 
-  private Duration timeLimit;
+  private Long timeLimit;
 }

@@ -64,6 +64,7 @@ public class QuizSetService {
   }
 
   public ListQuizSetDTO getAllQuizSetsByUserEmail(String email, String sortElement, String direction, String search, int page, int limit, int topicId) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
     //Pageable for pagination and sorting
     Sort sort = Sort.by(Sort.Direction.fromString(direction), sortElement);
@@ -88,28 +89,38 @@ public class QuizSetService {
     Page<QuizSet> quizSetPage = quizSetRepository.findAll(spec, pageable);
 
     List<QuizSetResponseDTO> quizSetDTOs = quizSetPage.getContent().stream()
-        .map(quizSet -> modelMapper.map(quizSet, QuizSetResponseDTO.class))
+        .map(quizSet -> {
+          QuizSetResponseDTO dto = modelMapper.map(quizSet, QuizSetResponseDTO.class);
+          dto.setIsBookmarked(user.getBookmarks().contains(quizSet));
+          return dto;
+        })
         .collect(Collectors.toList());
 
     var result = ListQuizSetDTO.builder().quizSets(quizSetDTOs).build();
     result.setTotalElements((int) quizSetPage.getTotalElements());
     result.setTotalPages(quizSetPage.getTotalPages());
     result.setCurrentPage(page);
+
     return result;
   }
 
 
   public QuizSetResponseDTO getQuizSetById(String email, int id) {
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new RuntimeException("User not found"));
+
     var quizSet = quizSetRepository.findById(id);
     if (quizSet.isEmpty()) {
       throw new ResourceNotFoundException("Quiz set with id " + id + " not found");
     }
 
     QuizSetResponseDTO result = modelMapper.map(quizSet.get(), QuizSetResponseDTO.class);
-
-//    if(quizSet.get().getCreator().getEmail().equals(email)){
-//      result.setIsYourQuizSet(true);
-//    }
+    if(user.getBookmarks().contains(quizSet.get())){
+      result.setIsBookmarked(true);
+    }
+    else {
+      result.setIsBookmarked(false);
+    }
     return result;
   }
 
@@ -249,10 +260,19 @@ public class QuizSetService {
     Page<QuizSet> quizSetPage = quizSetRepository.findAll(spec, pageable);
 
     List<QuizSetResponseDTO> quizSetDTOs = quizSetPage.getContent().stream()
-        .map(quizSet -> modelMapper.map(quizSet, QuizSetResponseDTO.class))
+        .map(quizSet ->{
+          var dto = modelMapper.map(quizSet, QuizSetResponseDTO.class);
+          dto.setIsBookmarked(true);
+          return dto;
+        })
         .collect(Collectors.toList());
 
-    return ListQuizSetDTO.builder().quizSets(quizSetDTOs).build();
+    return ListQuizSetDTO.builder()
+        .quizSets(quizSetDTOs)
+        .totalElements((int) quizSetPage.getTotalElements())
+        .totalPages(quizSetPage.getTotalPages())
+        .currentPage(page)
+        .build();
   }
 
   public ListQuizSetDTO getRandomQuizSet(int limit) {
