@@ -1,9 +1,10 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import SideBar from "../../../components/Sidebar";
+import { useNavigate, useParams } from "react-router-dom";
+import Sidebar from "../../../components/Sidebar";
 
 const QuizSetDetails = () => {
   const navigate = useNavigate();
+  const { id } = useParams(); //  quizSetId từ URL
 
   // Mock data
   const quizSetDetails = {
@@ -27,7 +28,7 @@ const QuizSetDetails = () => {
   return (
     <div className="flex bg-gray-50 min-h-screen">
       {/* Sidebar */}
-      <SideBar className="fixed top-0 left-0 w-64 h-full bg-white shadow-md z-50" />
+      <Sidebar className="fixed top-0 left-0 w-64 h-full bg-white shadow-md z-50" />
 
       {/* Main Content */}
       <div className="ml-64 flex-grow p-6">
@@ -70,7 +71,7 @@ const QuizSetDetails = () => {
               </div>
               <button
                 className="bg-blue-600 text-white py-3 px-6 rounded-lg shadow-md hover:bg-blue-700"
-                onClick={() => navigate("/quiz/attempt")}
+                onClick={() => navigate(`/dashboard/quiz/attempt/${id}`)}
               >
                 Start Quiz
               </button>
