@@ -1,20 +1,26 @@
 package com.example.backend.service;
 
 import com.example.backend.DTO.Quiz.BlankQuiz.BlankQuizRequestDTO;
+import com.example.backend.DTO.Quiz.ListQuizResponseDTO;
+import com.example.backend.DTO.Quiz.ListSmallQuizResponseDTO;
 import com.example.backend.DTO.Quiz.MultipleChoiceQuiz.MultipleChoiceQuizRequestDTO;
 import com.example.backend.DTO.Quiz.QuizRequestDTO;
 import com.example.backend.DTO.Quiz.QuizResponseDTO;
 import com.example.backend.DTO.Quiz.ShortAnswerQuiz.ShortAnswerQuizRequestDTO;
-import com.example.backend.DTO.QuizSet.QuizSetResponseDTO;
+import com.example.backend.DTO.Quiz.SmallQuizResponseDTO;
 import com.example.backend.entity.Quiz;
-import com.example.backend.entity.Topic;
 import com.example.backend.exception.ForbiddenException;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.QuizRepository;
 import com.example.backend.repository.TopicRepository;
 import com.example.backend.repository.UserRepository;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -74,5 +80,57 @@ public class QuizService {
     }
 
     quizRepository.deleteById(id);
+  }
+
+  public ListSmallQuizResponseDTO getAllQuizzes(String email,int page,int limit,String sortElement,String direction,String search) {
+    Sort sort = Sort.by(Sort.Direction.fromString(direction), sortElement);
+    Pageable pageable = PageRequest.of(page - 1, limit, sort);
+
+    Page<Quiz> quizzesPage;
+
+    if(search != null && !search.isEmpty()){
+      quizzesPage = quizRepository.findByCreatorEmailAndContentContainingIgnoreCase(email, search, pageable);
+    } else {
+      quizzesPage = quizRepository.findByCreatorEmail(email, pageable);
+    }
+
+    List<SmallQuizResponseDTO> quizzes = quizzesPage.stream().map(quiz -> modelMapper.map(quiz,SmallQuizResponseDTO.class)).toList();
+
+    return ListSmallQuizResponseDTO.builder()
+        .quizzes(quizzes)
+        .totalPages(quizzesPage.getTotalPages())
+        .totalElements((int)quizzesPage.getTotalElements())
+        .build();
+  }
+
+  public ListSmallQuizResponseDTO getAllQuizzes(int page, int limit, String sortElement, String direction, String search, int topicId) {
+    Sort sort = Sort.by(Sort.Direction.fromString(direction), sortElement);
+    Pageable pageable = PageRequest.of(page - 1, limit, sort);
+
+    Page<Quiz> quizzesPage;
+
+    if (search != null && !search.isEmpty()) {
+      if (topicId != 0) {
+        quizzesPage = quizRepository.findByContentContainingIgnoreCaseAndTopicId(search, topicId, pageable);
+      } else {
+        quizzesPage = quizRepository.findByContentContainingIgnoreCase(search, pageable);
+      }
+    } else {
+      if (topicId != 0) {
+        quizzesPage = quizRepository.findByTopicId(topicId, pageable);
+      } else {
+        quizzesPage = quizRepository.findAll(pageable);
+      }
+    }
+
+    List<SmallQuizResponseDTO> quizzes = quizzesPage.stream()
+        .map(quiz -> modelMapper.map(quiz, SmallQuizResponseDTO.class))
+        .toList();
+
+    return ListSmallQuizResponseDTO.builder()
+        .quizzes(quizzes)
+        .totalPages(quizzesPage.getTotalPages())
+        .totalElements((int) quizzesPage.getTotalElements())
+        .build();
   }
 }

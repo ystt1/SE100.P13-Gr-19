@@ -1,5 +1,7 @@
 package com.example.backend.service;
 
+import com.example.backend.DTO.Quiz.ListSmallQuizResponseDTO;
+import com.example.backend.DTO.Quiz.SmallQuizResponseDTO;
 import com.example.backend.DTO.Topic.ListTopicResponseDTO;
 import com.example.backend.DTO.Topic.TopicRequestDTO;
 import com.example.backend.DTO.Topic.TopicResponseDTO;
@@ -109,5 +111,18 @@ public class TopicService {
     listTopicResponseDTO.setCurrentPage(page);
 
     return listTopicResponseDTO;
+  }
+
+  public ListSmallQuizResponseDTO getQuizzesByTopicId(int id) {
+    var topic = topicRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Quiz set not found"));
+
+    List<SmallQuizResponseDTO> quizzes = topic.getQuizList().stream()
+        .map(quiz -> modelMapper.map(quiz, SmallQuizResponseDTO.class))
+        .collect(Collectors.toList());
+
+    return ListSmallQuizResponseDTO.builder()
+        .quizzes(quizzes)
+        .build();
   }
 }

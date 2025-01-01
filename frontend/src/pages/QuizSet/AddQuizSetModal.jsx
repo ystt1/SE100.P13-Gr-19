@@ -11,11 +11,10 @@ const AddQuizSetModal = ({ onClose, onSubmit }) => {
       description: description,
       date: new Date().toLocaleDateString(), //lấy ngày hiện tại
       timeLimit: timeLimit,
-      attempts: attempts,
     };
 
     onSubmit(newQuizSet); 
-    onClose();
+
   };
 
   return (

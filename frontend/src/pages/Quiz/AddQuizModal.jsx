@@ -7,7 +7,7 @@ import FillInTheBlankInput from "./components/fill_in_the_blank_input";
 import DragAndDropInput from "./components/drag_and_drop_input";
 import QuizService from "../../data/service/quiz_service";
 
-const AddQuizModal = ({ onClose, onSubmit }) => {
+const AddQuizModal = ({ onClose, onSubmit,onSuccess }) => {
   const [topics, setTopics] = useState([]);
   const [quizData, setQuizData] = useState({
     question: "",
@@ -47,6 +47,7 @@ const AddQuizModal = ({ onClose, onSubmit }) => {
 
       const response = await QuizService.addQuiz(finalQuizData);
       console.log("Quiz added successfully:", response);
+      onSuccess();
       onClose();
     } catch (error) {
       console.error("Error adding quiz:", error);

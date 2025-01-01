@@ -2,8 +2,8 @@ import axiosInstance from "../../core/instant_service/instant_service";
 import axios from 'axios';
 
 interface TopicAddPayload {
-  password: string;
   name: string;
+  description: string;
 }
 
 
@@ -79,6 +79,29 @@ const TopicService = {
         return "Unexpected error";
       }
       return "Add Topic Fail";
+    }
+  },
+
+  deleteTopic: async (id: String) => {
+    try {
+      const response = await axiosInstance.delete(`/topic/${id}`,);
+      console.log(response);
+      if (response.status == 204) {
+        return "success";
+      }
+      return response.data.message;
+    }
+    catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          const { status, data } = error.response;
+          return data.message;
+        }
+      } else {
+        return "Unexpected error";
+      }
+
+      return "Delete Topic Fail";
     }
   },
 }

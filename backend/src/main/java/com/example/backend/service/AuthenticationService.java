@@ -6,14 +6,17 @@ import com.example.backend.DTO.Auth.RegisterRequest;
 import com.example.backend.entity.Role;
 import com.example.backend.entity.User;
 import com.example.backend.exception.ForbiddenException;
+import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.exception.ValidationException;
 import com.example.backend.repository.UserRepository;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -70,20 +73,20 @@ public class AuthenticationService {
   }
 
   public AuthenticationResponse authenticate(AuthenticationRequest request) {
-
-//    var user = userRepository.findByEmail(request.getEmail())
-//        .orElseThrow(() -> new RuntimeException("User not found"));
     var user = userRepository.findByEmail(request.getEmail())
-        .orElseThrow(() -> new RuntimeException("User not found"));
+        .orElseThrow(() -> new ResourceNotFoundException("Email not found"));
 
-    if(!user.isEnabled()) {
-      throw new ForbiddenException("User not activated");
+    if (!user.isEnabled()) {
+      throw new ForbiddenException("Your account is not activated");
     }
-    authenticationManager.authenticate(
-        new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-    );
 
-
+    try {
+      authenticationManager.authenticate(
+          new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+      );
+    } catch (Exception e) {
+      throw new ForbiddenException("Password is incorrect");
+    }
 
     var jwt = jwtService.generateToken(user);
 

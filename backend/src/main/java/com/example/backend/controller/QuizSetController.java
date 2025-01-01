@@ -1,6 +1,7 @@
 package com.example.backend.controller;
 
-import com.example.backend.DTO.Quiz.QuizRequestDTO;
+import com.example.backend.DTO.Quiz.ListQuizIdDTO;
+import com.example.backend.DTO.Quiz.ListSmallQuizResponseDTO;
 import com.example.backend.DTO.Quiz.QuizResponseDTO;
 import com.example.backend.DTO.QuizSet.ListQuizSetDTO;
 import com.example.backend.DTO.QuizSet.QuizSetRequestDTO;
@@ -87,9 +88,10 @@ public class QuizSetController {
     return ResponseEntity.status(200).body(quizSetService.updateQuizSet(principal.getName(), id, quizSetRequestDTO));
   }
 
-  @PostMapping("/{id}")
-  public ResponseEntity<String> addQuizToQuizSet(Principal principal,@PathVariable int id,@RequestBody QuizRequestDTO quizRequestDTO) {
-    quizSetService.addQuizToQuizSet(principal.getName(),id, quizRequestDTO);
+  @PostMapping("/{id}/quiz")
+  public ResponseEntity<String> addQuizToQuizSet(Principal principal,@PathVariable int id,@RequestBody
+      List<Integer> listQuizId) {
+    quizSetService.addQuizToQuizSet(principal.getName(),id, listQuizId);
     return ResponseEntity.status(200).body("Quiz added to quiz set");
   }
 
@@ -121,6 +123,12 @@ public class QuizSetController {
   public ResponseEntity<List<QuizResponseDTO>> getQuestions(@PathVariable int id) {
     var questions = quizSetService.getQuestionsByQuizSet(id);
     return ResponseEntity.ok(questions);
+  }
+
+  @GetMapping("/{id}/quizzes")
+  public ResponseEntity<ListSmallQuizResponseDTO> getQuizzes(@PathVariable int id) {
+    var quizzes = quizSetService.getQuizzesOfQuizSet(id);
+    return ResponseEntity.ok(quizzes);
   }
 
 }

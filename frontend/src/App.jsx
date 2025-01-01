@@ -9,10 +9,8 @@ import { RegisterPage } from "./pages/auth/register_page";
 import { SnackbarProvider } from "./components/NotificationBat";
 import { ProtectedRoute } from "./components/ProtectedRoute"; 
 import TopicsPage from "./pages/topic/topic_page";
-import DashboardPage from "./pages/dash_board/dash_board_page";
-import QuizSetDetails from "./pages/dash_board/commponent/quizSetDetails";
-// import quizComplete from "./pages/dash_board/commponent/quizComplete";
-
+import Dashboard from "./pages/dash_board/dash_board_page";
+import Teams from "./pages/teams/teams_page";
 
 function App() {
   return (
@@ -28,6 +26,14 @@ function App() {
              // <ProtectedRoute>
                 <TopicsPage />
             //  </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/teams"
+            element={
+              <ProtectedRoute>
+                <Teams />
+              </ProtectedRoute>
             }
           />
           <Route
@@ -73,9 +79,9 @@ function App() {
           <Route
             path="/"
             element={            
-              // <ProtectedRoute>
-                <DashboardPage />
-              // </ProtectedRoute>
+              <ProtectedRoute>
+                <Dashboard />
+               </ProtectedRoute>
             }
           />
 

@@ -1,7 +1,10 @@
 package com.example.backend.service;
 
+import com.example.backend.DTO.Quiz.ListQuizIdDTO;
+import com.example.backend.DTO.Quiz.ListSmallQuizResponseDTO;
 import com.example.backend.DTO.Quiz.QuizRequestDTO;
 import com.example.backend.DTO.Quiz.QuizResponseDTO;
+import com.example.backend.DTO.Quiz.SmallQuizResponseDTO;
 import com.example.backend.DTO.QuizSet.ListQuizSetDTO;
 import com.example.backend.DTO.QuizSet.QuizSetRequestDTO;
 import com.example.backend.DTO.QuizSet.QuizSetResponseDTO;
@@ -11,6 +14,7 @@ import com.example.backend.entity.User;
 import com.example.backend.exception.ConflictException;
 import com.example.backend.exception.ForbiddenException;
 import com.example.backend.exception.ResourceNotFoundException;
+import com.example.backend.repository.QuizRepository;
 import com.example.backend.repository.QuizSetRepository;
 import com.example.backend.repository.UserRepository;
 import jakarta.persistence.criteria.Predicate;
@@ -34,7 +38,7 @@ public class QuizSetService {
 
   private final UserRepository userRepository;
 
-  private final QuizService quizService;
+  private final QuizRepository quizRepository;
 
   private ModelMapper modelMapper;
 
@@ -55,16 +59,14 @@ public class QuizSetService {
     //set other value for the entity
     quizSet.setCreatedTime(new java.util.Date());
     quizSet.setUpdatedTime(quizSet.getCreatedTime());
+    quizSet.setTotalQuestion(0);
     quizSet.setCreator(user);
 
-    //save entity and map to response dto
-    var resultDTO = modelMapper.map(quizSetRepository.save(quizSet), QuizSetResponseDTO.class);
-
-    //return
-    return resultDTO;
+    return modelMapper.map(quizSetRepository.save(quizSet), QuizSetResponseDTO.class);
   }
 
   public ListQuizSetDTO getAllQuizSetsByUserEmail(String email, String sortElement, String direction, String search, int page, int limit, int topicId) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
     //Pageable for pagination and sorting
     Sort sort = Sort.by(Sort.Direction.fromString(direction), sortElement);
@@ -89,28 +91,38 @@ public class QuizSetService {
     Page<QuizSet> quizSetPage = quizSetRepository.findAll(spec, pageable);
 
     List<QuizSetResponseDTO> quizSetDTOs = quizSetPage.getContent().stream()
-        .map(quizSet -> modelMapper.map(quizSet, QuizSetResponseDTO.class))
+        .map(quizSet -> {
+          QuizSetResponseDTO dto = modelMapper.map(quizSet, QuizSetResponseDTO.class);
+          dto.setIsBookmarked(user.getBookmarks().contains(quizSet));
+          return dto;
+        })
         .collect(Collectors.toList());
 
     var result = ListQuizSetDTO.builder().quizSets(quizSetDTOs).build();
     result.setTotalElements((int) quizSetPage.getTotalElements());
     result.setTotalPages(quizSetPage.getTotalPages());
     result.setCurrentPage(page);
+
     return result;
   }
 
 
   public QuizSetResponseDTO getQuizSetById(String email, int id) {
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new RuntimeException("User not found"));
+
     var quizSet = quizSetRepository.findById(id);
     if (quizSet.isEmpty()) {
       throw new ResourceNotFoundException("Quiz set with id " + id + " not found");
     }
 
     QuizSetResponseDTO result = modelMapper.map(quizSet.get(), QuizSetResponseDTO.class);
-
-//    if(quizSet.get().getCreator().getEmail().equals(email)){
-//      result.setIsYourQuizSet(true);
-//    }
+    if(user.getBookmarks().contains(quizSet.get())){
+      result.setIsBookmarked(true);
+    }
+    else {
+      result.setIsBookmarked(false);
+    }
     return result;
   }
 
@@ -146,22 +158,26 @@ public class QuizSetService {
     return resultDTO;
   }
 
-  public QuizRequestDTO addQuizToQuizSet(String email, int id, QuizRequestDTO quizRequestDTO) {
-//    var quizSet = quizSetRepository.findById(id);
-//    if (quizSet.isEmpty()) {
-//      throw new ResourceNotFoundException("Quiz set not found");
-//    }
-//
-//    if (!quizSet.get().getCreator().getEmail().equals(email)) {
-//      throw new ForbiddenException("You are not authorized to add quiz to this quiz set");
-//    }
-//
-//    var quiz = modelMapper.map(quizRequestDTO, Quiz.class);
-//
-//    var quizResponseDTO = modelMapper.map(quizService.saveQuiz(quiz), QuizRequestDTO.class);
-//
-//    return quizResponseDTO;
-      return null;
+  public void addQuizToQuizSet(String email, int id, List<Integer> listQuizId) {
+
+    var quizSet = quizSetRepository.findById(id);
+    if (quizSet.isEmpty()) {
+      throw new ResourceNotFoundException("Quiz set not found");
+    }
+    if (!quizSet.get().getCreator().getEmail().equals(email)) {
+      throw new ForbiddenException("You are not authorized to add quizzes to this quiz set");
+    }
+    listQuizId.forEach(quizId -> {
+      var quiz = quizRepository.findById(quizId);
+      if (quiz.isEmpty()) {
+        throw new ResourceNotFoundException("Quiz not found with id " + quizId);
+      }
+      if(checkQuizSetContainQuiz(quizSet.get(), quiz.get())){
+        throw new ConflictException("Quiz with id " + quizId + " already exists in this quiz set");
+      }
+      quizSet.get().getQuizList().add(quiz.get());
+    });
+    quizSetRepository.save(quizSet.get());
   }
 
   public QuizSetResponseDTO allowShowAnswer(String email, int id) {
@@ -250,10 +266,19 @@ public class QuizSetService {
     Page<QuizSet> quizSetPage = quizSetRepository.findAll(spec, pageable);
 
     List<QuizSetResponseDTO> quizSetDTOs = quizSetPage.getContent().stream()
-        .map(quizSet -> modelMapper.map(quizSet, QuizSetResponseDTO.class))
+        .map(quizSet ->{
+          var dto = modelMapper.map(quizSet, QuizSetResponseDTO.class);
+          dto.setIsBookmarked(true);
+          return dto;
+        })
         .collect(Collectors.toList());
 
-    return ListQuizSetDTO.builder().quizSets(quizSetDTOs).build();
+    return ListQuizSetDTO.builder()
+        .quizSets(quizSetDTOs)
+        .totalElements((int) quizSetPage.getTotalElements())
+        .totalPages(quizSetPage.getTotalPages())
+        .currentPage(page)
+        .build();
   }
 
   public ListQuizSetDTO getRandomQuizSet(int limit) {
@@ -278,4 +303,20 @@ public class QuizSetService {
             .toList();
   }
 
+  public ListSmallQuizResponseDTO getQuizzesOfQuizSet(int id) {
+    var quizSet = quizSetRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Quiz set not found"));
+
+    List<SmallQuizResponseDTO> quizzes = quizSet.getQuizList().stream()
+        .map(quiz -> modelMapper.map(quiz, SmallQuizResponseDTO.class))
+        .collect(Collectors.toList());
+
+    return ListSmallQuizResponseDTO.builder()
+        .quizzes(quizzes)
+        .build();
+  }
+
+  public Boolean checkQuizSetContainQuiz(QuizSet quizSet, Quiz quiz) {
+    return quizSet.getQuizList().contains(quiz);
+  }
 }
