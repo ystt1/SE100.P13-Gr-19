@@ -1,8 +1,10 @@
 package com.example.backend.controller;
 
+import com.example.backend.DTO.Quiz.ListSmallQuizResponseDTO;
 import com.example.backend.DTO.Topic.ListTopicResponseDTO;
 import com.example.backend.DTO.Topic.TopicRequestDTO;
 import com.example.backend.DTO.Topic.TopicResponseDTO;
+import com.example.backend.service.QuizService;
 import com.example.backend.service.TopicService;
 import java.security.Principal;
 import lombok.AllArgsConstructor;
@@ -24,6 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class TopicController {
 
   private final TopicService topicService;
+
+  private final QuizService quizService;
 
   @PostMapping("/topic")
   public ResponseEntity<TopicResponseDTO> createTopic(Principal principal,@RequestBody TopicRequestDTO topicRequestDTO) {
@@ -51,8 +55,17 @@ public class TopicController {
     return ResponseEntity.status(200).body(topicService.getAllTopics(principal.getName(), page, limit, sortElement, direction, search));
   }
 
-//  @GetMapping("/topic/{id}")
-//  public ResponseEntity<TopicRequestDTO> getTopicById(Principal principal,@PathVariable int id) {
-//    return topicService.getTopicById(principal.getName(),id);
-//  }
+  @GetMapping("/topic/{id}/quizzes")
+  public ResponseEntity<ListSmallQuizResponseDTO> getAllQuizzesOfUser(
+      Principal principal,
+      @PathVariable int id,
+      @RequestParam(defaultValue = "id") String sortElement,
+      @RequestParam(defaultValue = "asc") String direction,
+      @RequestParam(required = false) String search,
+      @RequestParam(defaultValue = "1") int page,
+      @RequestParam(defaultValue = "10") int limit) {
+    return ResponseEntity.status(200).body(quizService.getAllQuizzes(principal.getName(), page, limit, sortElement, direction, search, id));
+  }
+
+
 }
