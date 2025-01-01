@@ -85,16 +85,26 @@ const QuizService = {
       throw error;
     }
   },
-  getAllQuiz:async(sortKey:String,direction:String)=>
-  {
+  getAllQuiz: async (search = "", page = 1, limit = 10, sortKey = "createdAt", direction = "asc") => {
     try {
-      const response = await axiosInstance.get(`http://localhost:8080/api/quiz/all?&sortElement=${sortKey}&direction=${direction}`);
+      const response = await axiosInstance.get(`/quiz/all`, {
+        params: {
+          search,
+          page,
+          limit,
+          sortElement: sortKey,
+          direction,
+        },
+      });
+      console.log(response);
+      
       return response.data;
     } catch (error) {
-      console.error("Error fetching topics:", error);
+      console.error("Error fetching quizzes:", error);
       throw error;
     }
   },
+  
   delete:async(id)=>
   {
     try {

@@ -3,25 +3,32 @@ import Sidebar from "../../components/Sidebar";
 import SearchBar from "../../components/SearchBar";
 import AddQuizButton from "./AddQuizButton";
 import QuizListItem from "./QuizListItem";
-import AddQuizModal from "./AddQuizModal"; 
+import AddQuizModal from "./AddQuizModal";
 import avatar from "../../images/avatar.png";
 import QuizService from "../../data/service/quiz_service";
+import Pagination from "../topic/component/pagination"; // Add Pagination component
 import { useSnackbar } from "../../components/NotificationBat";
-
 
 const QuizLayout = () => {
   const { showSnackbar } = useSnackbar();
   const [questions, setQuestions] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [tempSearchQuery, setTempSearchQuery] = useState(""); // Thêm state tạm thời
   const [sortKey, setSortKey] = useState("createdAt");
   const [direction, setDirection] = useState("desc");
 
-  
   const fetchData = async () => {
     try {
-      const data = await QuizService.getAllQuiz(sortKey,direction);
-      console.log(data);
+      const data = await QuizService.getAllQuiz(
+        searchQuery, 
+        currentPage,
+        8,
+        sortKey,
+        direction
+      );
       if (data.quizzes) {
         setQuestions(
           data.quizzes.map((quiz) => ({
@@ -32,17 +39,29 @@ const QuizLayout = () => {
             topic: quiz.topic.name,
           }))
         );
+        setTotalPages(data.totalPages);
       }
     } catch (error) {
       console.error("Error fetching quizzes:", error);
     }
   };
-  
+
   useEffect(() => {
     fetchData();
-  }, [sortKey, direction]);
+    const queryParams = new URLSearchParams({
+      search: searchQuery,
+      page: currentPage.toString(),
+      sortKey,
+      direction,
+    });
+    window.history.replaceState(null, "", `?${queryParams.toString()}`);
+  }, [currentPage, searchQuery, sortKey, direction]);
 
-  
+  const handleSearch = () => {
+    setSearchQuery(tempSearchQuery); // Chỉ cập nhật khi nhấn nút hoặc Enter
+    setCurrentPage(1);
+  };
+
   const handleDeleteButton = async (id) => {
     try {
       const response = await QuizService.delete(id);
@@ -58,10 +77,10 @@ const QuizLayout = () => {
       console.error("Error deleting quiz:", error);
     }
   };
-  
-  const filteredQuestions = questions.filter((question) =>
-    question.content.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
 
   return (
     <div className="flex">
@@ -80,13 +99,14 @@ const QuizLayout = () => {
           </div>
         </div>
 
-        {/* Search Bar và Sort */}
+        {/* Search Bar and Sort */}
         <div className="flex items-center justify-between mb-6">
-          <SearchBar
-            placeholder="Search Quiz"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+        <SearchBar
+  value={tempSearchQuery}
+  onChange={(e) => setTempSearchQuery(e.target.value)}
+  onSearch={handleSearch} // Đảm bảo hàm handleSearch được định nghĩa đúng
+  onClear={() => setTempSearchQuery("")}
+/>
           <div className="flex items-center space-x-2">
             <select
               className="border px-4 py-2 rounded-lg"
@@ -117,10 +137,16 @@ const QuizLayout = () => {
               key={question.id}
               question={question}
               onDelete={() => handleDeleteButton(question.id)}
-              
             />
           ))}
         </div>
+
+        {/* Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
 
         {/* Add Quiz Button */}
         <div className="fixed bottom-6 right-6">
