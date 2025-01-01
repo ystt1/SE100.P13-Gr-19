@@ -11,6 +11,8 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import TopicsPage from "./pages/topic/topic_page";
 import Dashboard from "./pages/dash_board/dash_board_page";
 import Teams from "./pages/teams/teams_page";
+import QuizSetDetails from "./pages/dash_board/commponent/quizSetDetails";
+// import quizComplete from "./pages/dash_board/commponent/quizComplete";
 
 function App() {
   return (
@@ -47,9 +49,9 @@ function App() {
           <Route
             path="/add-quiz"
             element={
-              <ProtectedRoute>
+              // <ProtectedRoute>
                 <AddQuiz />
-              </ProtectedRoute>
+              // </ProtectedRoute>
             }
           />
           <Route
@@ -79,9 +81,9 @@ function App() {
           <Route
             path="/"
             element={            
-              <ProtectedRoute>
+              // <ProtectedRoute>
                 <Dashboard />
-               </ProtectedRoute>
+              //  </ProtectedRoute>
             }
           />
 
