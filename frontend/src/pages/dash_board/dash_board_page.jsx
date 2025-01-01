@@ -77,11 +77,13 @@ const DashboardPage = () => {
         >
           &lt;
         </button>
+
         <div className="flex flex-grow justify-center gap-4 px-4">
           {visibleQuizSets.map((quiz, index) => (
             <QuizSetCard key={index} {...quiz} />
           ))}
         </div>
+        
         <button
           onClick={() => handleNext(category, data.length)}
           disabled={startIndex + ITEMS_PER_VIEW >= data.length}
