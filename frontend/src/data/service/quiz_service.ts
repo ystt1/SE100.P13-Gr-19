@@ -72,14 +72,12 @@ const QuizService = {
           throw new Error(`Unsupported quiz type: ${type}`);
       }
         
-      console.log(payload);
       const response = await axiosInstance.post(`/quiz`, payload);
   
       if (response.status!=200) {
         throw new Error("Failed to add quiz");
       }
-
-      return "success";
+      return response;
     } catch (error) {
       console.error("Error adding quiz:", error.message);
       throw error;
@@ -96,7 +94,6 @@ const QuizService = {
           direction,
         },
       });
-      console.log(response);
       
       return response.data;
     } catch (error) {

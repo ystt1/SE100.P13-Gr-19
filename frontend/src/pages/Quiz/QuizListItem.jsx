@@ -1,8 +1,7 @@
 import React from "react";
 import { FaTrashAlt, FaPlus } from "react-icons/fa";
-import { format } from "date-fns";
 
-const QuizListItem = ({ question, content,createdAt,type,topic,onDelete }) => {
+const QuizListItem = ({ content, createdAt, type, topic, onAction, actionType }) => {
   return (
     <div className="flex justify-between items-center bg-gray-100 p-4 mb-2 rounded-lg shadow-sm hover:shadow-md">
       <div>
@@ -14,11 +13,12 @@ const QuizListItem = ({ question, content,createdAt,type,topic,onDelete }) => {
         </p>
       </div>
       <button
-        onClick={onDelete}
-        className="text-white px-3 py-2 rounded-lg bg-red-500 hover:bg-red-700"
-       
+        onClick={onAction}
+        className={`text-white px-3 py-2 rounded-lg ${
+          actionType === "add" ? "bg-blue-500 hover:bg-blue-700" : "bg-red-500 hover:bg-red-700"
+        }`}
       >
-        <FaTrashAlt /> 
+        {actionType === "add" ? <FaPlus /> : <FaTrashAlt />}
       </button>
     </div>
   );

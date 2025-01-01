@@ -33,20 +33,18 @@ const AddQuizModal = ({ onClose, onSubmit,onSuccess }) => {
   }, []);
 
   const handleSubmit = async () => {
-    try {
-      if(quizData.topic=="")
-      {
-        alert("vui lòng chọn topic")
-        return;
-      }
-      const finalQuizData = {
-        ...quizData,
-        fillText: quizData.fillText,
-        dragOptions: quizData.dragOptions,
-      };
+    if (quizData.topic === "") {
+      alert("Vui lòng chọn topic");
+      return;
+    }
+    const finalQuizData = {
+      ...quizData,
+      fillText: quizData.fillText,
+      dragOptions: quizData.dragOptions,
+    };
 
-      const response = await QuizService.addQuiz(finalQuizData);
-      console.log("Quiz added successfully:", response);
+    try {
+      await onSubmit(finalQuizData); // Sử dụng hàm onSubmit từ props
       onSuccess();
       onClose();
     } catch (error) {
