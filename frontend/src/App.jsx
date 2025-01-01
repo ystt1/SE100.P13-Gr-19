@@ -13,6 +13,9 @@ import Dashboard from "./pages/dash_board/dash_board_page";
 import Teams from "./pages/teams/teams_page";
 import QuizSetDetails from "./pages/dash_board/commponent/quizSetDetails";
 // import quizComplete from "./pages/dash_board/commponent/quizComplete";
+import QuizStartPage from "./pages/dash_board/commponent/QuizStartPage";
+import QuizCompletePage from "./pages/dash_board/commponent/QuizCompletePage";
+
 
 function App() {
   return (
@@ -96,14 +99,23 @@ function App() {
             }
           />
   
-          {/* <Route
-            path="/quiz/attemp"
+          <Route
+            path="/dashboard/quiz/attempt/:quizSetId"
             element={            
               // <ProtectedRoute>
-                <quizComplete />
+                <QuizStartPage  />
               // </ProtectedRoute>
             }
-          /> */}
+          />
+
+          <Route
+            path="/dashboard/quiz/complete/:quizSetId"
+            element={            
+              // <ProtectedRoute>
+                <QuizCompletePage   />
+              // </ProtectedRoute>
+            }
+          />
 
         </Routes>
       </Router>
