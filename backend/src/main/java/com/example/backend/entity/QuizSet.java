@@ -13,6 +13,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.SequenceGenerator;
+import java.sql.Timestamp;
+import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -41,6 +43,10 @@ public class QuizSet {
   private Date updatedTime;
 
   private Boolean allowShowAnswer=true;
+
+  private Duration timeLimit;
+
+  private Integer totalQuestion;
 
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "creator_id")

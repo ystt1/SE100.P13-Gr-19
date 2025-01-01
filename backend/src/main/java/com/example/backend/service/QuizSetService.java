@@ -57,13 +57,10 @@ public class QuizSetService {
     //set other value for the entity
     quizSet.setCreatedTime(new java.util.Date());
     quizSet.setUpdatedTime(quizSet.getCreatedTime());
+    quizSet.setTotalQuestion(0);
     quizSet.setCreator(user);
 
-    //save entity and map to response dto
-    var resultDTO = modelMapper.map(quizSetRepository.save(quizSet), QuizSetResponseDTO.class);
-
-    //return
-    return resultDTO;
+    return modelMapper.map(quizSetRepository.save(quizSet), QuizSetResponseDTO.class);
   }
 
   public ListQuizSetDTO getAllQuizSetsByUserEmail(String email, String sortElement, String direction, String search, int page, int limit, int topicId) {

@@ -1,6 +1,7 @@
 package com.example.backend.DTO.QuizSet;
 
 import com.example.backend.DTO.Auth.UserResponseDTO;
+import java.time.Duration;
 import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +22,10 @@ public class QuizSetResponseDTO {
   private Date createdTime;
 
   private Date updatedTime;
+
+  private Duration timeLimit;
+
+  private Integer totalQuestion;
 
   private Boolean allowShowAnswer=true;
 
