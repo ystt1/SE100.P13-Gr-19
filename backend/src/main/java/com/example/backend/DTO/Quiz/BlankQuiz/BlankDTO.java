@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BlankDTO {
+  private Integer id;
   private String content;
   private Integer order;
 }

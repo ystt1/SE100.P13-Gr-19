@@ -47,5 +47,4 @@ public class Topic {
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "creator_id")
   private User creator;
-
 }

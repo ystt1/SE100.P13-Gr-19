@@ -101,7 +101,36 @@ public class QuizService {
         .totalPages(quizzesPage.getTotalPages())
         .totalElements((int)quizzesPage.getTotalElements())
         .build();
+  }
 
+  public ListSmallQuizResponseDTO getAllQuizzes(int page, int limit, String sortElement, String direction, String search, int topicId) {
+    Sort sort = Sort.by(Sort.Direction.fromString(direction), sortElement);
+    Pageable pageable = PageRequest.of(page - 1, limit, sort);
 
+    Page<Quiz> quizzesPage;
+
+    if (search != null && !search.isEmpty()) {
+      if (topicId != 0) {
+        quizzesPage = quizRepository.findByContentContainingIgnoreCaseAndTopicId(search, topicId, pageable);
+      } else {
+        quizzesPage = quizRepository.findByContentContainingIgnoreCase(search, pageable);
+      }
+    } else {
+      if (topicId != 0) {
+        quizzesPage = quizRepository.findByTopicId(topicId, pageable);
+      } else {
+        quizzesPage = quizRepository.findAll(pageable);
+      }
+    }
+
+    List<SmallQuizResponseDTO> quizzes = quizzesPage.stream()
+        .map(quiz -> modelMapper.map(quiz, SmallQuizResponseDTO.class))
+        .toList();
+
+    return ListSmallQuizResponseDTO.builder()
+        .quizzes(quizzes)
+        .totalPages(quizzesPage.getTotalPages())
+        .totalElements((int) quizzesPage.getTotalElements())
+        .build();
   }
 }
