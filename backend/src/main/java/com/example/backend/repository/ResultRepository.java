@@ -15,4 +15,6 @@ public interface ResultRepository extends JpaRepository<Result, Integer> {
     @Query("SELECT COUNT(r) FROM Result r WHERE r.quizSet.id = :quizSetId")
     long countAttemptsByQuizSetId(@Param("quizSetId") int quizSetId);
 
+    int countByQuizSetIdAndUserId(int quizSetId, int userId);
+
 }

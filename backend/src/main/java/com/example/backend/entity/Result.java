@@ -1,6 +1,9 @@
 package com.example.backend.entity;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -24,9 +27,21 @@ public class Result {
     @JoinColumn(name = "id_quiz_set")
     private QuizSet quizSet;
 
+    private int attemptTime;
+
+    @OneToMany(mappedBy = "result",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<QuizAnswer> quizAnswers;
+
     private long numberCorrect;
 
     private LocalDateTime createdAt;
 
     private long completeTime;
+
+    public void addQuizAnswer(QuizAnswer quizAnswer) {
+        if (quizAnswers == null) {
+            quizAnswers = new ArrayList<>();
+        }
+        quizAnswers.add(quizAnswer);
+    }
 }

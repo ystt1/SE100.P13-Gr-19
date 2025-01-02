@@ -16,7 +16,7 @@ public class BlankAnswer {
 
     private String content;
 
-    private int blankOrder;
+    private Integer blankOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quiz_answer_id")

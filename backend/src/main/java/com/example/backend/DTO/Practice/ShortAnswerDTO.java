@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ShortAnswerDTO extends Answer{
-  private ShortDTO shortDTO;
+  private String shortAnswer;
 }
