@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class ShortAnswerQuizRequestDTO extends QuizRequestDTO {
-  private ShortAnswerDTO answer;
+  private ShortDTO answer;
 
   public void print() {
     System.out.println(content);
