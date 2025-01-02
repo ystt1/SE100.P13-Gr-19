@@ -1,76 +1,47 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import Sidebar from "../../../components/Sidebar";
+import QuizService from "../../../data/service/quiz_service";
 
 const QuizCompletePage = () => {
   const navigate = useNavigate();
-  const { id } = useParams(); // quizSet ID từ URL
+  const { id: quizSetId } = useParams(); // quizSet ID từ URL
   const location = useLocation();
   const [quizData, setQuizData] = useState([]);
   const [userAnswers, setUserAnswers] = useState({});
   const [result, setResult] = useState({ correct: 0, incorrect: 0 });
 
   useEffect(() => {
-    if (location.state) {
-      setUserAnswers(location.state.userAnswers);
+    // Lấy dữ liệu từ location.state
+    if (location.state && location.state.result) {
+      setUserAnswers(location.state.result.userAnswers || {});
     }
 
+    // Lấy thông tin quiz từ API
     const fetchQuizData = async () => {
       try {
-        const mockQuizData = [
-          {
-            id: 1,
-            question: "Laravel là gì?",
-            type: "SINGLE_CHOICE",
-            options: [
-              "Một PHP framework mã nguồn mở và miễn phí",
-              "Một công cụ quản lý cơ sở dữ liệu",
-              "Một ngôn ngữ lập trình",
-              "Một framework phát triển ứng dụng di động",
-            ],
-            correctAnswer: "Một PHP framework mã nguồn mở và miễn phí",
-          },
-          {
-            id: 2,
-            question: "Điền số vào chỗ trống: 1 + _ = 2",
-            type: "FILL_IN_THE_BLANK",
-            correctAnswer: "1",
-          },
-          {
-            id: 3,
-            question: "Điền từ còn thiếu: React là _ của JavaScript.",
-            type: "SHORT_ANSWER",
-            correctAnswer: "thư viện",
-          },
-          {
-            id: 4,
-            question: "Chọn các thành phần chính của React",
-            type: "MULTIPLE_CHOICE",
-            options: ["Component", "JSX", "Database", "State"],
-            correctAnswer: ["Component", "JSX", "State"],
-          },
-        ];
-
-        setQuizData(mockQuizData);
-        calculateResults(mockQuizData);
+        const data = await QuizService.getQuizSet(quizSetId); // Gọi API để lấy danh sách câu hỏi
+        setQuizData(data.questions);
+        calculateResults(data.questions);
       } catch (error) {
         console.error("Lỗi khi lấy dữ liệu quiz:", error);
       }
     };
 
     fetchQuizData();
-  }, [location.state]);
+  }, [location.state, quizSetId]);
 
-  const calculateResults = (data) => {
+  // Hàm tính toán kết quả dựa vào câu trả lời
+  const calculateResults = (questions) => {
     let correct = 0;
     let incorrect = 0;
 
-    data.forEach((question) => {
+    questions.forEach((question) => {
       const userAnswer = userAnswers[question.id];
       if (Array.isArray(question.correctAnswer)) {
         // MULTIPLE_CHOICE
         if (
-          JSON.stringify(userAnswer.sort()) ===
+          JSON.stringify(userAnswer?.sort()) ===
           JSON.stringify(question.correctAnswer.sort())
         ) {
           correct++;
@@ -89,6 +60,7 @@ const QuizCompletePage = () => {
     setResult({ correct, incorrect });
   };
 
+  // Render câu hỏi và kết quả
   const renderQuestion = (question, index) => {
     const userAnswer = userAnswers[question.id];
     return (
@@ -198,7 +170,7 @@ const QuizCompletePage = () => {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-blue-800">Quiz Complete</h1>
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/dashboard")}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
             Back to Dashboard
@@ -212,10 +184,12 @@ const QuizCompletePage = () => {
             Total Questions: <strong>{quizData.length}</strong>
           </p>
           <p>
-            Correct Answers: <strong className="text-green-500">{result.correct}</strong>
+            Correct Answers:{" "}
+            <strong className="text-green-500">{result.correct}</strong>
           </p>
           <p>
-            Incorrect Answers: <strong className="text-red-500">{result.incorrect}</strong>
+            Incorrect Answers:{" "}
+            <strong className="text-red-500">{result.incorrect}</strong>
           </p>
         </div>
 
