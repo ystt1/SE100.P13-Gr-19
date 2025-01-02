@@ -1,4 +1,4 @@
-package com.example.backend.DTO.Quiz;
+package com.example.backend.DTO.Quiz.Quiz;
 
 import com.example.backend.DTO.Quiz.BlankQuiz.BlankDTO;
 import com.example.backend.DTO.Quiz.MultipleChoiceQuiz.OptionDTO;

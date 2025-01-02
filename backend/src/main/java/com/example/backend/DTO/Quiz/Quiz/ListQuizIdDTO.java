@@ -1,4 +1,4 @@
-package com.example.backend.DTO.Quiz;
+package com.example.backend.DTO.Quiz.Quiz;
 
 import java.util.List;
 import lombok.Builder;

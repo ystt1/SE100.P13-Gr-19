@@ -1,5 +1,5 @@
 package com.example.backend.DTO.Practice;
 
-public class ResponsePracticeQuizset {
+public class Answer {
 
 }

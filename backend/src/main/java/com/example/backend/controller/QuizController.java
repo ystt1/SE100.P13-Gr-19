@@ -1,9 +1,8 @@
 package com.example.backend.controller;
 
-import com.example.backend.DTO.Quiz.ListQuizResponseDTO;
-import com.example.backend.DTO.Quiz.ListSmallQuizResponseDTO;
-import com.example.backend.DTO.Quiz.QuizRequestDTO;
-import com.example.backend.DTO.Quiz.QuizResponseDTO;
+import com.example.backend.DTO.Quiz.Quiz.ListSmallQuizResponseDTO;
+import com.example.backend.DTO.Quiz.Quiz.QuizRequestDTO;
+import com.example.backend.DTO.Quiz.Quiz.QuizResponseDTO;
 import com.example.backend.service.QuizService;
 import java.security.Principal;
 import lombok.AllArgsConstructor;

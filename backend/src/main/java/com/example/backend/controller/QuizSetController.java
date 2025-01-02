@@ -1,8 +1,7 @@
 package com.example.backend.controller;
 
-import com.example.backend.DTO.Quiz.ListQuizIdDTO;
-import com.example.backend.DTO.Quiz.ListSmallQuizResponseDTO;
-import com.example.backend.DTO.Quiz.QuizResponseDTO;
+import com.example.backend.DTO.Quiz.Quiz.ListSmallQuizResponseDTO;
+import com.example.backend.DTO.Quiz.Quiz.QuizResponseDTO;
 import com.example.backend.DTO.QuizSet.ListQuizSetDTO;
 import com.example.backend.DTO.QuizSet.QuizSetRequestDTO;
 import com.example.backend.DTO.QuizSet.QuizSetResponseDTO;

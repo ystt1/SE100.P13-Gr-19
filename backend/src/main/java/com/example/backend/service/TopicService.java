@@ -1,7 +1,7 @@
 package com.example.backend.service;
 
-import com.example.backend.DTO.Quiz.ListSmallQuizResponseDTO;
-import com.example.backend.DTO.Quiz.SmallQuizResponseDTO;
+import com.example.backend.DTO.Quiz.Quiz.ListSmallQuizResponseDTO;
+import com.example.backend.DTO.Quiz.Quiz.SmallQuizResponseDTO;
 import com.example.backend.DTO.Topic.ListTopicResponseDTO;
 import com.example.backend.DTO.Topic.TopicRequestDTO;
 import com.example.backend.DTO.Topic.TopicResponseDTO;
@@ -9,7 +9,6 @@ import com.example.backend.entity.Topic;
 import com.example.backend.exception.ConflictException;
 import com.example.backend.exception.ForbiddenException;
 import com.example.backend.exception.ResourceNotFoundException;
-import com.example.backend.exception.ValidationException;
 import com.example.backend.repository.TopicRepository;
 import com.example.backend.repository.UserRepository;
 import java.util.List;
@@ -20,7 +19,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service

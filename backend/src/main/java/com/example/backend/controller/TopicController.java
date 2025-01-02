@@ -1,6 +1,6 @@
 package com.example.backend.controller;
 
-import com.example.backend.DTO.Quiz.ListSmallQuizResponseDTO;
+import com.example.backend.DTO.Quiz.Quiz.ListSmallQuizResponseDTO;
 import com.example.backend.DTO.Topic.ListTopicResponseDTO;
 import com.example.backend.DTO.Topic.TopicRequestDTO;
 import com.example.backend.DTO.Topic.TopicResponseDTO;
@@ -9,7 +9,6 @@ import com.example.backend.service.TopicService;
 import java.security.Principal;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
