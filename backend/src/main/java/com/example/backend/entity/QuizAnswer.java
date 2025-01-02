@@ -12,36 +12,31 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserAnswer {
+public class QuizAnswer {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_result")
+    @JoinColumn(name = "result_id")
     private Result result;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_quiz")
+    @JoinColumn(name = "quiz_id")
     private Quiz quiz;
 
-    private double score;
-
-    private boolean isCorrect; // Trạng thái đúng/sai
-
-    @Column(name = "date_created")
-    private LocalDateTime dateCreated;
+    private boolean isCorrect;
 
     @Enumerated(EnumType.STRING)
     private QuestionType type;
 
-    @OneToMany(mappedBy = "userAnswer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "quizAnswer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ShortAnswer> shortAnswer;
 
-    @OneToMany(mappedBy = "userAnswer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "quizAnswer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<BlankAnswer> blankAnswers;
 
-    @OneToMany(mappedBy = "userAnswer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "quizAnswer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<QuizOptionAnswer> quizOptionAnswers;
 }
 

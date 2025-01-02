@@ -17,6 +17,6 @@ public class QuizOptionAnswer {
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_answer_id")
-    private UserAnswer userAnswer;
+    @JoinColumn(name = "quiz_answer_id")
+    private QuizAnswer quizAnswer;
 }

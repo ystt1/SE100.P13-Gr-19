@@ -13,4 +13,9 @@ public class OptionDTO {
   private Integer id;
   private String content;
   private Boolean isCorrect;
+
+  public OptionDTO( String content, Boolean isCorrect) {
+    this.content = content;
+    this.isCorrect = isCorrect;
+  }
 }
