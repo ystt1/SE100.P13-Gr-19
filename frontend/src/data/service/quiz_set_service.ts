@@ -99,6 +99,18 @@ const QuizSetService = {
   getQuizOfQuizSet: async (id) => {
     try {
       const response = await axiosInstance.get(`http://localhost:8080/api/quiz-set/${id}/quizzes`);
+
+      if (response.status == 200) {
+        return response;
+      }
+      return ("error" + response.status);
+    } catch (error) {
+      throw error;
+    }
+  },
+  addQuizToQuizSet: async (listquizId,id) => {
+    try {
+      const response = await axiosInstance.post(`http://localhost:8080/api/quiz-set/${id}/quiz`,listquizId);
       console.log(response);
       if (response.status == 200) {
         return response;
@@ -108,7 +120,6 @@ const QuizSetService = {
       throw error;
     }
   },
-
 };
 
 export default QuizSetService;

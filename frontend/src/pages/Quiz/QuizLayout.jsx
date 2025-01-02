@@ -57,6 +57,11 @@ const QuizLayout = () => {
     setCurrentPage(1);
   };
 
+  const handleQuizSubmit = async (quizData) => {
+    const response = await QuizService.addQuiz(quizData);
+    if(response.status===200)
+      showSnackbar("Add Quiz Success")
+  };
   const handleDeleteRequest = (id) => {
     setQuizToDelete(id);
   };
@@ -135,7 +140,8 @@ const QuizLayout = () => {
               createdAt={question.createdDate}
               type={question.type}
               topic={question.topic}
-              onDelete={() => handleDeleteRequest(question.id)}
+              onAction={() => handleDeleteRequest(question.id)}
+              actionType={"delete"}
             />
           ))}
         </div>
@@ -162,14 +168,7 @@ const QuizLayout = () => {
           <AddQuizModal
             onClose={() => setShowModal(false)}
             onSuccess={fetchData}
-            onSubmit={(quizData) => {
-              const newQuiz = {
-                id: questions.length + 1,
-                ...quizData,
-              };
-              setQuestions([...questions, newQuiz]);
-              setShowModal(false);
-            }}
+            onSubmit={handleQuizSubmit} 
           />
         )}
 
