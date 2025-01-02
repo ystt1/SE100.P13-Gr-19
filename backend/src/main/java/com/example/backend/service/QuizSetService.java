@@ -176,6 +176,7 @@ public class QuizSetService {
         throw new ConflictException("Quiz with id " + quizId + " already exists in this quiz set");
       }
       quizSet.get().getQuizList().add(quiz.get());
+      quizSet.get().setTotalQuestion(quizSet.get().getTotalQuestion() + 1);
     });
     quizSetRepository.save(quizSet.get());
   }
@@ -335,8 +336,12 @@ public class QuizSetService {
       throw new ResourceNotFoundException("Quiz not found");
     }
 
-    quizSet.get().getQuizList().remove(quiz.get());
+    if(!quizSet.get().getQuizList().contains(quiz.get())){
+      throw new ResourceNotFoundException("Quiz not found in this quiz set");
+    }
 
+    quizSet.get().getQuizList().remove(quiz.get());
+    quizSet.get().setTotalQuestion(quizSet.get().getTotalQuestion() + 1);
     quizSetRepository.save(quizSet.get());
   }
 }
