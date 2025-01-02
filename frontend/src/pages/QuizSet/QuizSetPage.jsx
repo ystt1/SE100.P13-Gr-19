@@ -25,10 +25,6 @@ const QuizSetPage = () => {
   const [tempSearchQuery, setTempSearchQuery] = useState("");
   const sortOption = searchParams.get("sort") || "id";
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
-
-
-
-
   const fetchQuizSets = async () => {
     setLoading(true);
     try {
@@ -38,8 +34,6 @@ const QuizSetPage = () => {
         10,
         sortOption
       );
-
-
       setQuizSetData(
         data.quizSets.map((quizSet) => ({
           id: quizSet.id,
@@ -57,19 +51,15 @@ const QuizSetPage = () => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchQuizSets();
   }, [searchQuery, currentPage, sortOption]);
-
-
   const handleDeleteRequest = (id) => {
     setQuizToDelete(id);
   };
 
   const handleConfirmDelete = async () => {
     if (!quizToDelete) return;
-
     try {
       const response = await QuizSetService.delete(quizToDelete);
       if (response === "success") {
@@ -89,10 +79,8 @@ const QuizSetPage = () => {
     setQuizToDelete(null); 
   };
 
-
   const handleSearch = () => {
     setSearchQuery(tempSearchQuery);
-
   };
 
   const handleSortChange = (option) => {
@@ -144,9 +132,6 @@ const QuizSetPage = () => {
     <div className="flex">
       <Sidebar />
       <div className="flex-1 ml-64 p-6 bg-gray-50">
-      
-       
-
         {/* Search Bar */}
         <SearchBar
           placeholder="Search QuizSet"

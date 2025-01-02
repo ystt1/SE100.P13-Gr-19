@@ -101,6 +101,24 @@ const QuizService = {
       throw error;
     }
   },
+  getAllQuizOfTopic: async (topic,search = "", page = 1, limit = 10, sortKey = "createdAt", direction = "asc") => {
+    try {
+      const response = await axiosInstance.get(`/topic/${topic}/quizzes`, {
+        params: {
+          search,
+          page,
+          limit,
+          sortElement: sortKey,
+          direction,
+        },
+      });
+      
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching quizzes:", error);
+      throw error;
+    }
+  },
   
   delete:async(id)=>
   {

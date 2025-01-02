@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom"; // Import thêm useParams
 import Sidebar from "../../components/Sidebar";
 import SearchBar from "../../components/SearchBar";
 import AddQuizButton from "./AddQuizButton";
 import QuizListItem from "./QuizListItem";
 import AddQuizModal from "./AddQuizModal";
-import avatar from "../../images/avatar.png";
 import QuizService from "../../data/service/quiz_service";
 import Pagination from "../topic/component/pagination"; // Add Pagination component
 import { useSnackbar } from "../../components/NotificationBat";
@@ -12,25 +12,48 @@ import ConfirmationModal from "../../components/ConfirmModal";
 
 const QuizLayout = () => {
   const { showSnackbar } = useSnackbar();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { id: topicId } = useParams(); // Lấy topicId nếu có
+
   const [questions, setQuestions] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showModal, setShowModal] = useState(false);
-  const [tempSearchQuery, setTempSearchQuery] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [sortKey, setSortKey] = useState("createdAt");
-  const [direction, setDirection] = useState("desc");
   const [quizToDelete, setQuizToDelete] = useState(null);
+  const [tempSearchQuery, setTempSearchQuery] = useState("");
 
+  // Parse URL parameters
+  const queryParams = new URLSearchParams(location.search);
+  const currentPage = parseInt(queryParams.get("page")) || 1; 
+  const sortKey = queryParams.get("sortKey") || "createdAt";
+  const direction = queryParams.get("direction") || "desc";
+  const searchQuery = queryParams.get("search") || "";
+
+  // Fetch data based on URL parameters
   const fetchData = async () => {
     try {
-      const data = await QuizService.getAllQuiz(
-        searchQuery,
-        currentPage,
-        8,
-        sortKey,
-        direction
-      );
+      let data;
+      if (topicId) {
+        // Fetch quizzes for a specific topic
+        data = await QuizService.getAllQuizOfTopic(
+          topicId,
+          searchQuery,
+          currentPage,
+          8, // Limit fixed for topic-specific quizzes
+          sortKey,
+          direction
+        );
+      } else {
+        // Fetch all quizzes
+        data = await QuizService.getAllQuiz(
+          searchQuery,
+          currentPage,
+          8,
+          sortKey,
+          direction
+        );
+      }
+
       if (data.quizzes) {
         setQuestions(
           data.quizzes.map((quiz) => ({
@@ -48,20 +71,47 @@ const QuizLayout = () => {
     }
   };
 
+  // Sync data when URL changes
   useEffect(() => {
     fetchData();
-  }, [currentPage, searchQuery, sortKey, direction]);
+  }, [location.search, topicId]);
+
+  const updateURL = (updates) => {
+    const params = new URLSearchParams(location.search);
+    Object.keys(updates).forEach((key) => {
+      if (updates[key] === null) {
+        params.delete(key); 
+      } else {
+        params.set(key, updates[key]);
+      }
+    });
+    navigate(`?${params.toString()}`);
+  };
 
   const handleSearch = () => {
-    setSearchQuery(tempSearchQuery);
-    setCurrentPage(1);
+    updateURL({ search: tempSearchQuery, page: 1 });
+  };
+
+  const handleSortChange = (key) => {
+    updateURL({ sortKey: key, page: 1 });
+  };
+
+  const handleDirectionChange = () => {
+    updateURL({ direction: direction === "asc" ? "desc" : "asc", page: 1 });
+  };
+
+  const handlePageChange = (page) => {
+    updateURL({ page });
   };
 
   const handleQuizSubmit = async (quizData) => {
     const response = await QuizService.addQuiz(quizData);
-    if(response.status===200)
-      showSnackbar("Add Quiz Success")
+    if (response.status === 200) {
+      showSnackbar("Add Quiz Success");
+      fetchData();
+    }
   };
+
   const handleDeleteRequest = (id) => {
     setQuizToDelete(id);
   };
@@ -82,37 +132,34 @@ const QuizLayout = () => {
     } catch (error) {
       console.error("Error deleting quiz:", error);
     } finally {
-      setQuizToDelete(null); // Đóng modal
+      setQuizToDelete(null); // Close modal
     }
   };
 
   const handleCancelDelete = () => {
-    setQuizToDelete(null); // Hủy xóa và đóng modal
-  };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
+    setQuizToDelete(null); // Cancel delete and close modal
   };
 
   return (
     <div className="flex">
       <Sidebar />
       <div className="flex-1 ml-64 p-8 bg-gray-50">
-       
-
         {/* Search Bar and Sort */}
         <div className="flex items-center justify-between mb-6">
           <SearchBar
             value={tempSearchQuery}
             onChange={(e) => setTempSearchQuery(e.target.value)}
-            onSearch={handleSearch}
-            onClear={() => setTempSearchQuery("")}
+            onSearch={handleSearch} 
+            onClear={() => {
+              setTempSearchQuery("");
+              updateURL({ search: "", page: 1 });
+            }}
           />
           <div className="flex items-center space-x-2">
             <select
               className="border px-4 py-2 rounded-lg"
               value={sortKey}
-              onChange={(e) => setSortKey(e.target.value)}
+              onChange={(e) => handleSortChange(e.target.value)}
             >
               <option value="createdAt">Sort by Created Date</option>
               <option value="content">Sort by Content</option>
@@ -121,9 +168,7 @@ const QuizLayout = () => {
               <option value="id">Sort by ID</option>
             </select>
             <button
-              onClick={() =>
-                setDirection((prev) => (prev === "asc" ? "desc" : "asc"))
-              }
+              onClick={handleDirectionChange}
               className="px-4 py-2 border rounded-lg"
             >
               {direction === "asc" ? "Ascending" : "Descending"}
@@ -168,7 +213,7 @@ const QuizLayout = () => {
           <AddQuizModal
             onClose={() => setShowModal(false)}
             onSuccess={fetchData}
-            onSubmit={handleQuizSubmit} 
+            onSubmit={handleQuizSubmit}
           />
         )}
 

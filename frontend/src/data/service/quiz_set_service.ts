@@ -120,6 +120,25 @@ const QuizSetService = {
       throw error;
     }
   },
+
+
+  updateQuizSet: async (id,changeData) => {
+    try {
+      const response = await axiosInstance.patch(`/quiz-set/${id}`, changeData);
+     return response;
+    }
+    catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          const { status, data } = error.response;
+          return data.message;
+        }
+      } else {
+        return "Unexpected error";
+      }
+      return "Add quiz-set Fail";
+    }
+  },
 };
 
 export default QuizSetService;
