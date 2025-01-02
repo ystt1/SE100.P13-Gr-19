@@ -1,8 +1,7 @@
 package com.example.backend.controller;
 
-import com.example.backend.DTO.Quiz.ListQuizIdDTO;
-import com.example.backend.DTO.Quiz.ListSmallQuizResponseDTO;
-import com.example.backend.DTO.Quiz.QuizResponseDTO;
+import com.example.backend.DTO.Quiz.Quiz.ListSmallQuizResponseDTO;
+import com.example.backend.DTO.Quiz.Quiz.QuizResponseDTO;
 import com.example.backend.DTO.QuizSet.ListQuizSetDTO;
 import com.example.backend.DTO.QuizSet.QuizSetRequestDTO;
 import com.example.backend.DTO.QuizSet.QuizSetResponseDTO;
@@ -67,9 +66,8 @@ public class QuizSetController {
       @RequestParam(required = false) String direction,
       @RequestParam(required = false) String search,
       @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int limit,
-      @RequestParam(defaultValue = "0") int topicId) {
-    return quizSetService.getAllBookmarkQuizSetsByUserEmail(principal.getName(), sortElement,direction, search, page, limit, topicId);
+      @RequestParam(defaultValue = "10") int limit) {
+    return quizSetService.getAllBookmarkQuizSetsByUserEmail(principal.getName(), sortElement,direction, search, page, limit);
   }
 
   @GetMapping("/{id}")
@@ -129,6 +127,12 @@ public class QuizSetController {
   public ResponseEntity<ListSmallQuizResponseDTO> getQuizzes(@PathVariable int id) {
     var quizzes = quizSetService.getQuizzesOfQuizSet(id);
     return ResponseEntity.ok(quizzes);
+  }
+
+  @DeleteMapping("/{id}/quiz/{quizId}")
+  public ResponseEntity<String> removeQuizFromQuizSet(Principal principal, @PathVariable int id, @PathVariable int quizId) {
+    quizSetService.removeQuizFromQuizSet(principal.getName(), id, quizId);
+    return ResponseEntity.status(200).body("Quiz removed from quiz set");
   }
 
 }

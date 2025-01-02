@@ -67,19 +67,19 @@ public class QuizHistoryService {
         }
     }
 
-    private String getUserAnswerContent(UserAnswer userAnswer) {
-        switch (userAnswer.getType()) {
+    private String getUserAnswerContent(QuizAnswer quizAnswer) {
+        switch (quizAnswer.getType()) {
             case SINGLE_CHOICE:
             case MULTIPLE_CHOICE:
-                return userAnswer.getQuizOptionAnswers().stream()
+                return quizAnswer.getQuizOptionAnswers().stream()
                         .map(QuizOptionAnswer::getContent)
                         .collect(Collectors.joining(", "));
             case SHORT_ANSWER:
-                return userAnswer.getQuizOptionAnswers().stream()
+                return quizAnswer.getQuizOptionAnswers().stream()
                         .map(QuizOptionAnswer::getContent)
                         .collect(Collectors.joining(", "));
             case FILL_IN_THE_BLANK:
-                return userAnswer.getBlankAnswers().stream()
+                return quizAnswer.getBlankAnswers().stream()
                         .sorted(Comparator.comparingInt(BlankAnswer::getBlankOrder))
                         .map(BlankAnswer::getContent)
                         .collect(Collectors.joining(", "));

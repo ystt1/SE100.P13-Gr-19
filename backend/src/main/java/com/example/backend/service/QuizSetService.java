@@ -1,10 +1,8 @@
 package com.example.backend.service;
 
-import com.example.backend.DTO.Quiz.ListQuizIdDTO;
-import com.example.backend.DTO.Quiz.ListSmallQuizResponseDTO;
-import com.example.backend.DTO.Quiz.QuizRequestDTO;
-import com.example.backend.DTO.Quiz.QuizResponseDTO;
-import com.example.backend.DTO.Quiz.SmallQuizResponseDTO;
+import com.example.backend.DTO.Quiz.Quiz.ListSmallQuizResponseDTO;
+import com.example.backend.DTO.Quiz.Quiz.QuizResponseDTO;
+import com.example.backend.DTO.Quiz.Quiz.SmallQuizResponseDTO;
 import com.example.backend.DTO.QuizSet.ListQuizSetDTO;
 import com.example.backend.DTO.QuizSet.QuizSetRequestDTO;
 import com.example.backend.DTO.QuizSet.QuizSetResponseDTO;
@@ -176,6 +174,7 @@ public class QuizSetService {
         throw new ConflictException("Quiz with id " + quizId + " already exists in this quiz set");
       }
       quizSet.get().getQuizList().add(quiz.get());
+      quizSet.get().setTotalQuestion(quizSet.get().getTotalQuestion() + 1);
     });
     quizSetRepository.save(quizSet.get());
   }
@@ -248,7 +247,7 @@ public class QuizSetService {
     }
 
     Sort sort = Sort.by(Sort.Direction.fromString(direction), sortElement != null ? sortElement : "name");
-    Pageable pageable = PageRequest.of(page, limit, sort);
+    Pageable pageable = PageRequest.of(page -1 , limit, sort);
 
     User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
@@ -279,6 +278,11 @@ public class QuizSetService {
         .totalPages(quizSetPage.getTotalPages())
         .currentPage(page)
         .build();
+  }
+
+  public ListQuizSetDTO getAllBookmarkQuizSetsByUserEmail(String email, String sortElement, String direction, String search, int page,
+      int limit) {
+    return getAllBookmarkQuizSetsByUserEmail(email, sortElement, direction, search, page, limit, 0);
   }
 
   public ListQuizSetDTO getRandomQuizSet(int limit) {
@@ -318,5 +322,29 @@ public class QuizSetService {
 
   public Boolean checkQuizSetContainQuiz(QuizSet quizSet, Quiz quiz) {
     return quizSet.getQuizList().contains(quiz);
+  }
+
+  public void removeQuizFromQuizSet(String name, int id, int quizId) {
+    var quizSet = quizSetRepository.findById(id);
+    if(quizSet.isEmpty()){
+      throw new ResourceNotFoundException("Quiz set not found");
+    }
+    if(!quizSet.get().getCreator().getEmail().equals(name)){
+      throw new ForbiddenException("You are not authorized to remove quizzes from this quiz set");
+    }
+
+    var quiz = quizRepository.findById(quizId);
+
+    if(quiz.isEmpty()){
+      throw new ResourceNotFoundException("Quiz not found");
+    }
+
+    if(!quizSet.get().getQuizList().contains(quiz.get())){
+      throw new ResourceNotFoundException("Quiz not found in this quiz set");
+    }
+
+    quizSet.get().getQuizList().remove(quiz.get());
+    quizSet.get().setTotalQuestion(quizSet.get().getTotalQuestion() + 1);
+    quizSetRepository.save(quizSet.get());
   }
 }

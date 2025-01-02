@@ -1,10 +1,11 @@
 package com.example.backend.controller;
 
-import com.example.backend.DTO.Quiz.QuizResponseDTO;
+import com.example.backend.DTO.Practice.PracticeRequestDTO;
+import com.example.backend.DTO.Quiz.Quiz.QuizResponseDTO;
 import com.example.backend.DTO.Quiz.QuizResultDTO;
 import com.example.backend.DTO.Quiz.QuizSubmissionDTO;
-import com.example.backend.DTO.QuizSet.QuizSetResponseDTO;
 import com.example.backend.service.PracticeService;
+import java.security.Principal;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,10 +24,11 @@ public class PracticeController {
         return ResponseEntity.ok(list);
     }
 
-    @PostMapping("/submit")
-    public ResponseEntity<QuizResultDTO> submitQuiz(@RequestHeader("Authorization") String userEmail,
-                                                    @RequestBody QuizSubmissionDTO submission) {
-        QuizResultDTO result = practiceService.submitQuiz(userEmail, submission);
+    @PostMapping("/quizset/{id}")
+    public ResponseEntity<QuizResultDTO> submitPractice(Principal principal,
+                                                    @PathVariable int id,
+                                                    @RequestBody PracticeRequestDTO practiceRequestDTO) {
+        QuizResultDTO result = practiceService.submitPractice(principal.getName(), id, practiceRequestDTO);
         return ResponseEntity.ok(result);
     }
 }

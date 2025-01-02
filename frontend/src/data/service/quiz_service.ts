@@ -31,7 +31,9 @@ const createShortAnswerPayload = (quizData) => ({
   content: quizData.question,
   topicId: quizData.topic,
   type: "SHORT_ANSWER",
-  answer: quizData.correctAnswer,
+  answer: {
+    content:quizData.correctAnswer
+  },
 });
 const createMultipleChoicePayload = (quizData) => ({
   content: quizData.question,
@@ -86,6 +88,24 @@ const QuizService = {
   getAllQuiz: async (search = "", page = 1, limit = 10, sortKey = "createdAt", direction = "asc") => {
     try {
       const response = await axiosInstance.get(`/quiz/all`, {
+        params: {
+          search,
+          page,
+          limit,
+          sortElement: sortKey,
+          direction,
+        },
+      });
+      
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching quizzes:", error);
+      throw error;
+    }
+  },
+  getAllQuizOfTopic: async (topic,search = "", page = 1, limit = 10, sortKey = "createdAt", direction = "asc") => {
+    try {
+      const response = await axiosInstance.get(`/topic/${topic}/quizzes`, {
         params: {
           search,
           page,

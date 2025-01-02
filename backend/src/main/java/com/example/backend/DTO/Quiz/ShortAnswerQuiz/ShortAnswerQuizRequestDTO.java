@@ -1,6 +1,6 @@
 package com.example.backend.DTO.Quiz.ShortAnswerQuiz;
 
-import com.example.backend.DTO.Quiz.QuizRequestDTO;
+import com.example.backend.DTO.Quiz.Quiz.QuizRequestDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class ShortAnswerQuizRequestDTO extends QuizRequestDTO {
-  private ShortAnswerDTO answer;
+  private ShortDTO answer;
 
   public void print() {
     System.out.println(content);

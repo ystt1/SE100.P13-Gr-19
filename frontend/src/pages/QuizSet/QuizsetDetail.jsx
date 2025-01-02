@@ -17,6 +17,77 @@ const QuizsetDetail = () => {
   const [quizsetQuizzes, setQuizsetQuizzes] = useState([]);
   const [quizsetDetail, setQuizsetDetail] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState({
+    name: false,
+    description: false,
+    timeLimit: false,
+  });
+  const [editedFields, setEditedFields] = useState({
+    name: "",
+    description: "",
+    timeLimit: "",
+  });
+
+  const handleRemoveQuizFromQuizSet=async (quiz)=>
+  {
+    try{
+    var response=await QuizSetService.removeQuizFromQuizSet(id,quiz.id);
+      
+      if(response.status===200)
+      {
+        showSnackbar(response.data)
+        fetchQuizSetDetail()
+      }
+      else{
+        alert(response)
+      }
+    }
+    catch (e){
+      throw e;
+    }
+  }
+
+  const handleEditField = (field) => {
+    setIsEditing((prev) => ({ ...prev, [field]: true }));
+    setEditedFields({
+      name: quizsetDetail.name,
+      description: quizsetDetail.description,
+      timeLimit: quizsetDetail.timeLimit,
+      allowShowAnswer: quizsetDetail.allowShowAnswer,
+    });
+  };
+
+  const handleSaveField = async (field) => {
+    try {
+      // Cập nhật toàn bộ các field
+      const updatedData = {
+        name: editedFields.name,
+        description: editedFields.description,
+        timeLimit: editedFields.timeLimit,
+        allowShowAnswer: editedFields.allowShowAnswer,
+      };
+  
+      const response = await QuizSetService.updateQuizSet(id, updatedData);
+  
+      if (response.status === 200) {
+        showSnackbar("Quiz set updated successfully");
+        setIsEditing({
+          name: false,
+          description: false,
+          timeLimit: false,
+        });
+        fetchQuizSetDetail();
+      }
+    } catch (err) {
+      console.error(err);
+      showSnackbar("Failed to update quiz set");
+    }
+  };
+  
+
+  const handleChangeField = (field, value) => {
+    setEditedFields((prev) => ({ ...prev, [field]: value }));
+  };
 
   const fetchQuizSetDetail = async () => {
     try {
@@ -29,6 +100,34 @@ const QuizsetDetail = () => {
     }
   };
 
+  const handleAllowShowAnswer=async (quizsetData)=>
+  {
+    try{
+    var response;
+    if(quizsetData.allowShowAnswer!=true)
+    {
+        response=await QuizSetService.changeAllowShowAnswer(quizsetData.id)
+    }
+    else{
+      response=await QuizSetService.changDisableShowAnswer(quizsetData.id)
+    }
+    if(response.status==200)
+    {
+      showSnackbar(response.data);
+      fetchQuizSetDetail()
+    }
+    else{
+      alert(response)
+    }
+    
+  }
+  catch (e)
+  {
+    throw e;
+  }
+    
+  }
+
   useEffect(() => {
     fetchQuizSetDetail();
   }, [id]);
@@ -36,28 +135,22 @@ const QuizsetDetail = () => {
   const handleAddQuiz = async (quizzed) => {
     var quizId = quizzed.map((e) => e.id);
     var response = await QuizSetService.addQuizToQuizSet(quizId, id);
-    if (response.status == 200) {
-      showSnackbar(response.data)
-      setShowAddOldModal(false)
-      fetchQuizSetDetail()
-    }
-    else {
+    if (response.status === 200) {
+      showSnackbar(response.data);
+      setShowAddOldModal(false);
+      fetchQuizSetDetail();
+    } else {
       alert(response);
     }
   };
 
-  
   const handleQuizSubmit = async (quizData) => {
     const response = await QuizService.addQuiz(quizData);
- 
-    if(response.status===200)
-    {
-      const newResponse=await QuizSetService.addQuizToQuizSet([response.data.id],id)
-  
-      
-      if(newResponse.status===200)
-      {
-        showSnackbar(newResponse.data)
+    if (response.status === 200) {
+      const newResponse = await QuizSetService.addQuizToQuizSet([response.data.id], id);
+      if (newResponse.status === 200) {
+        showSnackbar(newResponse.data);
+        fetchQuizSetDetail();
       }
     }
   };
@@ -68,22 +161,98 @@ const QuizsetDetail = () => {
       <div className="flex-1 ml-64 p-6 bg-gray-50">
         {quizsetDetail ? (
           <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-            <h2 className="text-xl font-bold mb-2">{quizsetDetail.name}</h2>
-            <p className="text-gray-700 mb-4">{quizsetDetail.description}</p>
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                {isEditing.name ? (
+                  <div className="flex items-center">
+                    <input
+                      type="text"
+                      value={editedFields.name}
+                      onChange={(e) => handleChangeField("name", e.target.value)}
+                      className="border rounded px-2 py-1 mr-2"
+                    />
+                    <button
+                      onClick={() => handleSaveField("name")}
+                      className="px-3 py-1 bg-green-500 text-white rounded"
+                    >
+                      Save
+                    </button>
+                  </div>
+                ) : (
+                  <h2
+                    className="text-xl font-bold cursor-pointer"
+                    onClick={() => handleEditField("name")}
+                  >
+                    {quizsetDetail.name}
+                  </h2>
+                )}
+              </div>
+            </div>
+            <div className="mb-4">
+              {isEditing.description ? (
+                <div className="flex items-center">
+                  <textarea
+                    value={editedFields.description}
+                    onChange={(e) => handleChangeField("description", e.target.value)}
+                    className="border rounded px-2 py-1 w-full mr-2"
+                  />
+                  <button
+                    onClick={() => handleSaveField("description")}
+                    className="px-3 py-1 bg-green-500 text-white rounded"
+                  >
+                    Save
+                  </button>
+                </div>
+              ) : (
+                <p
+                  className="text-gray-700 cursor-pointer"
+                  onClick={() => handleEditField("description")}
+                >
+                  {quizsetDetail.description}
+                </p>
+              )}
+            </div>
+            <div className="flex items-center mb-4">
+              {isEditing.timeLimit ? (
+                <div className="flex items-center">
+                  <input
+                    type="number"
+                    value={editedFields.timeLimit}
+                    onChange={(e) => handleChangeField("timeLimit", e.target.value)}
+                    className="border rounded px-2 py-1 mr-2"
+                  />
+                  <button
+                    onClick={() => handleSaveField("timeLimit")}
+                    className="px-3 py-1 bg-green-500 text-white rounded"
+                  >
+                    Save
+                  </button>
+                </div>
+              ) : (
+                <p
+                  className="text-gray-700 cursor-pointer"
+                  onClick={() => handleEditField("timeLimit")}
+                >
+                  Time Limit: {quizsetDetail.timeLimit} minutes
+                </p>
+              )}
+            </div>
             <div className="flex justify-between items-center text-sm text-gray-600">
               <div>
                 <p>
-                  Date:{" "}
-                  {format(new Date(quizsetDetail.createdTime), "MMMM d, yyyy h:mm:ss a")}
+                  Date Created: {format(new Date(quizsetDetail.createdTime), "MMMM d, yyyy h:mm:ss a")}
                 </p>
-                <p>Time Limit: {quizsetDetail.timeLimit}</p>
-                <p>Attempts: {quizsetDetail.attempts}</p>
                 <p>
                   <b>Owner: {quizsetDetail.creator.name}</b>
                 </p>
               </div>
-              <button className="px-4 py-2 bg-blue-500 text-white rounded-lg">
-                Start Quiz
+              <button
+              onClick={()=>handleAllowShowAnswer(quizsetDetail)}
+                className={`px-4 py-2 rounded-lg ${
+                  quizsetDetail.allowShowAnswer ? "bg-red-500" : "bg-blue-500"
+                } text-white`}
+              >
+                {quizsetDetail.allowShowAnswer ? "Disable Quiz" : "Start Quiz"}
               </button>
             </div>
           </div>
@@ -92,16 +261,23 @@ const QuizsetDetail = () => {
         )}
 
         <div className="mt-6 space-y-4">
-          {quizsetQuizzes.map((quiz) => (
-            <QuizListItem
-              key={quiz.id}
-              content={quiz.content}
-              type={quiz.type}
-              createdAt={format(new Date(quiz.createdAt), "MMMM d, yyyy h:mm:ss a")}
-              topic={quiz.topic.name}
-            />
-          ))}
+          {quizsetQuizzes.length !== 0 ? (
+            quizsetQuizzes.map((quiz) => (
+              <QuizListItem
+                key={quiz.id}
+                content={quiz.content}
+                type={quiz.type}
+                createdAt={format(new Date(quiz.createdAt), "MMMM d, yyyy h:mm:ss a")}
+                topic={quiz.topic.name}
+                onAction={()=>handleRemoveQuizFromQuizSet(quiz)}
+                actionType="delete"
+              />
+            ))
+          ) : (
+            <div>No quizzes yet</div>
+          )}
         </div>
+
         <div className="fixed bottom-6 right-6">
           <button
             onClick={() => setDropdownOpen((prev) => !prev)}
@@ -135,10 +311,10 @@ const QuizsetDetail = () => {
         />
         {showAddNewModal && (
           <NewQuizModal
-          show={showAddNewModal}
+            show={showAddNewModal}
             onClose={() => setShowAddNewModal(false)}
             onSuccess={fetchQuizSetDetail}
-            onSubmit={handleQuizSubmit} 
+            onSubmit={handleQuizSubmit}
           />
         )}
       </div>

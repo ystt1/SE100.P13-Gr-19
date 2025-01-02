@@ -1,6 +1,6 @@
 package com.example.backend.DTO.Quiz.BlankQuiz;
 
-import com.example.backend.DTO.Quiz.QuizRequestDTO;
+import com.example.backend.DTO.Quiz.Quiz.QuizRequestDTO;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;

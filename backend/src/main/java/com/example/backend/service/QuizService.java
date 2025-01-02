@@ -1,13 +1,12 @@
 package com.example.backend.service;
 
 import com.example.backend.DTO.Quiz.BlankQuiz.BlankQuizRequestDTO;
-import com.example.backend.DTO.Quiz.ListQuizResponseDTO;
-import com.example.backend.DTO.Quiz.ListSmallQuizResponseDTO;
+import com.example.backend.DTO.Quiz.Quiz.ListSmallQuizResponseDTO;
 import com.example.backend.DTO.Quiz.MultipleChoiceQuiz.MultipleChoiceQuizRequestDTO;
-import com.example.backend.DTO.Quiz.QuizRequestDTO;
-import com.example.backend.DTO.Quiz.QuizResponseDTO;
+import com.example.backend.DTO.Quiz.Quiz.QuizRequestDTO;
+import com.example.backend.DTO.Quiz.Quiz.QuizResponseDTO;
 import com.example.backend.DTO.Quiz.ShortAnswerQuiz.ShortAnswerQuizRequestDTO;
-import com.example.backend.DTO.Quiz.SmallQuizResponseDTO;
+import com.example.backend.DTO.Quiz.Quiz.SmallQuizResponseDTO;
 import com.example.backend.entity.Quiz;
 import com.example.backend.exception.ForbiddenException;
 import com.example.backend.exception.ResourceNotFoundException;
