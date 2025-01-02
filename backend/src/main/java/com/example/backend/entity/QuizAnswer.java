@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "user_answer")
+@Table(name = "quiz_answer")
 @Data
 @Builder
 @AllArgsConstructor
@@ -25,13 +25,13 @@ public class QuizAnswer {
     @JoinColumn(name = "quiz_id")
     private Quiz quiz;
 
-    private boolean isCorrect;
+    private Boolean isCorrect;
 
     @Enumerated(EnumType.STRING)
     private QuestionType type;
 
-    @OneToMany(mappedBy = "quizAnswer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ShortAnswer> shortAnswer;
+    @OneToOne(mappedBy = "quizAnswer", cascade = CascadeType.ALL)
+    private ShortAnswer shortAnswer;
 
     @OneToMany(mappedBy = "quizAnswer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<BlankAnswer> blankAnswers;

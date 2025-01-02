@@ -16,7 +16,7 @@ public class ShortAnswer {
 
     private String content;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "quiz_answer_id")
     private QuizAnswer quizAnswer;
 }

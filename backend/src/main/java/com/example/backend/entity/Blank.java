@@ -24,7 +24,7 @@ public class Blank {
 
   private String content;
 
-  private int blankOrder;
+  private Integer blankOrder;
 
   @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
   @JoinColumn(name = "quiz_id")
