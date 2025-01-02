@@ -139,6 +139,41 @@ const QuizSetService = {
       return "Add quiz-set Fail";
     }
   },
+  changeAllowShowAnswer: async (id) => {
+    try {
+      const response = await axiosInstance.patch(`/quiz-set/${id}/allow-show-answer`);
+      
+     return response;
+    }
+    catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          const { status, data } = error.response;
+          return data.message;
+        }
+      } else {
+        return "Unexpected error";
+      }
+      return "Add quiz-set Fail";
+    }
+  },
+  changDisableShowAnswer: async (id) => {
+    try {
+      const response = await axiosInstance.patch(`/quiz-set/${id}/disable-show-answer`);
+     return response;
+    }
+    catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          const { status, data } = error.response;
+          return data.message;
+        }
+      } else {
+        return "Unexpected error";
+      }
+      return "Add quiz-set Fail";
+    }
+  },
 };
 
 export default QuizSetService;

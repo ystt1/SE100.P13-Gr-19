@@ -63,6 +63,34 @@ const QuizsetDetail = () => {
     }
   };
 
+  const handleAllowShowAnswer=async (quizsetData)=>
+  {
+    try{
+    var response;
+    if(quizsetData.allowShowAnswer!=true)
+    {
+        response=await QuizSetService.changeAllowShowAnswer(quizsetData.id)
+    }
+    else{
+      response=await QuizSetService.changDisableShowAnswer(quizsetData.id)
+    }
+    if(response.status==200)
+    {
+      showSnackbar(response.data);
+      fetchQuizSetDetail()
+    }
+    else{
+      alert(response)
+    }
+    
+  }
+  catch (e)
+  {
+    throw e;
+  }
+    
+  }
+
   useEffect(() => {
     fetchQuizSetDetail();
   }, [id]);
@@ -182,6 +210,7 @@ const QuizsetDetail = () => {
                 </p>
               </div>
               <button
+              onClick={()=>handleAllowShowAnswer(quizsetDetail)}
                 className={`px-4 py-2 rounded-lg ${
                   quizsetDetail.allowShowAnswer ? "bg-red-500" : "bg-blue-500"
                 } text-white`}
