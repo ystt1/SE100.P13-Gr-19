@@ -247,7 +247,7 @@ public class QuizSetService {
     }
 
     Sort sort = Sort.by(Sort.Direction.fromString(direction), sortElement != null ? sortElement : "name");
-    Pageable pageable = PageRequest.of(page, limit, sort);
+    Pageable pageable = PageRequest.of(page -1 , limit, sort);
 
     User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
@@ -278,6 +278,11 @@ public class QuizSetService {
         .totalPages(quizSetPage.getTotalPages())
         .currentPage(page)
         .build();
+  }
+
+  public ListQuizSetDTO getAllBookmarkQuizSetsByUserEmail(String email, String sortElement, String direction, String search, int page,
+      int limit) {
+    return getAllBookmarkQuizSetsByUserEmail(email, sortElement, direction, search, page, limit, 0);
   }
 
   public ListQuizSetDTO getRandomQuizSet(int limit) {

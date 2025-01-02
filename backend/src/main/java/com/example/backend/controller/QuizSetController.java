@@ -66,9 +66,8 @@ public class QuizSetController {
       @RequestParam(required = false) String direction,
       @RequestParam(required = false) String search,
       @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int limit,
-      @RequestParam(defaultValue = "0") int topicId) {
-    return quizSetService.getAllBookmarkQuizSetsByUserEmail(principal.getName(), sortElement,direction, search, page, limit, topicId);
+      @RequestParam(defaultValue = "10") int limit) {
+    return quizSetService.getAllBookmarkQuizSetsByUserEmail(principal.getName(), sortElement,direction, search, page, limit);
   }
 
   @GetMapping("/{id}")
