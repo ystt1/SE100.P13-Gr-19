@@ -17,7 +17,7 @@ import QuizStartPage from "./pages/dash_board/commponent/QuizStartPage";
 import QuizCompletePage from "./pages/dash_board/commponent/QuizCompletePage";
 import NotFound from "./pages/NotFound";
 import QuizHistory from "./pages/quizHistory/QuizHistory";
-
+import Profile from "./pages/Profile/quizProfile";
 function App() {
   return (
 
@@ -135,6 +135,17 @@ function App() {
              // <ProtectedRoute>                  
             
           />
+
+          <Route 
+            path="/profile" 
+            element={
+              // <ProtectedRoute>
+             <Profile />} 
+              // <ProtectedRoute>
+            
+          />
+
+
 
 <Route path="*" element={<NotFound />} />
         </Routes>
