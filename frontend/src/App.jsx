@@ -15,6 +15,7 @@ import QuizSetDetails from "./pages/dash_board/commponent/quizSetDetails";
 // import quizComplete from "./pages/dash_board/commponent/quizComplete";
 import QuizStartPage from "./pages/dash_board/commponent/QuizStartPage";
 import QuizCompletePage from "./pages/dash_board/commponent/QuizCompletePage";
+import NotFound from "./pages/NotFound";
 
 
 function App() {
@@ -28,9 +29,9 @@ function App() {
           <Route
             path="/topic"
             element={
-             // <ProtectedRoute>
-                <TopicsPage />
-            //  </ProtectedRoute>
+              // <ProtectedRoute>
+              <TopicsPage />
+              //  </ProtectedRoute>
             }
           />
           <Route
@@ -44,33 +45,41 @@ function App() {
           <Route
             path="/quizset-detail/:id"
             element={
-           //   <ProtectedRoute>
+              <ProtectedRoute>
                 <QuizsetDetail />
-           //   </ProtectedRoute>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/topic/:id/quizzes"
+            element={
+              <ProtectedRoute>
+                <Quiz />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/add-quiz"
             element={
               // <ProtectedRoute>
-                <AddQuiz />
+              <AddQuiz />
               // </ProtectedRoute>
             }
           />
           <Route
             path="/quiz-set"
             element={
-             // <ProtectedRoute>
+              <ProtectedRoute>
                 <QuizSetPage />
-           //   </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/add-quiz-set"
             element={
-            //  <ProtectedRoute>
-                <AddQuizset />
-             // </ProtectedRoute>
+              //  <ProtectedRoute>
+              <AddQuizset />
+              // </ProtectedRoute>
             }
           />
           <Route
@@ -92,31 +101,31 @@ function App() {
 
           <Route
             path="/dashboard/quiz-set-card/:quizSetId"
-            element={            
+            element={
               // <ProtectedRoute>
-                <QuizSetDetails />
+              <QuizSetDetails />
               // </ProtectedRoute>
             }
           />
-  
+
           <Route
             path="/dashboard/quiz/attempt/:quizSetId"
-            element={            
+            element={
               // <ProtectedRoute>
-                <QuizStartPage  />
+              <QuizStartPage />
               // </ProtectedRoute>
             }
           />
 
           <Route
             path="/dashboard/quiz/complete/:quizSetId"
-            element={            
+            element={
               // <ProtectedRoute>
-                <QuizCompletePage   />
+              <QuizCompletePage />
               // </ProtectedRoute>
             }
           />
-
+<Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </SnackbarProvider>
