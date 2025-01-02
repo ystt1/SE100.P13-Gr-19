@@ -10,7 +10,7 @@ import avatar from "../../images/avatar.png";
 import QuizSetService from "../../data/service/quiz_set_service";
 import { format } from "date-fns";
 import { useSnackbar } from "../../components/NotificationBat";
-import ConfirmationModal from "../../components/ConfirmModal"
+import ConfirmationModal from "../../components/ConfirmModal";
 
 const QuizSetPage = () => {
   const { showSnackbar } = useSnackbar();
@@ -23,25 +23,27 @@ const QuizSetPage = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [tempSearchQuery, setTempSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState(0); // 0: Your Quiz Set, 1: Save Quiz Set
   const sortOption = searchParams.get("sort") || "id";
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
+
   const fetchQuizSets = async () => {
     setLoading(true);
     try {
-      const data = await QuizSetService.getAllQuizSet(
-        searchQuery,
-        currentPage,
-        10,
-        sortOption
-      );
+      let data;
+      if (activeTab === 0) {
+        data = await QuizSetService.getAllQuizSet(searchQuery, currentPage, 10, sortOption);
+      } else {
+        data = await QuizSetService.getSaveQuizSet(searchQuery, currentPage, 10, sortOption);
+      }
       setQuizSetData(
         data.quizSets.map((quizSet) => ({
           id: quizSet.id,
           name: quizSet.name,
           description: quizSet.description,
           createdTime: format(new Date(quizSet.createdTime), "MMMM d, yyyy h:mm:ss a"),
-          isBookmarked: quizSet.isBookmarked??false,
-          totalQuestion:quizSet.totalQuestion
+          isBookmarked: quizSet.isBookmarked ?? false,
+          totalQuestion: quizSet.totalQuestion,
         }))
       );
       setTotalPages(data.totalPages);
@@ -51,9 +53,11 @@ const QuizSetPage = () => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchQuizSets();
-  }, [searchQuery, currentPage, sortOption]);
+  }, [searchQuery, currentPage, sortOption, activeTab]);
+
   const handleDeleteRequest = (id) => {
     setQuizToDelete(id);
   };
@@ -64,19 +68,19 @@ const QuizSetPage = () => {
       const response = await QuizSetService.delete(quizToDelete);
       if (response === "success") {
         showSnackbar("Delete quizset success");
-       fetchQuizSets()
+        fetchQuizSets();
       } else {
         alert(response);
       }
     } catch (error) {
       console.error("Error deleting quiz:", error);
     } finally {
-      setQuizToDelete(null); 
+      setQuizToDelete(null);
     }
   };
 
   const handleCancelDelete = () => {
-    setQuizToDelete(null); 
+    setQuizToDelete(null);
   };
 
   const handleSearch = () => {
@@ -91,24 +95,19 @@ const QuizSetPage = () => {
     navigate(`/quizset-detail/${id}`);
   };
 
-  const toggleSaveStatus =async (id,isBookmarked) => {
-    var response;
-    if(isBookmarked)
-    {
-      response=await QuizSetService.deleteBookmarked(id);
+  const toggleSaveStatus = async (id, isBookmarked) => {
+    let response;
+    if (isBookmarked) {
+      response = await QuizSetService.deleteBookmarked(id);
+    } else {
+      response = await QuizSetService.addBookmarked(id);
     }
-    else{
-      response=await QuizSetService.addBookmarked(id);
+    if (response.status === 200) {
+      showSnackbar(response.data);
+      fetchQuizSets();
+    } else {
+      alert(response);
     }
-    if(response.status==200)
-    { 
-      showSnackbar(response.data)
-      fetchQuizSets()
-    }
-    else{
-      alert(response)
-    }
-    
   };
 
   const handleAddQuizSet = async (newQuizSet) => {
@@ -127,6 +126,10 @@ const QuizSetPage = () => {
     }
   };
 
+  const handleTabChange = (tabIndex) => {
+    setActiveTab(tabIndex);
+    setSearchParams({ search: searchQuery, sort: sortOption, page: 1 });
+  };
 
   return (
     <div className="flex">
@@ -144,9 +147,9 @@ const QuizSetPage = () => {
         {/* Tabs và Sort */}
         <div className="flex justify-between items-center mt-6 mb-6">
           <TabNavigation
-            tabs={["Your Quiz Set", "Save Quizset"]}
-            activeTab={0} // Chỉ dùng một tab ở đây
-            onTabChange={() => { }} // Không xử lý chuyển tab
+            tabs={["Your Quiz Set", "Save Quiz Set"]}
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
           />
           <div className="flex items-center space-x-4">
             <select
@@ -173,15 +176,15 @@ const QuizSetPage = () => {
           <div>
             {quizSetData.map((quizSet) => (
               <QuizSetCard
-              questionCount={quizSet.totalQuestion}
+                questionCount={quizSet.totalQuestion}
                 key={quizSet.id}
                 name={quizSet.name}
                 description={quizSet.description}
                 createdTime={quizSet.createdTime}
                 isSaved={quizSet.isBookmarked}
                 onClick={() => handleQuizSetClick(quizSet.id)}
-                onToggleSave={() => toggleSaveStatus(quizSet.id,quizSet.isBookmarked)}
-                onDelete={()=>handleDeleteRequest(quizSet.id)}
+                onToggleSave={() => toggleSaveStatus(quizSet.id, quizSet.isBookmarked)}
+                onDelete={() => handleDeleteRequest(quizSet.id)}
               />
             ))}
           </div>

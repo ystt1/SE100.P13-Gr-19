@@ -27,6 +27,25 @@ const QuizSetService = {
       throw error;
     }
   },
+  getSaveQuizSet: async (search = "", page = 1, limit = 10, sortKey = "id", direction = "asc") => {
+    try {
+      const response = await axiosInstance.get(`/quiz-set/bookmarks`, {
+        params: {
+          search,
+          page,
+          limit,
+          sortElement: sortKey,
+          direction,
+        },
+      });
+
+
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching quizzes:", error);
+      throw error;
+    }
+  },
 
   addQuizSet: async (quizSetAddPayload: QuizsetAddPayload) => {
     try {
@@ -160,6 +179,23 @@ const QuizSetService = {
   changDisableShowAnswer: async (id) => {
     try {
       const response = await axiosInstance.patch(`/quiz-set/${id}/disable-show-answer`);
+     return response;
+    }
+    catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          const { status, data } = error.response;
+          return data.message;
+        }
+      } else {
+        return "Unexpected error";
+      }
+      return "Add quiz-set Fail";
+    }
+  },
+  removeQuizFromQuizSet: async (id,idQuiz) => {
+    try {
+      const response = await axiosInstance.delete(`/quiz-set/${id}/quiz/${idQuiz}`);
      return response;
     }
     catch (error) {

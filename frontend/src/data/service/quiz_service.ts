@@ -31,7 +31,9 @@ const createShortAnswerPayload = (quizData) => ({
   content: quizData.question,
   topicId: quizData.topic,
   type: "SHORT_ANSWER",
-  answer: quizData.correctAnswer,
+  answer: {
+    content:quizData.correctAnswer
+  },
 });
 const createMultipleChoicePayload = (quizData) => ({
   content: quizData.question,

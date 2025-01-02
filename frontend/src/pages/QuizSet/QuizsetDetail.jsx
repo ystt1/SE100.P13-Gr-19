@@ -28,18 +28,54 @@ const QuizsetDetail = () => {
     timeLimit: "",
   });
 
+  const handleRemoveQuizFromQuizSet=async (quiz)=>
+  {
+    try{
+    var response=await QuizSetService.removeQuizFromQuizSet(id,quiz.id);
+      
+      if(response.status===200)
+      {
+        showSnackbar(response.data)
+        fetchQuizSetDetail()
+      }
+      else{
+        alert(response)
+      }
+    }
+    catch (e){
+      throw e;
+    }
+  }
+
   const handleEditField = (field) => {
     setIsEditing((prev) => ({ ...prev, [field]: true }));
-    setEditedFields((prev) => ({ ...prev, [field]: quizsetDetail[field] }));
+    setEditedFields({
+      name: quizsetDetail.name,
+      description: quizsetDetail.description,
+      timeLimit: quizsetDetail.timeLimit,
+      allowShowAnswer: quizsetDetail.allowShowAnswer,
+    });
   };
 
   const handleSaveField = async (field) => {
     try {
-      const updatedData = { [field]: editedFields[field] };
+      // Cập nhật toàn bộ các field
+      const updatedData = {
+        name: editedFields.name,
+        description: editedFields.description,
+        timeLimit: editedFields.timeLimit,
+        allowShowAnswer: editedFields.allowShowAnswer,
+      };
+  
       const response = await QuizSetService.updateQuizSet(id, updatedData);
+  
       if (response.status === 200) {
         showSnackbar("Quiz set updated successfully");
-        setIsEditing((prev) => ({ ...prev, [field]: false }));
+        setIsEditing({
+          name: false,
+          description: false,
+          timeLimit: false,
+        });
         fetchQuizSetDetail();
       }
     } catch (err) {
@@ -47,6 +83,7 @@ const QuizsetDetail = () => {
       showSnackbar("Failed to update quiz set");
     }
   };
+  
 
   const handleChangeField = (field, value) => {
     setEditedFields((prev) => ({ ...prev, [field]: value }));
@@ -232,6 +269,8 @@ const QuizsetDetail = () => {
                 type={quiz.type}
                 createdAt={format(new Date(quiz.createdAt), "MMMM d, yyyy h:mm:ss a")}
                 topic={quiz.topic.name}
+                onAction={()=>handleRemoveQuizFromQuizSet(quiz)}
+                actionType="delete"
               />
             ))
           ) : (
