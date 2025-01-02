@@ -6,7 +6,7 @@ import Modal from "./component/topic_model";
 import Pagination from "./component/pagination";
 import Sidebar from "../../components/Sidebar";
 import { useSnackbar } from "../../components/NotificationBat";
-
+import { useNavigate } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 
 const TopicsPage = () => {
@@ -16,7 +16,7 @@ const TopicsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isModalOpen, setModalOpen] = useState(false);
   const [modalData, setModalData] = useState({ name: "", description: "", id: "" });
-
+  const navigate = useNavigate(); 
   const currentPage = parseInt(searchParams.get("page")) || 1;
   const search = searchParams.get("search") || "";
   const sortElement = searchParams.get("sortElement") || "name";
@@ -50,6 +50,12 @@ const TopicsPage = () => {
     setSearchParams({ page: 1, search: e.target.value, sortElement, direction });
   };
 
+  
+
+  const handleCardClick = async (topic) => {
+    navigate(`/topic/${topic.id}/quizzes`);
+  };
+
   const toggleSortDirection = () => {
     setSearchParams({
       page: currentPage,
@@ -65,6 +71,8 @@ const TopicsPage = () => {
   };
 
   const handleDeleteTopic = async (topic) => {
+    console.log(topic);
+    
     var response = await TopicService.deleteTopic(topic.id);
     if (response == "success") {
       showSnackbar("Delete success");
@@ -78,7 +86,6 @@ const TopicsPage = () => {
   const handleModalSubmit = async () => {
     var response;
     const { name, description } = modalData;
-
     if (modalData.id === "") {
       response = await TopicService.addTopic({ name, description });
     } else {
@@ -156,6 +163,7 @@ const TopicsPage = () => {
                 usageCount={topic.quizSets?.length || 0}
                 onEdit={() => handleEditTopic(topic)}
                 onDelete={() => handleDeleteTopic(topic)}
+                onClick={()=>handleCardClick(topic)}
               />
             ))}
           </div>

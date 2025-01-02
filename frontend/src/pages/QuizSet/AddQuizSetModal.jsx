@@ -3,13 +3,13 @@ import React, { useState } from "react";
 const AddQuizSetModal = ({ onClose, onSubmit }) => {
   const [quizSetName, setQuizSetName] = useState("");
   const [description, setDescription] = useState("");
-  const [timeLimit, setTimeLimit] = useState("");
+  const [timeLimit, setTimeLimit] = useState(0);
 
   const handleSubmit = () => {
     const newQuizSet = {
       name: quizSetName,
       description: description,
-      date: new Date().toLocaleDateString(), //lấy ngày hiện tại
+      date: new Date().toLocaleDateString(),
       timeLimit: timeLimit,
     };
 
@@ -38,7 +38,7 @@ const AddQuizSetModal = ({ onClose, onSubmit }) => {
         />
 
         <input
-          type="text"
+          type="number"
           placeholder="Time Limit (e.g., 15 Mins)"
           className="w-full mb-3 px-4 py-2 border rounded-lg"
           value={timeLimit}

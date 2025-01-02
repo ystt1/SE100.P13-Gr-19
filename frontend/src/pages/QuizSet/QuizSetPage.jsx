@@ -10,7 +10,7 @@ import avatar from "../../images/avatar.png";
 import QuizSetService from "../../data/service/quiz_set_service";
 import { format } from "date-fns";
 import { useSnackbar } from "../../components/NotificationBat";
-
+import ConfirmationModal from "../../components/ConfirmModal"
 
 const QuizSetPage = () => {
   const { showSnackbar } = useSnackbar();
@@ -18,19 +18,13 @@ const QuizSetPage = () => {
   const [loading, setLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
   const [showAddModal, setShowAddModal] = useState(false);
-
+  const [quizToDelete, setQuizToDelete] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-
-
   const [searchQuery, setSearchQuery] = useState("");
   const [tempSearchQuery, setTempSearchQuery] = useState("");
   const sortOption = searchParams.get("sort") || "id";
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
-
-
-
-
   const fetchQuizSets = async () => {
     setLoading(true);
     try {
@@ -40,15 +34,14 @@ const QuizSetPage = () => {
         10,
         sortOption
       );
-
-
       setQuizSetData(
         data.quizSets.map((quizSet) => ({
           id: quizSet.id,
           name: quizSet.name,
           description: quizSet.description,
           createdTime: format(new Date(quizSet.createdTime), "MMMM d, yyyy h:mm:ss a"),
-          isSaved: false,
+          isBookmarked: quizSet.isBookmarked??false,
+          totalQuestion:quizSet.totalQuestion
         }))
       );
       setTotalPages(data.totalPages);
@@ -58,14 +51,36 @@ const QuizSetPage = () => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchQuizSets();
   }, [searchQuery, currentPage, sortOption]);
+  const handleDeleteRequest = (id) => {
+    setQuizToDelete(id);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!quizToDelete) return;
+    try {
+      const response = await QuizSetService.delete(quizToDelete);
+      if (response === "success") {
+        showSnackbar("Delete quizset success");
+       fetchQuizSets()
+      } else {
+        alert(response);
+      }
+    } catch (error) {
+      console.error("Error deleting quiz:", error);
+    } finally {
+      setQuizToDelete(null); 
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setQuizToDelete(null); 
+  };
 
   const handleSearch = () => {
     setSearchQuery(tempSearchQuery);
-    setCurrentPage(1);
   };
 
   const handleSortChange = (option) => {
@@ -76,48 +91,47 @@ const QuizSetPage = () => {
     navigate(`/quizset-detail/${id}`);
   };
 
-  const toggleSaveStatus = (id) => {
-    setQuizSetData((prevQuizSets) =>
-      prevQuizSets.map((quizSet) =>
-        quizSet.id === id ? { ...quizSet, isSaved: !quizSet.isSaved } : quizSet
-      )
-    );
+  const toggleSaveStatus =async (id,isBookmarked) => {
+    var response;
+    if(isBookmarked)
+    {
+      response=await QuizSetService.deleteBookmarked(id);
+    }
+    else{
+      response=await QuizSetService.addBookmarked(id);
+    }
+    if(response.status==200)
+    { 
+      showSnackbar(response.data)
+      fetchQuizSets()
+    }
+    else{
+      alert(response)
+    }
+    
   };
 
   const handleAddQuizSet = async (newQuizSet) => {
-    const { name, description } = newQuizSet;
+    const { name, description, timeLimit } = newQuizSet;
     try {
-      const response = await QuizSetService.addTopic({ name, description });
+      const response = await QuizSetService.addQuizSet({ name, description, timeLimit });
       if (response === "success") {
-        showSnackbar("Quiz Set added successfully!", "success"); // Hiển thị thông báo thành công
-        fetchQuizSets(); // Tải lại danh sách quiz sets
-        setShowAddModal(false); // Chỉ đóng modal nếu thêm thành công
+        showSnackbar("Quiz Set added successfully!", "success");
+        fetchQuizSets();
+        setShowAddModal(false);
       } else {
-        alert("Failed to add Quiz Set: " + response, "error"); // Hiển thị thông báo lỗi
+        alert("Failed to add Quiz Set: " + response, "error");
       }
     } catch (error) {
       alert("An unexpected error occurred. Please try again.", "error");
     }
   };
-  
+
 
   return (
     <div className="flex">
       <Sidebar />
       <div className="flex-1 ml-64 p-6 bg-gray-50">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-3xl font-bold">QuizSet</h1>
-          <div className="flex items-center space-x-4">
-            <div className="text-xl">Trung Huynh</div>
-            <img
-              src={avatar}
-              alt="User Avatar"
-              className="w-10 h-10 rounded-full border-2 border-gray-300"
-            />
-          </div>
-        </div>
-
         {/* Search Bar */}
         <SearchBar
           placeholder="Search QuizSet"
@@ -159,13 +173,15 @@ const QuizSetPage = () => {
           <div>
             {quizSetData.map((quizSet) => (
               <QuizSetCard
+              questionCount={quizSet.totalQuestion}
                 key={quizSet.id}
                 name={quizSet.name}
                 description={quizSet.description}
                 createdTime={quizSet.createdTime}
-                isSaved={quizSet.isSaved}
+                isSaved={quizSet.isBookmarked}
                 onClick={() => handleQuizSetClick(quizSet.id)}
-                onToggleSave={() => toggleSaveStatus(quizSet.id)}
+                onToggleSave={() => toggleSaveStatus(quizSet.id,quizSet.isBookmarked)}
+                onDelete={()=>handleDeleteRequest(quizSet.id)}
               />
             ))}
           </div>
@@ -183,6 +199,14 @@ const QuizSetPage = () => {
           <AddQuizSetModal
             onClose={() => setShowAddModal(false)}
             onSubmit={handleAddQuizSet}
+          />
+        )}
+        {quizToDelete && (
+          <ConfirmationModal
+            title="Confirm Delete"
+            message="Are you sure you want to delete this quiz? This action cannot be undone."
+            onConfirm={handleConfirmDelete}
+            onCancel={handleCancelDelete}
           />
         )}
       </div>

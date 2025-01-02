@@ -7,12 +7,16 @@ import QuizSetPage from "./pages/QuizSet/QuizSetPage";
 import { LoginForm } from "./pages/auth/login_page";
 import { RegisterPage } from "./pages/auth/register_page";
 import { SnackbarProvider } from "./components/NotificationBat";
-import { ProtectedRoute } from "./components/ProtectedRoute"; 
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import TopicsPage from "./pages/topic/topic_page";
 import Dashboard from "./pages/dash_board/dash_board_page";
 import Teams from "./pages/teams/teams_page";
 import QuizSetDetails from "./pages/dash_board/commponent/quizSetDetails";
 // import quizComplete from "./pages/dash_board/commponent/quizComplete";
+import QuizStartPage from "./pages/dash_board/commponent/QuizStartPage";
+import QuizCompletePage from "./pages/dash_board/commponent/QuizCompletePage";
+import NotFound from "./pages/NotFound";
+
 
 function App() {
   return (
@@ -25,9 +29,9 @@ function App() {
           <Route
             path="/topic"
             element={
-             // <ProtectedRoute>
-                <TopicsPage />
-            //  </ProtectedRoute>
+              // <ProtectedRoute>
+              <TopicsPage />
+              //  </ProtectedRoute>
             }
           />
           <Route
@@ -41,70 +45,87 @@ function App() {
           <Route
             path="/quizset-detail/:id"
             element={
-           //   <ProtectedRoute>
+              <ProtectedRoute>
                 <QuizsetDetail />
-           //   </ProtectedRoute>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/topic/:id/quizzes"
+            element={
+              <ProtectedRoute>
+                <Quiz />
+              </ProtectedRoute>
             }
           />
           <Route
             path="/add-quiz"
             element={
               // <ProtectedRoute>
-                <AddQuiz />
+              <AddQuiz />
               // </ProtectedRoute>
             }
           />
           <Route
             path="/quiz-set"
             element={
-             // <ProtectedRoute>
+              <ProtectedRoute>
                 <QuizSetPage />
-           //   </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/add-quiz-set"
             element={
-            //  <ProtectedRoute>
-                <AddQuizset />
-             // </ProtectedRoute>
+              //  <ProtectedRoute>
+              <AddQuizset />
+              // </ProtectedRoute>
             }
           />
           <Route
             path="/quiz"
             element={
-           //  <ProtectedRoute>
+              <ProtectedRoute>
                 <Quiz />
-          ///   </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/"
-            element={            
-              // <ProtectedRoute>
+            element={
+              <ProtectedRoute>
                 <Dashboard />
-              //  </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
 
           <Route
             path="/dashboard/quiz-set-card/:quizSetId"
-            element={            
+            element={
               // <ProtectedRoute>
-                <QuizSetDetails />
+              <QuizSetDetails />
               // </ProtectedRoute>
             }
           />
-  
-          {/* <Route
-            path="/quiz/attemp"
-            element={            
+
+          <Route
+            path="/dashboard/quiz/attempt/:quizSetId"
+            element={
               // <ProtectedRoute>
-                <quizComplete />
+              <QuizStartPage />
               // </ProtectedRoute>
             }
-          /> */}
+          />
 
+          <Route
+            path="/dashboard/quiz/complete/:quizSetId"
+            element={
+              // <ProtectedRoute>
+              <QuizCompletePage />
+              // </ProtectedRoute>
+            }
+          />
+<Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </SnackbarProvider>

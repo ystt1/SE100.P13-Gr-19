@@ -72,14 +72,12 @@ const QuizService = {
           throw new Error(`Unsupported quiz type: ${type}`);
       }
         
-      console.log(payload);
       const response = await axiosInstance.post(`/quiz`, payload);
   
       if (response.status!=200) {
         throw new Error("Failed to add quiz");
       }
-
-      return "success";
+      return response;
     } catch (error) {
       console.error("Error adding quiz:", error.message);
       throw error;
@@ -96,7 +94,24 @@ const QuizService = {
           direction,
         },
       });
-      console.log(response);
+      
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching quizzes:", error);
+      throw error;
+    }
+  },
+  getAllQuizOfTopic: async (topic,search = "", page = 1, limit = 10, sortKey = "createdAt", direction = "asc") => {
+    try {
+      const response = await axiosInstance.get(`/topic/${topic}/quizzes`, {
+        params: {
+          search,
+          page,
+          limit,
+          sortElement: sortKey,
+          direction,
+        },
+      });
       
       return response.data;
     } catch (error) {
