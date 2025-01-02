@@ -319,4 +319,24 @@ public class QuizSetService {
   public Boolean checkQuizSetContainQuiz(QuizSet quizSet, Quiz quiz) {
     return quizSet.getQuizList().contains(quiz);
   }
+
+  public void removeQuizFromQuizSet(String name, int id, int quizId) {
+    var quizSet = quizSetRepository.findById(id);
+    if(quizSet.isEmpty()){
+      throw new ResourceNotFoundException("Quiz set not found");
+    }
+    if(!quizSet.get().getCreator().getEmail().equals(name)){
+      throw new ForbiddenException("You are not authorized to remove quizzes from this quiz set");
+    }
+
+    var quiz = quizRepository.findById(quizId);
+
+    if(quiz.isEmpty()){
+      throw new ResourceNotFoundException("Quiz not found");
+    }
+
+    quizSet.get().getQuizList().remove(quiz.get());
+
+    quizSetRepository.save(quizSet.get());
+  }
 }

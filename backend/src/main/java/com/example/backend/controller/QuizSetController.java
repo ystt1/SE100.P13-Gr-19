@@ -131,4 +131,10 @@ public class QuizSetController {
     return ResponseEntity.ok(quizzes);
   }
 
+  @DeleteMapping("/{id}/quiz/{quizId}")
+  public ResponseEntity<String> removeQuizFromQuizSet(Principal principal, @PathVariable int id, @PathVariable int quizId) {
+    quizSetService.removeQuizFromQuizSet(principal.getName(), id, quizId);
+    return ResponseEntity.status(200).body("Quiz removed from quiz set");
+  }
+
 }
