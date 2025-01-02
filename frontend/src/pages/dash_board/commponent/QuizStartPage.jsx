@@ -1,74 +1,39 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Sidebar from "../../../components/Sidebar";
-import { FaClock } from "react-icons/fa"; 
+import { FaClock } from "react-icons/fa";
+
 const QuizStartPage = () => {
   const navigate = useNavigate();
-  const { id } = useParams(); //  quizSet ID  từ URL
-  const [timeLeft, setTimeLeft] = useState(900); // 15 phút
+  const { id } = useParams(); // Lấy quizSet ID từ URL
+  const [quizData, setQuizData] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState({});
-  const [quizData, setQuizData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [timeLeft, setTimeLeft] = useState(600); // 10 phút
 
-
- 
-  const formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
-  };
-
+  // Fetch quiz data từ API
   useEffect(() => {
-    // Fetch dữ liệu quizSet từ API
     const fetchQuizData = async () => {
       try {
-          // Thay thế bằng API 
-        const mockQuizData = [
-          {
-            id: 1,
-            question: "Laravel là gì?",
-            type: "SINGLE_CHOICE",
-            options: [
-              "Một PHP framework mã nguồn mở và miễn phí",
-              "Một công cụ quản lý cơ sở dữ liệu",
-              "Một ngôn ngữ lập trình",
-              "Một framework phát triển ứng dụng di động",
-            ],
-          },
-          {
-            id: 2,
-            question: "Điền số vào chỗ trống: 1 + _ = 2",
-            type: "FILL_IN_THE_BLANK",
-          },
-          {
-            id: 3,
-            question: "Điền từ còn thiếu: React là _ của JavaScript.",
-            type: "SHORT_ANSWER",
-          },
-          {
-            id: 4,
-            question: "Chọn các thành phần chính của React",
-            type: "MULTIPLE_CHOICE",
-            options: ["Component", "JSX", "Database", "State"],
-          },
-        ];
-        setQuizData(mockQuizData);
-        setLoading(false);
+        const response = await fetch(`/api/practice/quizset/${id}`);
+        const data = await response.json();
+        console.log("Quiz Data:", data); // Kiểm tra dữ liệu
+        setQuizData(data.questions);
       } catch (error) {
-        console.error("Lỗi khi lấy dữ liệu quiz:", error);
-        setLoading(false);
+        console.error("Lỗi khi tải dữ liệu quiz:", error);
       }
     };
 
     fetchQuizData();
+  }, [id]);
 
-    // Đếm ngược thời gian
+  // Đếm ngược thời gian
+  useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 0) {
           clearInterval(timer);
-          handleSubmit();
+          handleSubmit(); // Nộp bài khi hết giờ
           return 0;
         }
         return prev - 1;
@@ -76,104 +41,101 @@ const QuizStartPage = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [id]);
+  }, []);
+
+  // Format thời gian hiển thị
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
+  // Xử lý lưu câu trả lời của người dùng
+  const handleAnswerChange = (answer) => {
+    setUserAnswers((prev) => ({
+      ...prev,
+      [quizData[currentQuestionIndex].id]: answer,
+    }));
+  };
+
+  // Xử lý nộp bài
+  const handleSubmit = () => {
+    navigate(`/dashboard/quiz/complete/${id}`, {
+      state: { userAnswers },
+    });
+  };
+
+  // Hiển thị câu hỏi hiện tại
+  const renderQuestion = () => {
+    const currentQuestion = quizData[currentQuestionIndex];
+
+    if (!currentQuestion) return null;
+
+    switch (currentQuestion.type) {
+      case "SINGLE_CHOICE":
+        return currentQuestion.options.map((option, index) => (
+          <div key={index} className="mb-2">
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name={`question-${currentQuestion.id}`}
+                value={option}
+                checked={userAnswers[currentQuestion.id] === option}
+                onChange={() => handleAnswerChange(option)}
+              />
+              {option}
+            </label>
+          </div>
+        ));
+      case "MULTIPLE_CHOICE":
+        return currentQuestion.options.map((option, index) => (
+          <div key={index} className="mb-2">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                name={`question-${currentQuestion.id}`}
+                value={option}
+                checked={
+                  Array.isArray(userAnswers[currentQuestion.id]) &&
+                  userAnswers[currentQuestion.id].includes(option)
+                }
+                onChange={() => {
+                  const currentAnswers =
+                    userAnswers[currentQuestion.id] || [];
+                  const updatedAnswers = currentAnswers.includes(option)
+                    ? currentAnswers.filter((ans) => ans !== option)
+                    : [...currentAnswers, option];
+                  handleAnswerChange(updatedAnswers);
+                }}
+              />
+              {option}
+            </label>
+          </div>
+        ));
+      case "FILL_IN_THE_BLANK":
+      case "SHORT_ANSWER":
+        return (
+          <input
+            type="text"
+            className="w-full border rounded p-2"
+            value={userAnswers[currentQuestion.id] || ""}
+            onChange={(e) => handleAnswerChange(e.target.value)}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
   const currentQuestion = quizData[currentQuestionIndex];
 
-  const handleSubmit = () => {
-    console.log("User Answers:", userAnswers);
-    navigate(`/dashboard/quiz/complete/${id}`, { state: { userAnswers } });
-  };
-
-  const handleAnswerChange = (answer) => {
-    setUserAnswers({ ...userAnswers, [currentQuestion.id]: answer });
-  };
-
-  const renderQuestion = () => {
-      if (!currentQuestion) return null;
-    
-      switch (currentQuestion.type) {
-        case "SHORT_ANSWER":
-          return (
-            <input
-              type="text"
-              className="w-full border p-2 rounded"
-              value={userAnswers[currentQuestion.id] || ""}
-              onChange={(e) => handleAnswerChange(e.target.value)}
-            />
-          );
-    
-        case "SINGLE_CHOICE":
-          return (
-            <div>
-              {currentQuestion.options.map((option, index) => (
-                <div key={index} className="flex items-center gap-2 mb-2">
-                  <input
-                    type="radio"
-                    name="answer"
-                    value={option}
-                    checked={userAnswers[currentQuestion.id] === option}
-                    onChange={(e) => handleAnswerChange(e.target.value)}
-                  />
-                  <span>{option}</span>
-                </div>
-              ))}
-            </div>
-          );
-    
-        case "MULTIPLE_CHOICE":
-          return (
-            <div>
-              {currentQuestion.options.map((option, index) => (
-                <div key={index} className="flex items-center gap-2 mb-2">
-                  <input
-                    type="checkbox"
-                    value={option}
-                    checked={userAnswers[currentQuestion.id]?.includes(option)}
-                    onChange={(e) => {
-                      const selected = userAnswers[currentQuestion.id] || [];
-                      const updatedAnswers = e.target.checked
-                        ? [...selected, option]
-                        : selected.filter((o) => o !== option);
-                      handleAnswerChange(updatedAnswers);
-                    }}
-                  />
-                  <span>{option}</span>
-                </div>
-              ))}
-            </div>
-          );
-    
-        case "FILL_IN_THE_BLANK":
-          return (
-            <input
-              type="text"
-              className="w-full border p-2 rounded"
-              placeholder="Điền đáp án"
-              value={userAnswers[currentQuestion.id] || ""}
-              onChange={(e) => handleAnswerChange(e.target.value)}
-            />
-          );
-    
-        default:
-          return null;
-      }
-    };
-  
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        Loading...
-      </div>
-    );
-  }
-
   return (
     <div className="flex bg-gray-50 min-h-screen">
-      <Sidebar  className="fixed top-0 left-0 w-64 h-full bg-white shadow-md z-50"/>
+      <Sidebar className="fixed top-0 left-0 w-64 h-full bg-white shadow-md z-50" />
       <div className="ml-64 flex-1 p-6">
-        {/* Header */}              
+        {/* Header */}
         <div className="flex justify-between items-center bg-blue-50 p-4 rounded-lg shadow mb-6">
           <button
             onClick={() => navigate(-1)}
@@ -189,9 +151,8 @@ const QuizStartPage = () => {
             <div className="text-sm text-gray-600">
               {`Answered: ${Object.keys(userAnswers).length} / ${quizData.length}`}
             </div>
-            
             <div className="text-sm text-gray-600 flex items-center justify-center gap-2">
-              <FaClock className="text-blue-800" /> 
+              <FaClock className="text-blue-800" />
               {`Time Left: ${formatTime(timeLeft)}`}
             </div>
           </div>
@@ -202,8 +163,7 @@ const QuizStartPage = () => {
           >
             Submit
           </button>
-        </div>  
-
+        </div>
 
         {/* Question */}
         <div className="mb-6">
