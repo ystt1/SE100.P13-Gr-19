@@ -4,7 +4,7 @@ import QuizSetSection from "./commponent/quiz_set_section";
 import SideBar from "../../components/Sidebar";
 import QuizSetService from "../../data/service/quiz_set_service";
 
-const ITEMS_PER_VIEW = 5;
+const ITEMS_PER_VIEW = 3;
 
 const DashboardPage = () => {
   const [quizData, setQuizData] = useState({
@@ -27,14 +27,14 @@ const DashboardPage = () => {
     // Fetch data from API
     const fetchData = async () => {
       try {
-        const response = await QuizSetService.getRandom()
-
+        const randomQuizSet = await QuizSetService.getRandom()
+        const recentlyQuizSet=await QuizSetService.getRecently()
 
         const formattedData = {
-          recent: response.quizSets,
-          recommendQuizSet: response.quizSets,
-          recommendTopic: response.quizSets,
-          random: response.quizSets,
+          recent: recentlyQuizSet,
+          recommendQuizSet: randomQuizSet.quizSets,
+          recommendTopic: randomQuizSet.quizSets,
+          random: randomQuizSet.quizSets,
         };
 
         setQuizData(formattedData);
@@ -121,8 +121,7 @@ const DashboardPage = () => {
         {/* Quiz Sections */}
         <div className="space-y-6">
           <QuizSetSection title="Recent">{renderQuizSets("recent")}</QuizSetSection>
-          <QuizSetSection title="Recommend QuizSet">{renderQuizSets("recommendQuizSet")}</QuizSetSection>
-          <QuizSetSection title="Recommend Topic">{renderQuizSets("recommendTopic")}</QuizSetSection>
+  
           <QuizSetSection title="Random">{renderQuizSets("random")}</QuizSetSection>
         </div>
       </div>
