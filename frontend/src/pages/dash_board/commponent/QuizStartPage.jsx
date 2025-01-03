@@ -2,27 +2,30 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Sidebar from "../../../components/Sidebar";
 import { FaClock } from "react-icons/fa";
-
+import StartQuizService from "../../../data/service/start_quiz_set_service";
+import DragAndDropQuestion from "./drag_and_drop";
 const QuizStartPage = () => {
   const navigate = useNavigate();
-  const { id } = useParams(); // Lấy quizSet ID từ URL
+  const { id } = useParams(); 
   const [quizData, setQuizData] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState({});
   const [timeLeft, setTimeLeft] = useState(600); // 10 phút
 
   // Fetch quiz data từ API
+
+
+  const fetchQuizData = async () => {
+    try {
+      const response = await StartQuizService.getQuizSet(id);
+      setQuizData(response);
+    } catch (error) {
+      console.error("Lỗi khi tải dữ liệu quiz:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchQuizData = async () => {
-      try {
-        const response = await fetch(`/api/practice/quizset/${id}`);
-        const data = await response.json();
-        console.log("Quiz Data:", data); // Kiểm tra dữ liệu
-        setQuizData(data.questions);
-      } catch (error) {
-        console.error("Lỗi khi tải dữ liệu quiz:", error);
-      }
-    };
+    
 
     fetchQuizData();
   }, [id]);
@@ -52,82 +55,216 @@ const QuizStartPage = () => {
       .padStart(2, "0")}`;
   };
 
-  // Xử lý lưu câu trả lời của người dùng
-  const handleAnswerChange = (answer) => {
-    setUserAnswers((prev) => ({
-      ...prev,
-      [quizData[currentQuestionIndex].id]: answer,
-    }));
+  const prepareSubmitData = () => {
+    const listAnswer = quizData.map((question) => {
+      const { id, type, options, blanks } = question;
+      const userAnswer = userAnswers[id];
+  
+      switch (type) {
+        case "SINGLE_CHOICE":
+          return {
+            id,
+            type,
+            options: userAnswer ? [userAnswer] : [],
+          };
+  
+        case "MULTIPLE_CHOICE":
+          return {
+            id,
+            type,
+            options: userAnswer || [],
+          };
+  
+        case "FILL_IN_THE_BLANK":
+          return {
+            id,
+            type,
+            blanks: (userAnswer || []).map((content, index) => ({
+              content,
+              order: index + 1,
+            })),
+          };
+  
+        case "SHORT_ANSWER":
+          return {
+            id,
+            type,
+            shortAnswer: userAnswer || "",
+          };
+  
+        case "DRAG_AND_DROP":
+          return {
+            id,
+            type,
+            blanks: (userAnswer || []).map((content, index) => ({
+              content,
+              order: index + 1,
+            })),
+          };
+  
+        default:
+          return null;
+      }
+    }).filter((answer) => answer !== null); // Loại bỏ các câu hỏi không hợp lệ
+  
+    return {
+      time: 600 - timeLeft, // Thời gian đã làm bài
+      listAnswer,
+    };
   };
-
-  // Xử lý nộp bài
-  const handleSubmit = () => {
-    navigate(`/dashboard/quiz/complete/${id}`, {
-      state: { userAnswers },
+  
+  const handleAnswerChange = (answer, questionId, type) => {
+    setUserAnswers((prev) => {
+      const updatedAnswers = { ...prev };
+  
+      switch (type) {
+        case "SINGLE_CHOICE":
+          updatedAnswers[questionId] = answer; // Ghi lại lựa chọn
+          break;
+  
+        case "MULTIPLE_CHOICE":
+          const currentAnswers = updatedAnswers[questionId] || [];
+          updatedAnswers[questionId] = currentAnswers.includes(answer)
+            ? currentAnswers.filter((ans) => ans !== answer) // Bỏ lựa chọn
+            : [...currentAnswers, answer]; // Thêm lựa chọn
+          break;
+  
+        case "FILL_IN_THE_BLANK":
+          updatedAnswers[questionId] = answer; // Ghi lại nội dung
+          break;
+  
+        case "SHORT_ANSWER":
+          updatedAnswers[questionId] = answer; // Ghi lại nội dung
+          break;
+  
+        case "DRAG_AND_DROP":
+          updatedAnswers[questionId] = answer; // Ghi lại danh sách sau khi kéo thả
+          break;
+  
+        default:
+          console.warn("Unsupported question type:", type);
+          break;
+      }
+  
+      return updatedAnswers;
     });
   };
+  
+  
+
+  const handleSubmit = async () => {
+    const submitData = prepareSubmitData();
+  
+    try {
+      const response = await StartQuizService.submitQuiz(id, submitData);
+      if(response.status===200)
+      {
+        navigate("/complete")
+      }
+    } catch (error) {
+      console.error("Lỗi khi submit bài quiz:", error);
+    }
+  };
+  
 
   // Hiển thị câu hỏi hiện tại
-  const renderQuestion = () => {
-    const currentQuestion = quizData[currentQuestionIndex];
-
-    if (!currentQuestion) return null;
-
-    switch (currentQuestion.type) {
+  const renderQuestions = () => {
+    return quizData.map((question, index) => (
+      <div key={question.id} className="mb-6 border-b pb-4">
+        {/* Hiển thị câu hỏi */}
+        <h3 className="text-lg font-bold mb-2">
+          {`Question ${index + 1}: ${question.content}`}
+        </h3>
+  
+        {/* Hiển thị đáp án theo loại câu hỏi */}
+        {renderAnswerOptions(question)}
+      </div>
+    ));
+  };
+  
+  const renderAnswerOptions = (question) => {
+    const { id, type, options, blanks } = question;
+  
+    switch (type) {
       case "SINGLE_CHOICE":
-        return currentQuestion.options.map((option, index) => (
-          <div key={index} className="mb-2">
+        return options.map((option, idx) => (
+          <div key={idx} className="mb-2">
             <label className="flex items-center gap-2">
               <input
                 type="radio"
-                name={`question-${currentQuestion.id}`}
-                value={option}
-                checked={userAnswers[currentQuestion.id] === option}
-                onChange={() => handleAnswerChange(option)}
+                name={`question-${id}`}
+                value={option.content}
+                checked={userAnswers[id] === option.content}
+                onChange={() => handleAnswerChange(option.content, id, type)}
               />
-              {option}
+              {option.content}
             </label>
           </div>
         ));
+  
       case "MULTIPLE_CHOICE":
-        return currentQuestion.options.map((option, index) => (
-          <div key={index} className="mb-2">
+        return options.map((option, idx) => (
+          <div key={idx} className="mb-2">
             <label className="flex items-center gap-2">
               <input
                 type="checkbox"
-                name={`question-${currentQuestion.id}`}
-                value={option}
+                name={`question-${id}`}
+                value={option.content}
                 checked={
-                  Array.isArray(userAnswers[currentQuestion.id]) &&
-                  userAnswers[currentQuestion.id].includes(option)
+                  Array.isArray(userAnswers[id]) &&
+                  userAnswers[id].includes(option.content)
                 }
-                onChange={() => {
-                  const currentAnswers =
-                    userAnswers[currentQuestion.id] || [];
-                  const updatedAnswers = currentAnswers.includes(option)
-                    ? currentAnswers.filter((ans) => ans !== option)
-                    : [...currentAnswers, option];
-                  handleAnswerChange(updatedAnswers);
-                }}
+                onChange={() => handleAnswerChange(option.content, id, type)}
               />
-              {option}
+              {option.content}
             </label>
           </div>
         ));
+  
       case "FILL_IN_THE_BLANK":
+        return blanks.map((blank, idx) => (
+          <input
+            key={idx}
+            type="text"
+            className="w-full border rounded p-2 mb-2"
+            value={userAnswers[id]?.[idx] || ""}
+            onChange={(e) => {
+              const updatedBlanks = [...(userAnswers[id] || [])];
+              updatedBlanks[idx] = e.target.value;
+              handleAnswerChange(updatedBlanks, id, type);
+            }}
+          />
+        ));
+  
       case "SHORT_ANSWER":
         return (
           <input
             type="text"
             className="w-full border rounded p-2"
-            value={userAnswers[currentQuestion.id] || ""}
-            onChange={(e) => handleAnswerChange(e.target.value)}
+            value={userAnswers[id] || ""}
+            onChange={(e) => handleAnswerChange(e.target.value, id, type)}
           />
         );
+  
+      case "DRAG_AND_DROP":
+        return (
+          <DragAndDropQuestion
+            question={question}
+            userAnswers={userAnswers}
+            onChange={(updatedAnswer) =>
+              handleAnswerChange(updatedAnswer, id, type)
+            }
+          />
+        );
+  
       default:
-        return null;
+        return <p className="text-red-500">Unsupported question type</p>;
     }
   };
+  
+  
+ 
+  
 
   const currentQuestion = quizData[currentQuestionIndex];
 
@@ -136,7 +273,7 @@ const QuizStartPage = () => {
       <Sidebar className="fixed top-0 left-0 w-64 h-full bg-white shadow-md z-50" />
       <div className="ml-64 flex-1 p-6">
         {/* Header */}
-        <div className="flex justify-between items-center bg-blue-50 p-4 rounded-lg shadow mb-6">
+        <div className="flex justify-between items-center bg-blue-50 p-4 rounded-lg shadow mb-6 ">
           <button
             onClick={() => navigate(-1)}
             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
@@ -158,7 +295,7 @@ const QuizStartPage = () => {
           </div>
 
           <button
-            onClick={handleSubmit}
+            onClick={()=>handleSubmit()}
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center gap-2"
           >
             Submit
@@ -171,34 +308,12 @@ const QuizStartPage = () => {
             {`Question ${currentQuestionIndex + 1} / ${quizData.length}`}
           </h3>
           <p className="mb-4 text-gray-700">{currentQuestion?.question}</p>
-          {renderQuestion()}
+          {renderQuestions()}
         </div>
 
-        {/* Navigation */}
-        <div className="flex justify-between">
-          <button
-            disabled={currentQuestionIndex === 0}
-            onClick={() => setCurrentQuestionIndex((prev) => prev - 1)}
-            className={`px-4 py-2 rounded shadow ${
-              currentQuestionIndex === 0
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-gray-500 text-white hover:bg-gray-600"
-            }`}
-          >
-            Previous
-          </button>
-          <button
-            disabled={currentQuestionIndex === quizData.length - 1}
-            onClick={() => setCurrentQuestionIndex((prev) => prev + 1)}
-            className={`px-4 py-2 rounded shadow ${
-              currentQuestionIndex === quizData.length - 1
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-gray-500 text-white hover:bg-gray-600"
-            }`}
-          >
-            Next
-          </button>
-        </div>
+        
+         
+        
       </div>
     </div>
   );

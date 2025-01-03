@@ -13,11 +13,12 @@ import Dashboard from "./pages/dash_board/dash_board_page";
 import Teams from "./pages/teams/teams_page";
 import QuizSetDetails from "./pages/dash_board/commponent/quizSetDetails";
 // import quizComplete from "./pages/dash_board/commponent/quizComplete";
-import QuizStartPage from "./pages/dash_board/commponent/QuizStartPage";
+import QuizStartPage from "./pages/practice/practice";
 import QuizCompletePage from "./pages/dash_board/commponent/QuizCompletePage";
 import NotFound from "./pages/NotFound";
 import QuizHistory from "./pages/quizHistory/QuizHistory";
 import Profile from "./pages/Profile/quizProfile";
+import Complete from "./pages/dash_board/commponent/complete";
 function App() {
   return (
 
@@ -109,7 +110,7 @@ function App() {
           />
 
           <Route
-            path="/dashboard/quiz/attempt/:quizSetId"
+            path="/dashboard/quiz/attempt/:id"
             element={
               // <ProtectedRoute>
               <QuizStartPage />
@@ -126,28 +127,28 @@ function App() {
             }
           />
 
-          <Route 
-        
-            path="/quiz-history" 
+          <Route
+
+            path="/quiz-history"
             element={
               // <ProtectedRoute>
-            <QuizHistory />} 
-             // <ProtectedRoute>                  
-            
+              <QuizHistory />}
+          // <ProtectedRoute>                  
+
           />
 
-          <Route 
-            path="/profile" 
+          <Route
+            path="/profile"
             element={
               // <ProtectedRoute>
-             <Profile />} 
-              // <ProtectedRoute>
-            
+              <Profile />}
+          // <ProtectedRoute>
+
           />
 
 
-
-<Route path="*" element={<NotFound />} />
+<Route path="/complete" element={<Complete />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </SnackbarProvider>
