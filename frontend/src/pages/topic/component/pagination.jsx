@@ -1,9 +1,12 @@
-import * as React from "react";
+import React, { useEffect, useState } from "react";
 
 export default function Pagination({ currentPage, totalPages, onPageChange }) {
-  const [inputValue, setInputValue] = React.useState(currentPage);
+  const [inputValue, setInputValue] = useState(currentPage);
 
-  // Handle input changes
+  useEffect(() => {
+    setInputValue(currentPage);
+  }, [currentPage]);
+
   const handleInputChange = (event) => {
     const value = event.target.value;
     if (!isNaN(value) && value >= 1 && value <= totalPages) {
@@ -13,7 +16,6 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
     }
   };
 
-  // Handle input blur
   const handleInputBlur = () => {
     if (inputValue === "" || inputValue < 1 || inputValue > totalPages) {
       setInputValue(currentPage);
