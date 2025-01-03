@@ -8,7 +8,7 @@ import OldQuizModal from "./components/quiz_add_modal";
 import { useSnackbar } from "../../components/NotificationBat";
 import QuizService from "../../data/service/quiz_service";
 import NewQuizModal from "../Quiz/AddQuizModal";
-
+import { useNavigate } from "react-router-dom";
 const QuizsetDetail = () => {
   const { id } = useParams();
   const { showSnackbar } = useSnackbar();
@@ -17,6 +17,7 @@ const QuizsetDetail = () => {
   const [quizsetQuizzes, setQuizsetQuizzes] = useState([]);
   const [quizsetDetail, setQuizsetDetail] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState({
     name: false,
     description: false,
@@ -102,29 +103,31 @@ const QuizsetDetail = () => {
 
   const handleAllowShowAnswer=async (quizsetData)=>
   {
-    try{
-    var response;
-    if(quizsetData.allowShowAnswer!=true)
-    {
-        response=await QuizSetService.changeAllowShowAnswer(quizsetData.id)
-    }
-    else{
-      response=await QuizSetService.changDisableShowAnswer(quizsetData.id)
-    }
-    if(response.status==200)
-    {
-      showSnackbar(response.data);
-      fetchQuizSetDetail()
-    }
-    else{
-      alert(response)
-    }
+    navigate(`/dashboard/quiz/attempt/${id}`);
+  //   try{
+  //   var response;
+  //   if(quizsetData.allowShowAnswer!=true)
+  //   {
+  //       response=await QuizSetService.changeAllowShowAnswer(quizsetData.id)
+  //   }
+  //   else{
+  //     response=await QuizSetService.changDisableShowAnswer(quizsetData.id)
+  //   }
+  //   if(response.status==200)
+  //   {
+  //     showSnackbar(response.data);
+  //     fetchQuizSetDetail()
+  //   }
+  //   else{
+  //     alert(response)
+  //   }
     
-  }
-  catch (e)
-  {
-    throw e;
-  }
+  // }
+  // catch (e)
+  // {
+  //   throw e;
+  // }
+
     
   }
 
@@ -252,7 +255,8 @@ const QuizsetDetail = () => {
                   quizsetDetail.allowShowAnswer ? "bg-red-500" : "bg-blue-500"
                 } text-white`}
               >
-                {quizsetDetail.allowShowAnswer ? "Disable Quiz" : "Start Quiz"}
+                {/* {quizsetDetail.allowShowAnswer ? "Disable Quiz" : "Start Quiz"} */}
+                Practice
               </button>
             </div>
           </div>
