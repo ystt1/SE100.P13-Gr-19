@@ -16,11 +16,19 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
     }
   };
 
+  const handleInputKeyDown = (event) => {
+    if (event.key === "Enter") {
+      if (inputValue >= 1 && inputValue <= totalPages) {
+        onPageChange(inputValue);
+      } else {
+        setInputValue(currentPage); // Reset nếu giá trị không hợp lệ
+      }
+    }
+  };
+
   const handleInputBlur = () => {
     if (inputValue === "" || inputValue < 1 || inputValue > totalPages) {
       setInputValue(currentPage);
-    } else {
-      onPageChange(inputValue);
     }
   };
 
@@ -53,6 +61,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
           value={inputValue}
           onChange={handleInputChange}
           onBlur={handleInputBlur}
+          onKeyDown={handleInputKeyDown} // Lắng nghe sự kiện nhấn phím
           className="w-14 text-center text-blue-700 bg-transparent border-b border-gray-300 focus:outline-none focus:border-blue-500"
         />
         <span>/ {totalPages}</span>
