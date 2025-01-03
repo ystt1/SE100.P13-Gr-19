@@ -13,7 +13,7 @@ import Dashboard from "./pages/dash_board/dash_board_page";
 import Teams from "./pages/teams/teams_page";
 import QuizSetDetails from "./pages/dash_board/commponent/quizSetDetails";
 // import quizComplete from "./pages/dash_board/commponent/quizComplete";
-import QuizStartPage from "./pages/dash_board/commponent/QuizStartPage";
+import QuizStartPage from "./pages/practice/practice";
 import QuizCompletePage from "./pages/dash_board/commponent/QuizCompletePage";
 import NotFound from "./pages/NotFound";
 import QuizHistory from "./pages/quizHistory/QuizHistory";
