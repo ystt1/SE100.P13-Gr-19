@@ -32,7 +32,7 @@ public class Result {
     @OneToMany(mappedBy = "result",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<QuizAnswer> quizAnswers;
 
-    private Integer numberCorrect;
+    private int numberCorrect;
 
     private LocalDateTime createdAt;
 

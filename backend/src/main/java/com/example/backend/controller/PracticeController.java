@@ -36,4 +36,10 @@ public class PracticeController {
         var result = practiceService.getPracticeResult(id);
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<PracticeResultDTO>> getAllPracticeResults(Principal principal) {
+        var results = practiceService.getAllPracticeResults(principal.getName());
+        return ResponseEntity.ok(results);
+    }
 }

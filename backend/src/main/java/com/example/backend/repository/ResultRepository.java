@@ -17,4 +17,5 @@ public interface ResultRepository extends JpaRepository<Result, Integer> {
 
     int countByQuizSetIdAndUserId(int quizSetId, int userId);
 
+    List<Result> findAllByUserEmail(String email);
 }

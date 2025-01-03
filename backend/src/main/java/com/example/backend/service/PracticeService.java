@@ -265,4 +265,10 @@ public class PracticeService {
 
         return practiceResultDTO;
     }
+
+    public List<PracticeResultDTO> getAllPracticeResults(String email) {
+        var listResult = resultRepository.findAllByUserEmail(email);
+
+        return listResult.stream().map(result -> modelMapper.map(result, PracticeResultDTO.class)).toList();
+    }
 }
