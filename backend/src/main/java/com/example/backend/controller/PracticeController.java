@@ -1,9 +1,8 @@
 package com.example.backend.controller;
 
 import com.example.backend.DTO.Practice.PracticeRequestDTO;
+import com.example.backend.DTO.Practice.PracticeResultDTO;
 import com.example.backend.DTO.Quiz.Quiz.QuizResponseDTO;
-import com.example.backend.DTO.Quiz.QuizResultDTO;
-import com.example.backend.DTO.Quiz.QuizSubmissionDTO;
 import com.example.backend.service.PracticeService;
 import java.security.Principal;
 import java.util.List;
@@ -25,10 +24,16 @@ public class PracticeController {
     }
 
     @PostMapping("/quizset/{id}")
-    public ResponseEntity<QuizResultDTO> submitPractice(Principal principal,
+    public ResponseEntity<String> submitPractice(Principal principal,
                                                     @PathVariable int id,
                                                     @RequestBody PracticeRequestDTO practiceRequestDTO) {
-        QuizResultDTO result = practiceService.submitPractice(principal.getName(), id, practiceRequestDTO);
+        practiceService.submitPractice(principal.getName(), id, practiceRequestDTO);
+        return ResponseEntity.ok("Success");
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PracticeResultDTO> getPracticeResult(@PathVariable int id) {
+        var result = practiceService.getPracticeResult(id);
         return ResponseEntity.ok(result);
     }
 }

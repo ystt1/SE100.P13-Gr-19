@@ -15,13 +15,13 @@ import java.util.List;
 public class QuizAnswer {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private int id;
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "result_id")
     private Result result;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "quiz_id")
     private Quiz quiz;
 
@@ -30,7 +30,7 @@ public class QuizAnswer {
     @Enumerated(EnumType.STRING)
     private QuestionType type;
 
-    @OneToOne(mappedBy = "quizAnswer", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "quizAnswer", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private ShortAnswer shortAnswer;
 
     @OneToMany(mappedBy = "quizAnswer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
