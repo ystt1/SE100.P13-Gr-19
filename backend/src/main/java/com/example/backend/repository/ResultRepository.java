@@ -1,6 +1,8 @@
 package com.example.backend.repository;
 
 import com.example.backend.entity.Result;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,5 +19,7 @@ public interface ResultRepository extends JpaRepository<Result, Integer> {
 
     int countByQuizSetIdAndUserId(int quizSetId, int userId);
 
-    List<Result> findAllByUserEmail(String email);
+    Page<Result> findByUserEmailAndQuizSetNameContainingIgnoreCase(String email, String search, Pageable pageable);
+    Page<Result> findByUserEmail(String email, Pageable pageable);
+
 }

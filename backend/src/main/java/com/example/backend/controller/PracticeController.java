@@ -1,7 +1,9 @@
 package com.example.backend.controller;
 
+import com.example.backend.DTO.Practice.ListSmallPracticeResultDTO;
 import com.example.backend.DTO.Practice.PracticeRequestDTO;
 import com.example.backend.DTO.Practice.PracticeResultDTO;
+import com.example.backend.DTO.Practice.SmallPracticeResultDTO;
 import com.example.backend.DTO.Quiz.Quiz.QuizResponseDTO;
 import com.example.backend.service.PracticeService;
 import java.security.Principal;
@@ -38,8 +40,13 @@ public class PracticeController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<PracticeResultDTO>> getAllPracticeResults(Principal principal) {
-        var results = practiceService.getAllPracticeResults(principal.getName());
+    public ResponseEntity<ListSmallPracticeResultDTO> getAllPracticeResults(Principal principal,
+        @RequestParam(defaultValue = "createdAt") String sortElement,
+        @RequestParam(defaultValue = "asc") String direction,
+        @RequestParam(required = false) String search,
+        @RequestParam(defaultValue = "1") int page,
+        @RequestParam(defaultValue = "10") int limit) {
+        var results = practiceService.getAllPracticeResults(principal.getName(), sortElement, direction, search, page, limit);
         return ResponseEntity.ok(results);
     }
 }

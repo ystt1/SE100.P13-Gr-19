@@ -2,6 +2,7 @@ package com.example.backend.service;
 
 import com.example.backend.DTO.Practice.BlankAnswerDTO;
 import com.example.backend.DTO.Practice.BlankResultDTO;
+import com.example.backend.DTO.Practice.ListSmallPracticeResultDTO;
 import com.example.backend.DTO.Practice.MultipleChoiceAnswerDTO;
 import com.example.backend.DTO.Practice.OptionResultDTO;
 import com.example.backend.DTO.Practice.PracticeRequestDTO;
@@ -9,6 +10,7 @@ import com.example.backend.DTO.Practice.PracticeResultDTO;
 import com.example.backend.DTO.Practice.QuizResultDTO;
 import com.example.backend.DTO.Practice.ShortAnswerDTO;
 import com.example.backend.DTO.Practice.ShortResultDTO;
+import com.example.backend.DTO.Practice.SmallPracticeResultDTO;
 import com.example.backend.DTO.Quiz.Quiz.QuizResponseDTO;
 import com.example.backend.entity.*;
 import com.example.backend.exception.ResourceNotFoundException;
@@ -17,6 +19,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -266,9 +272,26 @@ public class PracticeService {
         return practiceResultDTO;
     }
 
-    public List<PracticeResultDTO> getAllPracticeResults(String email) {
-        var listResult = resultRepository.findAllByUserEmail(email);
+    public ListSmallPracticeResultDTO getAllPracticeResults(String email,String sortElement, String direction, String search, int page, int limit) {
+        Sort sort = Sort.by(Sort.Direction.fromString(direction), sortElement);
+        Pageable pageable = PageRequest.of(page - 1, limit, sort);
 
-        return listResult.stream().map(result -> modelMapper.map(result, PracticeResultDTO.class)).toList();
+        Page<Result> resultsPage;
+
+        if (search != null && !search.isEmpty()) {
+            resultsPage = resultRepository.findByUserEmailAndQuizSetNameContainingIgnoreCase(email, search, pageable);
+        } else {
+            resultsPage = resultRepository.findByUserEmail(email, pageable);
+        }
+
+        List<SmallPracticeResultDTO> results = resultsPage.stream()
+            .map(result -> modelMapper.map(result, SmallPracticeResultDTO.class))
+            .toList();
+
+        return ListSmallPracticeResultDTO.builder()
+            .results(results)
+            .totalPages(resultsPage.getTotalPages())
+            .totalElements((int) resultsPage.getTotalElements())
+            .build();
     }
 }
