@@ -22,7 +22,6 @@ import Complete from "./pages/dash_board/commponent/complete";
 import HistoryDetail from "./pages/quizHistory/QuizDetail";
 function App() {
   return (
-
     <SnackbarProvider>
       <Router>
         <Routes>
@@ -31,9 +30,9 @@ function App() {
           <Route
             path="/topic"
             element={
-              // <ProtectedRoute>
-              <TopicsPage />
-              //  </ProtectedRoute>
+              <ProtectedRoute>
+                <TopicsPage />
+              </ProtectedRoute>
             }
           />
           <Route
@@ -63,9 +62,9 @@ function App() {
           <Route
             path="/add-quiz"
             element={
-              // <ProtectedRoute>
-              <AddQuiz />
-              // </ProtectedRoute>
+              <ProtectedRoute>
+                <AddQuiz />
+              </ProtectedRoute>
             }
           />
           <Route
@@ -79,9 +78,9 @@ function App() {
           <Route
             path="/add-quiz-set"
             element={
-              //  <ProtectedRoute>
-              <AddQuizset />
-              // </ProtectedRoute>
+              <ProtectedRoute>
+                <AddQuizset />
+              </ProtectedRoute>
             }
           />
           <Route
@@ -104,49 +103,48 @@ function App() {
           <Route
             path="/dashboard/quiz-set-card/:id"
             element={
-              // <ProtectedRoute>
-              <QuizSetDetails />
-              // </ProtectedRoute>
+              <ProtectedRoute>
+                <QuizSetDetails />
+              </ProtectedRoute>
             }
           />
 
           <Route
             path="/dashboard/quiz/attempt/:id"
             element={
-              // <ProtectedRoute>
-              <QuizStartPage />
-              // </ProtectedRoute>
+              <ProtectedRoute>
+                <QuizStartPage />
+              </ProtectedRoute>
             }
           />
 
           <Route
             path="/dashboard/quiz/complete/:quizSetId"
             element={
-              // <ProtectedRoute>
-              <QuizCompletePage />
-              // </ProtectedRoute>
+              <ProtectedRoute>
+                <QuizCompletePage />
+              </ProtectedRoute>
             }
           />
 
           <Route
-
             path="/quiz-history"
             element={
-              // <ProtectedRoute>
-              <QuizHistory />}
-          // <ProtectedRoute>                  
-
+              <ProtectedRoute>
+                <QuizHistory />
+              </ProtectedRoute>
+            }
           />
 
           <Route
             path="/profile"
             element={
               // <ProtectedRoute>
-              <Profile />}
-          // <ProtectedRoute>
-
+              <Profile />
+            }
+            // <ProtectedRoute>
           />
-<Route
+          <Route
             path="/history-detail/:id"
             element={
               <ProtectedRoute>
@@ -155,7 +153,7 @@ function App() {
             }
           />
 
-<Route path="/complete" element={<Complete />} />
+          <Route path="/complete" element={<Complete />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

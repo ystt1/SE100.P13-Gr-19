@@ -14,6 +14,7 @@ import com.example.backend.exception.ForbiddenException;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.QuizRepository;
 import com.example.backend.repository.QuizSetRepository;
+import com.example.backend.repository.ResultRepository;
 import com.example.backend.repository.UserRepository;
 import jakarta.persistence.criteria.Predicate;
 
@@ -39,6 +40,8 @@ public class QuizSetService {
   private final QuizRepository quizRepository;
 
   private ModelMapper modelMapper;
+
+  private ResultRepository resultRepository;
 
   public QuizSetResponseDTO createQuizSet(String email, QuizSetRequestDTO quizSetRequestDTO) {
     User user = userRepository.findByEmail(email)
@@ -346,5 +349,19 @@ public class QuizSetService {
     quizSet.get().getQuizList().remove(quiz.get());
     quizSet.get().setTotalQuestion(quizSet.get().getTotalQuestion() + 1);
     quizSetRepository.save(quizSet.get());
+  }
+
+  public List<QuizSetResponseDTO> getRecentlyPracticeQuizSets(String email, int limit) {
+    Pageable pageable = PageRequest.of(0, limit);
+    var quizSetPage = resultRepository.findDistinctQuizSetByUserEmail(email, pageable);
+
+    List<QuizSetResponseDTO> quizSetDTOs = quizSetPage.stream()
+        .map(quizSet -> {
+          QuizSetResponseDTO dto = modelMapper.map(quizSet, QuizSetResponseDTO.class);
+          return dto;
+        })
+        .toList();
+
+    return quizSetDTOs;
   }
 }
