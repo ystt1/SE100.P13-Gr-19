@@ -145,9 +145,13 @@ const QuizStartPage = () => {
     console.log("Submit Result:", submitData);
 
     var response=await StartQuizService.submitQuiz(id,submitData);
+    console.log(response)
     if(response.status===200)
     {
       navigate("/complete")
+    }
+    else{
+      alert("You must complete all question")
     }
   };
 
@@ -236,34 +240,52 @@ const QuizStartPage = () => {
                     ));
                   
                 
-              case "DRAG_AND_DROP":
-                return (
-                  <>
-                    <div className="flex gap-4 mb-4">
-                      {question.blanks.map((blank) => (
-                        <div
-                          key={blank.id}
-                          className="border-2 border-dashed p-4 w-20 h-20 flex items-center justify-center rounded-md bg-white"
-                        >
-                          Drop Here
+                    case "DRAG_AND_DROP": {
+                      const blanks = question.blanks; // Đáp án kéo thả
+                      const userBlanks = userAnswers[question.id] || []; // Đáp án người dùng đã chọn
+                    
+                      return (
+                        <div>
+                          {/* Hiển thị nội dung với các ô trống */}
+                          <div className="text-lg font-semibold text-gray-700 mb-4">
+                            {question.content.split("_").map((part, index) => (
+                              <React.Fragment key={index}>
+                                {part}
+                                {index < question.content.split("_").length - 1 && (
+                                  <div
+                                    className="inline-block border-2 border-dashed p-2 w-20 h-10 align-middle text-center bg-white rounded-md"
+                                    onDragOver={(e) => e.preventDefault()} // Cho phép thả
+                                    onDrop={(e) => {
+                                      const droppedContent = e.dataTransfer.getData("text/plain");
+                                      const updatedBlanks = [...userBlanks];
+                                      updatedBlanks[index] = droppedContent; // Cập nhật đáp án tại vị trí index
+                                      handleAnswerChange(question.id, updatedBlanks);
+                                    }}
+                                  >
+                                    {userBlanks[index] || "Drop Here"}
+                                  </div>
+                                )}
+                              </React.Fragment>
+                            ))}
+                          </div>
+                    
+                          {/* Hiển thị danh sách đáp án kéo thả */}
+                          <div className="flex gap-2 mt-4">
+                            {blanks.map((blank) => (
+                              <div
+                                key={blank.id}
+                                className="border p-2 rounded-md bg-blue-100 text-center cursor-pointer"
+                                draggable
+                                onDragStart={(e) => e.dataTransfer.setData("text/plain", blank.content)}
+                              >
+                                {blank.content}
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      ))}
-                    </div>
-                    <div className="flex gap-2">
-                      {question.options.map((option) => (
-                        <div
-                          key={option.id}
-                          className="border p-2 rounded-md bg-blue-100 text-center cursor-pointer"
-                          draggable
-                          onDragStart={(e) => e.dataTransfer.setData("text/plain", option.id)}
-                        >
-                          {option.content}
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                );
-  
+                      );
+                    }
+                    
               default:
                 return null;
             }

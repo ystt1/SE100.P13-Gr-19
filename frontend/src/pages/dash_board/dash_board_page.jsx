@@ -1,40 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import QuizSetCard from "./commponent/quiz_set_card";
 import QuizSetSection from "./commponent/quiz_set_section";
 import SideBar from "../../components/Sidebar";
+import QuizSetService from "../../data/service/quiz_set_service";
 
-const mockQuizData = {
-  recent: [
-    { title: "QuizSet 1", owner: "Owner 1", questions: 10, minutes: 30, createdAt: "1 day ago", participants: 500, imageUrl: "public\\quiz_set_background.jpg" },
-    { title: "QuizSet 2", owner: "Owner 2", questions: 15, minutes: 45, createdAt: "2 days ago", participants: 300, imageUrl: "public\\quiz_set_background.jpg" },
-    { title: "QuizSet 3", owner: "Owner 3", questions: 20, minutes: 60, createdAt: "3 days ago", participants: 200, imageUrl: "public\\quiz_set_background.jpg" },
-  ],
-  recommendQuizSet: [
-    { title: "QuizSet 4", owner: "Owner 4", questions: 25, minutes: 90, createdAt: "4 days ago", participants: 800, imageUrl: "public\\quiz_set_background.jpg" },
-    { title: "QuizSet 5", owner: "Owner 5", questions: 12, minutes: 20, createdAt: "5 days ago", participants: 600, imageUrl: "public\\quiz_set_background.jpg" },
-    { title: "QuizSet 6", owner: "Owner 6", questions: 8, minutes: 15, createdAt: "6 days ago", participants: 700, imageUrl: "public\\quiz_set_background.jpg" },
-    { title: "QuizSet 7", owner: "Owner 7", questions: 18, minutes: 40, createdAt: "7 days ago", participants: 900, imageUrl: "public\\quiz_set_background.jpg" },
-    { title: "QuizSet 8", owner: "Owner 8", questions: 22, minutes: 60, createdAt: "8 days ago", participants: 400, imageUrl: "public\\quiz_set_background.jpg" },
-  ],
-  recommendTopic: [
-    { title: "QuizSet 9", owner: "Owner 9", questions: 15, minutes: 30, createdAt: "9 days ago", participants: 300, imageUrl: "public\\quiz_set_background.jpg" },
-    { title: "QuizSet 10", owner: "Owner 10", questions: 20, minutes: 40, createdAt: "10 days ago", participants: 800, imageUrl: "public\\quiz_set_background.jpg" },
-    { title: "QuizSet 11", owner: "Owner 11", questions: 25, minutes: 90, createdAt: "11 days ago", participants: 1000, imageUrl: "public\\quiz_set_background.jpg" },
-    { title: "QuizSet 12", owner: "Owner 12", questions: 10, minutes: 20, createdAt: "12 days ago", participants: 500, imageUrl: "public\\quiz_set_background.jpg" },
-    { title: "QuizSet 13", owner: "Owner 13", questions: 18, minutes: 35, createdAt: "13 days ago", participants: 600, imageUrl: "public\\quiz_set_background.jpg" },
-    { title: "QuizSet 14", owner: "Owner 14", questions: 30, minutes: 60, createdAt: "14 days ago", participants: 900, imageUrl: "public\\quiz_set_background.jpg" },
-  ],
-  random: [
-    { title: "QuizSet 15", owner: "Owner 15", questions: 15, minutes: 30, createdAt: "15 days ago", participants: 300, imageUrl: "public\\quiz_set_background.jpg" },
-    { title: "QuizSet 16", owner: "Owner 16", questions: 20, minutes: 40, createdAt: "16 days ago", participants: 800, imageUrl: "public\\quiz_set_background.jpg" },
-    { title: "QuizSet 17", owner: "Owner 17", questions: 25, minutes: 90, createdAt: "17 days ago", participants: 1000, imageUrl: "public\\quiz_set_background.jpg" },
-    { title: "QuizSet 18", owner: "Owner 18", questions: 10, minutes: 20, createdAt: "18 days ago", participants: 500, imageUrl: "public\\quiz_set_background.jpg" },
-  ],
-};
-
-const ITEMS_PER_VIEW = 3;
+const ITEMS_PER_VIEW = 5;
 
 const DashboardPage = () => {
+  const [quizData, setQuizData] = useState({
+    recent: [],
+    recommendQuizSet: [],
+    recommendTopic: [],
+    random: [],
+  });
+
   const [startIndexes, setStartIndexes] = useState({
     recent: 0,
     recommendQuizSet: 0,
@@ -43,6 +22,29 @@ const DashboardPage = () => {
   });
 
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    // Fetch data from API
+    const fetchData = async () => {
+      try {
+        const response = await QuizSetService.getRandom()
+
+
+        const formattedData = {
+          recent: response.quizSets,
+          recommendQuizSet: response.quizSets,
+          recommendTopic: response.quizSets,
+          random: response.quizSets,
+        };
+
+        setQuizData(formattedData);
+      } catch (error) {
+        console.error("Error fetching quiz data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -61,7 +63,7 @@ const DashboardPage = () => {
   };
 
   const renderQuizSets = (category) => {
-    const data = mockQuizData[category];
+    const data = quizData[category];
     const startIndex = startIndexes[category];
     const visibleQuizSets = data.slice(startIndex, startIndex + ITEMS_PER_VIEW);
 
@@ -80,10 +82,10 @@ const DashboardPage = () => {
 
         <div className="flex flex-grow justify-center gap-4 px-4">
           {visibleQuizSets.map((quiz, index) => (
-            <QuizSetCard key={index} {...quiz} />
+            <QuizSetCard key={index} title={quiz.name} owner={quiz.creator.name} questions={quiz.totalQuestion} createdAt={quiz.createdTime} quizSetId={quiz.id} />
           ))}
         </div>
-        
+
         <button
           onClick={() => handleNext(category, data.length)}
           disabled={startIndex + ITEMS_PER_VIEW >= data.length}
@@ -98,37 +100,34 @@ const DashboardPage = () => {
     );
   };
 
-
   return (
     <div className="flex bg-gray-50 min-h-screen">
-  {/* Sidebar */}
-  <SideBar className="fixed w-64 bg-white shadow-md" />
+      {/* Sidebar */}
+      <SideBar className="fixed w-64 bg-white shadow-md" />
 
-  {/* Main Content */}
-  <div className="flex-grow ml-64 px-6 py-4">
-    {/* Search Bar */}
-    <div className="flex justify-center mb-4">
-      <input
-        type="text"
-        placeholder="Search for quiz sets..."
-        className="w-full max-w-lg px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring focus:ring-blue-300"
-      />
+      {/* Main Content */}
+      <div className="flex-grow ml-64 px-6 py-4">
+        {/* Search Bar */}
+        <div className="flex justify-center mb-4">
+          <input
+            type="text"
+            placeholder="Search for quiz sets..."
+            className="w-full max-w-lg px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring focus:ring-blue-300"
+            value={searchQuery}
+            onChange={handleSearchChange}
+          />
+        </div>
+
+        {/* Quiz Sections */}
+        <div className="space-y-6">
+          <QuizSetSection title="Recent">{renderQuizSets("recent")}</QuizSetSection>
+          <QuizSetSection title="Recommend QuizSet">{renderQuizSets("recommendQuizSet")}</QuizSetSection>
+          <QuizSetSection title="Recommend Topic">{renderQuizSets("recommendTopic")}</QuizSetSection>
+          <QuizSetSection title="Random">{renderQuizSets("random")}</QuizSetSection>
+        </div>
+      </div>
     </div>
-
-    {/* Quiz Sections */}
-    <div className="space-y-6">
-      <QuizSetSection title="Recent">{renderQuizSets("recent")}</QuizSetSection>
-      <QuizSetSection title="Recommend QuizSet">{renderQuizSets("recommendQuizSet")}</QuizSetSection>
-      <QuizSetSection title="Recommend Topic">{renderQuizSets("recommendTopic")}</QuizSetSection>
-      <QuizSetSection title="Random">{renderQuizSets("random")}</QuizSetSection>
-    </div>
-  </div>
-</div>
-
   );
-
-
 };
 
 export default DashboardPage;
-

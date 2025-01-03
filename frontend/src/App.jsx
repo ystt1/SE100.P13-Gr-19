@@ -19,6 +19,7 @@ import NotFound from "./pages/NotFound";
 import QuizHistory from "./pages/quizHistory/QuizHistory";
 import Profile from "./pages/Profile/quizProfile";
 import Complete from "./pages/dash_board/commponent/complete";
+import HistoryDetail from "./pages/quizHistory/QuizDetail";
 function App() {
   return (
 
@@ -101,7 +102,7 @@ function App() {
           />
 
           <Route
-            path="/dashboard/quiz-set-card/:quizSetId"
+            path="/dashboard/quiz-set-card/:id"
             element={
               // <ProtectedRoute>
               <QuizSetDetails />
@@ -145,7 +146,14 @@ function App() {
           // <ProtectedRoute>
 
           />
-
+<Route
+            path="/history-detail/:id"
+            element={
+              <ProtectedRoute>
+                <HistoryDetail />
+              </ProtectedRoute>
+            }
+          />
 
 <Route path="/complete" element={<Complete />} />
           <Route path="*" element={<NotFound />} />
