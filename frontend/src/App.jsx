@@ -31,9 +31,9 @@ function App() {
           <Route
             path="/topic"
             element={
-              // <ProtectedRoute>
+              <ProtectedRoute>
               <TopicsPage />
-              //  </ProtectedRoute>
+                </ProtectedRoute>
             }
           />
           <Route
@@ -63,9 +63,9 @@ function App() {
           <Route
             path="/add-quiz"
             element={
-              // <ProtectedRoute>
+               <ProtectedRoute>
               <AddQuiz />
-              // </ProtectedRoute>
+               </ProtectedRoute>
             }
           />
           <Route
@@ -79,9 +79,9 @@ function App() {
           <Route
             path="/add-quiz-set"
             element={
-              //  <ProtectedRoute>
+                <ProtectedRoute>
               <AddQuizset />
-              // </ProtectedRoute>
+               </ProtectedRoute>
             }
           />
           <Route
@@ -104,27 +104,27 @@ function App() {
           <Route
             path="/dashboard/quiz-set-card/:id"
             element={
-              // <ProtectedRoute>
+               <ProtectedRoute>
               <QuizSetDetails />
-              // </ProtectedRoute>
+               </ProtectedRoute>
             }
           />
 
           <Route
             path="/dashboard/quiz/attempt/:id"
             element={
-              // <ProtectedRoute>
+               <ProtectedRoute>
               <QuizStartPage />
-              // </ProtectedRoute>
+               </ProtectedRoute>
             }
           />
 
           <Route
             path="/dashboard/quiz/complete/:quizSetId"
             element={
-              // <ProtectedRoute>
+               <ProtectedRoute>
               <QuizCompletePage />
-              // </ProtectedRoute>
+               </ProtectedRoute>
             }
           />
 
@@ -132,19 +132,19 @@ function App() {
 
             path="/quiz-history"
             element={
-              // <ProtectedRoute>
-              <QuizHistory />}
-          // <ProtectedRoute>                  
-
+               <ProtectedRoute>
+              <QuizHistory />
+              </ProtectedRoute>  
+            }
           />
 
           <Route
             path="/profile"
             element={
-              // <ProtectedRoute>
-              <Profile />}
-          // <ProtectedRoute>
-
+               <ProtectedRoute>
+              <Profile />
+           </ProtectedRoute>
+            }
           />
 <Route
             path="/history-detail/:id"

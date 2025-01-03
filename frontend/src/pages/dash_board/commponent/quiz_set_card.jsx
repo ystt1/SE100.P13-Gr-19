@@ -1,4 +1,4 @@
-import { useNavigate,useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import img_quiz from "../../../images/img-quiz.jpg";
 
 export default function QuizSetCard({
@@ -8,11 +8,11 @@ export default function QuizSetCard({
   minutes,
   createdAt,
   participants,
-  quizSetId, 
+  id, 
 }) {
 
 
-  const { id } = useParams(); 
+
   const navigate = useNavigate();
   const handleClick = () => {
     navigate(`/dashboard/quiz-set-card/${id}`); 
