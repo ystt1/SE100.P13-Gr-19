@@ -14,9 +14,9 @@ const QuizHistory = () => {
     const fetchQuizHistory = async () => {
       try {
         const response = await HistoryService.getAllHistory();
-        console.log(response);
+        console.log(response.results);
         
-        setQuizHistory(response);
+        setQuizHistory(response.results);
       } catch (error) {
         console.error("Error fetching quiz history:", error);
       }
