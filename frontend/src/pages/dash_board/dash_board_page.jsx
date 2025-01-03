@@ -82,7 +82,7 @@ const DashboardPage = () => {
 
         <div className="flex flex-grow justify-center gap-4 px-4">
           {visibleQuizSets.map((quiz, index) => (
-            <QuizSetCard key={index} title={quiz.name} owner={quiz.creator.name} questions={quiz.totalQuestion} createdAt={quiz.createdTime} quizSetId={quiz.id} />
+            <QuizSetCard key={index} title={quiz.name} owner={quiz.creator.name} questions={quiz.totalQuestion} createdAt={quiz.createdTime} id={quiz.id} />
           ))}
         </div>
 

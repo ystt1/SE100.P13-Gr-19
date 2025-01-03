@@ -22,6 +22,7 @@ import Complete from "./pages/dash_board/commponent/complete";
 import HistoryDetail from "./pages/quizHistory/QuizDetail";
 function App() {
   return (
+
     <SnackbarProvider>
       <Router>
         <Routes>
@@ -139,10 +140,10 @@ function App() {
           <Route
             path="/profile"
             element={
-              // <ProtectedRoute>
-              <Profile />
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
             }
-            // <ProtectedRoute>
           />
           <Route
             path="/history-detail/:id"

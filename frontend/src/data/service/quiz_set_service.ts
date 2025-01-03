@@ -216,7 +216,7 @@ const QuizSetService = {
     try {
       const response = await axiosInstance.get(`/quiz-set/random?limit=5`);
 
-      console.log(response);
+     
       
       return response.data;
     } catch (error) {

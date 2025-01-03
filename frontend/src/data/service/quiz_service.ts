@@ -53,7 +53,7 @@ const QuizService = {
     try {
       const { type } = quizData;
       let payload;
-      console.log(quizData);
+
       
       switch (type) {
         case "DRAG_AND_DROP":

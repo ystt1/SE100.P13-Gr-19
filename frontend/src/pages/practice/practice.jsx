@@ -148,7 +148,7 @@ const QuizStartPage = () => {
     console.log(response)
     if(response.status===200)
     {
-      navigate("/complete")
+      // navigate("/complete")
     }
     else{
       alert("You must complete all question")
