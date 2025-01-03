@@ -18,6 +18,7 @@ import QuizCompletePage from "./pages/dash_board/commponent/QuizCompletePage";
 import NotFound from "./pages/NotFound";
 import QuizHistory from "./pages/quizHistory/QuizHistory";
 import Profile from "./pages/Profile/quizProfile";
+import Complete from "./pages/dash_board/commponent/complete";
 function App() {
   return (
 
@@ -109,7 +110,7 @@ function App() {
           />
 
           <Route
-            path="/dashboard/quiz/attempt/:quizSetId"
+            path="/dashboard/quiz/attempt/:id"
             element={
               // <ProtectedRoute>
               <QuizStartPage />
@@ -126,28 +127,28 @@ function App() {
             }
           />
 
-          <Route 
-        
-            path="/quiz-history" 
+          <Route
+
+            path="/quiz-history"
             element={
               // <ProtectedRoute>
-            <QuizHistory />} 
-             // <ProtectedRoute>                  
-            
+              <QuizHistory />}
+          // <ProtectedRoute>                  
+
           />
 
-          <Route 
-            path="/profile" 
+          <Route
+            path="/profile"
             element={
               // <ProtectedRoute>
-             <Profile />} 
-              // <ProtectedRoute>
-            
+              <Profile />}
+          // <ProtectedRoute>
+
           />
 
 
-
-<Route path="*" element={<NotFound />} />
+<Route path="/complete" element={<Complete />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </SnackbarProvider>
