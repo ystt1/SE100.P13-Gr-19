@@ -23,15 +23,9 @@ public class Team {
 
     private String description;
 
-    @ManyToMany
-    @JoinTable(
-            name = "team_members",
-            joinColumns = @JoinColumn(name = "team_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private List<User> members;
+    @OneToMany(mappedBy = "team",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private List<TeamMemberDetail> teamMemberDetails;
 
-    @ManyToOne
-    @JoinColumn(name = "creator_id")
-    private User creator;
+    @OneToMany(mappedBy = "team",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private List<TeamQuizSetDetail> teamQuizSetDetails;
 }
