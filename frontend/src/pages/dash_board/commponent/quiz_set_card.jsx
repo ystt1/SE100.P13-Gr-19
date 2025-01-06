@@ -15,7 +15,7 @@ export default function QuizSetCard({
 
   const navigate = useNavigate();
   const handleClick = () => {
-    navigate(`/dashboard/quiz-set-card/${id}`); 
+    navigate(`/quizset-detail/${id}`); 
   };
 
   return (

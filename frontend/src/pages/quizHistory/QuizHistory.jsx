@@ -11,7 +11,7 @@ const QuizHistory = () => {
 
   const queryParams = new URLSearchParams(location.search);
   const [page, setPage] = useState(Number(queryParams.get("page")) || 1);
-  const [limit, setLimit] = useState(Number(queryParams.get("limit")) || 10);
+  const [limit, setLimit] = useState(Number(queryParams.get("limit")) || 5);
   const [sortElement, setSortElement] = useState(queryParams.get("sortElement") || "createdAt");
   const [direction, setDirection] = useState(queryParams.get("direction") || "asc");
   const [quizHistory, setQuizHistory] = useState([]);
@@ -70,7 +70,6 @@ const QuizHistory = () => {
     <div className="p-6 bg-gray-50 min-h-screen">
       <Sidebar className="fixed top-0 left-0 w-64 h-full bg-white shadow-md z-50" />
       <div className="ml-64 flex-1 p-6">
-        <h1 className="text-2xl font-bold mb-4">Quiz History</h1>
 
         {/* Dropdown Sort Options */}
         <div className="flex items-center gap-4 mb-4">

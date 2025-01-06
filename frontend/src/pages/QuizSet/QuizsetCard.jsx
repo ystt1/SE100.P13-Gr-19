@@ -1,5 +1,5 @@
 import React from "react";
-import { FaBookmark, FaRegBookmark, FaTrashAlt } from "react-icons/fa";
+import { FaBookmark, FaRegBookmark, FaTrashAlt, FaUser } from "react-icons/fa";
 
 export const QuizSetCard = ({
   name,
@@ -7,30 +7,42 @@ export const QuizSetCard = ({
   questionCount,
   topic,
   createdTime,
+  creator,
   isSaved,
   onClick,
   onToggleSave,
-  onDelete, // Hàm xử lý xóa
+  onDelete,
+  canDelete,
 }) => {
   const truncatedDescription =
     description && description.length > 50
       ? `${description.substring(0, 50)}...`
       : description || "No description available";
 
+    
+      
   return (
     <div
       onClick={onClick}
-      className="cursor-pointer border p-4 rounded-lg shadow-md hover:bg-gray-100 flex justify-between items-center"
+      className="cursor-pointer border p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow bg-white flex justify-between items-center"
     >
       {/* Nội dung bên trái */}
       <div>
-        <h3 className="text-lg font-bold">{name}</h3>
-        <p className="text-gray-600 mb-2">
-          {truncatedDescription}
-          <span className="ml-4 text-sm text-blue-600">{topic}</span>
-          <span className="ml-4 text-sm text-gray-500">Created: {createdTime}</span>
-        </p>
-        <p className="text-sm text-gray-500">Questions: {questionCount}</p>
+        <h3 className="text-lg font-bold text-gray-800">{name}</h3>
+        <p className="text-gray-600 text-sm mb-2">{truncatedDescription}</p>
+        <div className="flex items-center text-sm text-gray-500 space-x-4">
+          <span className="flex items-center space-x-1">
+            <span className="text-blue-600 font-semibold">{topic}</span>
+          </span>
+          <span>•</span>
+          <span>Created: {createdTime}</span>
+          <span>•</span>
+          <span className="flex items-center space-x-1">
+            <FaUser size={14} className="text-gray-500" />
+            <span>{creator || "Unknown"}</span>
+          </span>
+        </div>
+        <p className="text-sm text-gray-500 mt-1">Questions: {questionCount}</p>
       </div>
 
       {/* Nút thao tác bên phải */}
@@ -38,7 +50,7 @@ export const QuizSetCard = ({
         {/* Nút Save */}
         <button
           onClick={(e) => {
-            e.stopPropagation(); // Ngăn việc kích hoạt sự kiện click toàn bộ card
+            e.stopPropagation(); 
             onToggleSave();
           }}
           className="text-blue-500 hover:text-blue-700 flex items-center space-x-2"
@@ -48,16 +60,16 @@ export const QuizSetCard = ({
         </button>
 
         {/* Nút Delete */}
-        <button
+       {canDelete && (<button
           onClick={(e) => {
-            e.stopPropagation(); // Ngăn việc kích hoạt sự kiện click toàn bộ card
+            e.stopPropagation(); 
             onDelete();
           }}
           className="text-red-500 hover:text-red-700 flex items-center space-x-2"
         >
           <FaTrashAlt size={20} />
           <span>Delete</span>
-        </button>
+        </button>)}
       </div>
     </div>
   );
