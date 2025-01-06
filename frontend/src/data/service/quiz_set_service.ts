@@ -210,6 +210,32 @@ const QuizSetService = {
       return "Add quiz-set Fail";
     }
   },
+
+
+  getRandom: async () => {
+    try {
+      const response = await axiosInstance.get(`/quiz-set/random?limit=5`);
+
+     
+      
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching quizzes:", error);
+      throw error;
+    }
+  },
+  getRecently: async () => {
+    try {
+      const response = await axiosInstance.get(`/quiz-set/recently?limit=5`);
+
+     
+      
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching quizzes:", error);
+      throw error;
+    }
+  },
 };
 
 export default QuizSetService;

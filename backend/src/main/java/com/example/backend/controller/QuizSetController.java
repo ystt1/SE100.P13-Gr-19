@@ -135,4 +135,9 @@ public class QuizSetController {
     return ResponseEntity.status(200).body("Quiz removed from quiz set");
   }
 
+  @GetMapping("/recently")
+  public ResponseEntity<List<QuizSetResponseDTO>> getRecentlyPracticeQuizSets(Principal principal,@RequestParam(defaultValue = "10") int limit) {
+     return ResponseEntity.status(200).body(quizSetService.getRecentlyPracticeQuizSets(principal.getName(), limit));
+  }
+
 }

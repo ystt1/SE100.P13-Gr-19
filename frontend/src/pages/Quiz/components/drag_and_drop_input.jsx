@@ -1,7 +1,7 @@
 import React from "react";
 
 const DragAndDropInput = ({ quizData, setQuizData }) => {
-  const addOption = () => {
+  const addBlank = () => {
     const blankCount = (quizData.fillText.match(/_/g) || []).length;
     if (quizData.dragOptions.length < blankCount) {
       setQuizData((prev) => ({
@@ -9,18 +9,18 @@ const DragAndDropInput = ({ quizData, setQuizData }) => {
         dragOptions: [...prev.dragOptions, ""],
       }));
     } else {
-      alert("Số lượng options không được vượt quá số lượng blank ('_').");
+      alert("Số lượng blank không được vượt quá số lượng '_' trong câu hỏi.");
     }
   };
 
-  const deleteOption = (index) => {
+  const deleteBlank = (index) => {
     setQuizData((prev) => ({
       ...prev,
       dragOptions: prev.dragOptions.filter((_, i) => i !== index),
     }));
   };
 
-  const handleOptionChange = (index, value) => {
+  const handleBlankChange = (index, value) => {
     setQuizData((prev) => ({
       ...prev,
       dragOptions: prev.dragOptions.map((option, i) =>
@@ -37,32 +37,26 @@ const DragAndDropInput = ({ quizData, setQuizData }) => {
         value={quizData.fillText}
         onChange={(e) => setQuizData((prev) => ({ ...prev, fillText: e.target.value }))}
       />
-      <textarea
-        placeholder="Enter the correct answer (exactly match the blanks)"
-        className="w-full mb-3 px-4 py-2 border rounded-lg"
-        value={quizData.correctAnswer}
-        onChange={(e) => setQuizData((prev) => ({ ...prev, correctAnswer: e.target.value }))}
-      />
       <div>
         {quizData.dragOptions.map((option, index) => (
           <div key={index} className="flex items-center space-x-2 mb-2">
             <input
               type="text"
-              placeholder={`Option ${index + 1}`}
+              placeholder={`Blank ${index + 1}`}
               className="flex-1 px-4 py-2 border rounded-lg"
               value={option}
-              onChange={(e) => handleOptionChange(index, e.target.value)}
+              onChange={(e) => handleBlankChange(index, e.target.value)}
             />
             <button
-              onClick={() => deleteOption(index)}
+              onClick={() => deleteBlank(index)}
               className="px-2 py-1 text-white bg-red-500 rounded"
             >
               -
             </button>
           </div>
         ))}
-        <button onClick={addOption} className="text-blue-500">
-          + Add Option
+        <button onClick={addBlank} className="text-blue-500">
+          + Add Blank
         </button>
       </div>
     </div>

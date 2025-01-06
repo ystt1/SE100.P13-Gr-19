@@ -1,19 +1,28 @@
 package com.example.backend.service;
 
 import com.example.backend.DTO.Practice.BlankAnswerDTO;
+import com.example.backend.DTO.Practice.BlankResultDTO;
+import com.example.backend.DTO.Practice.ListSmallPracticeResultDTO;
 import com.example.backend.DTO.Practice.MultipleChoiceAnswerDTO;
+import com.example.backend.DTO.Practice.OptionResultDTO;
 import com.example.backend.DTO.Practice.PracticeRequestDTO;
+import com.example.backend.DTO.Practice.PracticeResultDTO;
+import com.example.backend.DTO.Practice.QuizResultDTO;
 import com.example.backend.DTO.Practice.ShortAnswerDTO;
+import com.example.backend.DTO.Practice.ShortResultDTO;
+import com.example.backend.DTO.Practice.SmallPracticeResultDTO;
 import com.example.backend.DTO.Quiz.Quiz.QuizResponseDTO;
-import com.example.backend.DTO.Quiz.QuizResultDTO;
 import com.example.backend.entity.*;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.*;
-import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -42,7 +51,7 @@ public class PracticeService {
         return quizzes;
     }
 
-    public QuizResultDTO submitPractice(String name,int id, PracticeRequestDTO practiceRequestDTO) {
+    public void submitPractice(String name,int id, PracticeRequestDTO practiceRequestDTO) {
 
         var user = userRepository.findByEmail(name)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -181,7 +190,108 @@ public class PracticeService {
         });
 
         resultRepository.save(result);
+    }
 
-        return null;
+    public PracticeResultDTO getPracticeResult(int id) {
+        var result = resultRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Result not found"));
+
+        var practiceResultDTO = modelMapper.map(result, PracticeResultDTO.class);
+
+        var listQuizResultDTO = result.getQuizAnswers().stream().map(quizAnswer ->{
+            var type = quizAnswer.getQuiz().getType();
+            var quizResultDTO = modelMapper.map(quizAnswer, QuizResultDTO.class);
+            var quiz = quizAnswer.getQuiz();
+            quizResultDTO.setContent(quizAnswer.getQuiz().getContent());
+
+            //handle choice quiz
+            if(type.equals(QuestionType.SINGLE_CHOICE) || type.equals(QuestionType.MULTIPLE_CHOICE)){
+                //get the list of options which user choose
+                var options = quizAnswer.getQuizOptionAnswers().stream()
+                    .map(quizOptionAnswer -> {
+                        var optionResultDTO = new OptionResultDTO();
+                        optionResultDTO.setContent(quizOptionAnswer.getContent());
+                        return optionResultDTO;
+                    }).toList();
+
+                // get all options of quiz and set isSelected field if has element in quizOptionAnswers
+                var finalResultOption = quizAnswer.getQuiz().getOptions().stream().map(quizOption -> {
+                    var optionResultDTO = new OptionResultDTO();
+                    optionResultDTO.setContent(quizOption.getContent());
+                    optionResultDTO.setIsCorrect(quizOption.getIsCorrect());
+                    optionResultDTO.setIsSelected(options.stream()
+                        .anyMatch(option -> option.getContent().equalsIgnoreCase(quizOption.getContent())));
+                    return optionResultDTO;
+                }).toList();
+
+                quizResultDTO.setOptions(finalResultOption);
+            }
+
+            //handle short answer quiz
+            if(type.equals(QuestionType.SHORT_ANSWER)){
+                var shortAnswer = quizAnswer.getShortAnswer();
+                var shortResultDTO = new ShortResultDTO();
+                shortResultDTO.setId(shortAnswer.getId());
+                shortResultDTO.setFilledContent(shortAnswer.getContent());
+                shortResultDTO.setContent(quiz.getShortAnswer().getContent());
+
+                quizResultDTO.setShortAnswer(shortResultDTO);
+            }
+
+            //handle blank answer quiz
+            if(type.equals(QuestionType.FILL_IN_THE_BLANK) || type.equals(QuestionType.DRAG_AND_DROP)){
+                //get the blanks that user filled
+                var blanks = quizAnswer.getBlankAnswers();
+
+                //get the real blank of quiz
+                var finalResultBlank = quizAnswer.getQuiz().getBlanks().stream()
+                    .map(blankAnswer -> {
+                        var blankResultDTO = new BlankResultDTO();
+                        blankResultDTO.setContent(blankAnswer.getContent());
+                        blankResultDTO.setOrder(blankAnswer.getBlankOrder());
+                        //get the content of this order filled by user
+                        var filledContent = blanks.stream()
+                            .filter(blank -> blank.getBlankOrder().equals(blankAnswer.getBlankOrder()))
+                            .findFirst()
+                            .map(BlankAnswer::getContent)
+                            .orElse(null);
+                        blankResultDTO.setFilledContent(filledContent);
+
+                        return blankResultDTO;
+                    }).collect(Collectors.toList());
+
+                quizResultDTO.setBlanks(finalResultBlank);
+            }
+
+            return quizResultDTO;
+
+        }).toList();
+
+        practiceResultDTO.setQuizAnswers(listQuizResultDTO);
+
+        return practiceResultDTO;
+    }
+
+    public ListSmallPracticeResultDTO getAllPracticeResults(String email,String sortElement, String direction, String search, int page, int limit) {
+        Sort sort = Sort.by(Sort.Direction.fromString(direction), sortElement);
+        Pageable pageable = PageRequest.of(page - 1, limit, sort);
+
+        Page<Result> resultsPage;
+
+        if (search != null && !search.isEmpty()) {
+            resultsPage = resultRepository.findByUserEmailAndQuizSetNameContainingIgnoreCase(email, search, pageable);
+        } else {
+            resultsPage = resultRepository.findByUserEmail(email, pageable);
+        }
+
+        List<SmallPracticeResultDTO> results = resultsPage.stream()
+            .map(result -> modelMapper.map(result, SmallPracticeResultDTO.class))
+            .toList();
+
+        return ListSmallPracticeResultDTO.builder()
+            .results(results)
+            .totalPages(resultsPage.getTotalPages())
+            .totalElements((int) resultsPage.getTotalElements())
+            .build();
     }
 }

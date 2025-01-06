@@ -33,6 +33,8 @@ const AddQuizModal = ({ onClose, onSubmit,onSuccess }) => {
   }, []);
 
   const handleSubmit = async () => {
+    console.log(quizData);
+    
     if (quizData.topic === "") {
       alert("Vui lòng chọn topic");
       return;

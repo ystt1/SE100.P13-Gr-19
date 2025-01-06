@@ -1,6 +1,9 @@
 package com.example.backend.repository;
 
+import com.example.backend.entity.QuizSet;
 import com.example.backend.entity.Result;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,4 +20,9 @@ public interface ResultRepository extends JpaRepository<Result, Integer> {
 
     int countByQuizSetIdAndUserId(int quizSetId, int userId);
 
+    Page<Result> findByUserEmailAndQuizSetNameContainingIgnoreCase(String email, String search, Pageable pageable);
+    Page<Result> findByUserEmail(String email, Pageable pageable);
+
+    @Query("SELECT DISTINCT r.quizSet FROM Result r WHERE r.user.email = :email ORDER BY r.quizSet.createdTime DESC")
+    List<QuizSet> findDistinctQuizSetByUserEmail(@Param("email") String email, Pageable pageable);
 }
