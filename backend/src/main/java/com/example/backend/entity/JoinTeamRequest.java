@@ -2,6 +2,7 @@ package com.example.backend.entity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -31,7 +32,7 @@ public class JoinTeamRequest {
   @JoinColumn(name = "user_id")
   private User user;
 
-  private String status;
-
+  @Enumerated(jakarta.persistence.EnumType.STRING)
+  private RequestStatus status;
 
 }

@@ -1,5 +1,6 @@
 package com.example.backend.DTO.Team;
 
+import com.example.backend.DTO.User.UserResponseDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,8 +13,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TeamResponseDTO {
-    private int id;
+    private Integer id;
     private String name;
-    private int maxParticipant;
-    private int creatorUserId;
+    private Integer maxParticipant;
+    private UserResponseDTO creatorUser;
 }
