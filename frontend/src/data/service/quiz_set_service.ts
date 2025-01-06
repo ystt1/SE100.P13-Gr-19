@@ -8,19 +8,38 @@ interface QuizsetAddPayload {
 }
 
 const QuizSetService = {
-  getAllQuizSet: async (search = "", page = 1, limit = 10, sortKey = "id", direction = "asc") => {
+  getAllQuizSet: async (search, page, limit, sortElement, direction) => {
     try {
       const response = await axiosInstance.get(`/quiz-set/all`, {
         params: {
           search,
           page,
           limit,
-          sortElement: sortKey,
+          sortElement: sortElement,
           direction,
         },
       });
 
+      
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching quizzes:", error);
+      throw error;
+    }
+  },
+  getAllQuizSetOfAllUser: async (search, page, limit, sortElement, direction) => {
+    try {
+      const response = await axiosInstance.get(`/quiz-set/all-of-all-user`, {
+        params: {
+          search,
+          page,
+          limit,
+          sortElement: sortElement,
+          direction,
+        },
+      });
 
+      
       return response.data;
     } catch (error) {
       console.error("Error fetching quizzes:", error);
@@ -143,7 +162,11 @@ const QuizSetService = {
 
   updateQuizSet: async (id,changeData) => {
     try {
+      console.log(changeData);
+      
       const response = await axiosInstance.patch(`/quiz-set/${id}`, changeData);
+      console.log(response);
+      
      return response;
     }
     catch (error) {

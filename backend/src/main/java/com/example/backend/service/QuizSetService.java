@@ -107,6 +107,43 @@ public class QuizSetService {
     return result;
   }
 
+  public ListQuizSetDTO getAllQuizSet(String email, String sortElement, String direction, String search, int page, int limit, int topicId) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+    //Pageable for pagination and sorting
+    Sort sort = Sort.by(Sort.Direction.fromString(direction), sortElement);
+    Pageable pageable = PageRequest.of(page-1, limit, sort);
+
+    //specification for searching
+    Specification<QuizSet> spec = (root, query, criteriaBuilder) -> {
+      Predicate predicate = criteriaBuilder.conjunction(); // Initialize predicate
+      if (search != null && !search.isEmpty()) {
+        predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("name"), "%" + search + "%"));
+      }
+      if (topicId != 0) {
+        predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("topic").get("id"), topicId));
+      }
+      return predicate;
+    };
+
+    Page<QuizSet> quizSetPage = quizSetRepository.findAll(spec, pageable);
+
+    List<QuizSetResponseDTO> quizSetDTOs = quizSetPage.getContent().stream()
+        .map(quizSet -> {
+          QuizSetResponseDTO dto = modelMapper.map(quizSet, QuizSetResponseDTO.class);
+          dto.setIsBookmarked(user.getBookmarks().contains(quizSet));
+          return dto;
+        })
+        .collect(Collectors.toList());
+
+    var result = ListQuizSetDTO.builder().quizSets(quizSetDTOs).build();
+    result.setTotalElements((int) quizSetPage.getTotalElements());
+    result.setTotalPages(quizSetPage.getTotalPages());
+    result.setCurrentPage(page);
+
+    return result;
+  }
+
 
   public QuizSetResponseDTO getQuizSetById(String email, int id) {
     User user = userRepository.findByEmail(email)

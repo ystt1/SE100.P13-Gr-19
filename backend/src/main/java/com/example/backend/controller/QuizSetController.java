@@ -38,7 +38,7 @@ public class QuizSetController {
       @RequestParam(defaultValue = "name") String sortElement,
       @RequestParam(defaultValue = "asc") String direction,
       @RequestParam(required = false) String search,
-      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "1") int page,
       @RequestParam(defaultValue = "10") int limit,
       @RequestParam(defaultValue = "0") int topicId) {
     return ResponseEntity.status(200).body(quizSetService.getAllQuizSetsByUserEmail(principal.getName(), sortElement,direction, search, page, limit, topicId));
@@ -46,13 +46,14 @@ public class QuizSetController {
 
   @GetMapping("/all-of-all-user")
   public ResponseEntity<ListQuizSetDTO> getAllQuizSetsOfAllUser(
+      Principal principal,
       @RequestParam(defaultValue = "name") String sortElement,
       @RequestParam(defaultValue = "asc") String direction,
       @RequestParam(required = false) String search,
-      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "1") int page,
       @RequestParam(defaultValue = "10") int limit,
       @RequestParam(defaultValue = "0") int topicId) {
-    return ResponseEntity.status(200).body(quizSetService.getAllQuizSetsByUserEmail(null, sortElement,direction, search, page, limit, topicId));
+    return ResponseEntity.status(200).body(quizSetService.getAllQuizSet(principal.getName(), sortElement,direction, search, page, limit, topicId));
   }
 
   @GetMapping("/random")
@@ -65,7 +66,7 @@ public class QuizSetController {
       @RequestParam(required = false) String sortElement,
       @RequestParam(required = false) String direction,
       @RequestParam(required = false) String search,
-      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "1") int page,
       @RequestParam(defaultValue = "10") int limit) {
     return quizSetService.getAllBookmarkQuizSetsByUserEmail(principal.getName(), sortElement,direction, search, page, limit);
   }

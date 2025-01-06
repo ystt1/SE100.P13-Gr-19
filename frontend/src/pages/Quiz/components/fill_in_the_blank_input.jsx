@@ -1,15 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 
 const FillInTheBlankInput = ({ quizData, setQuizData }) => {
+  const [error, setError] = useState("");
+
+
   const addBlank = () => {
-    const blankCount = (quizData.fillText.match(/_/g) || []).length;
+    const blankCount = (quizData.question.match(/_/g) || []).length;
+
     if (quizData.dragOptions.length < blankCount) {
       setQuizData((prev) => ({
         ...prev,
         dragOptions: [...prev.dragOptions, ""],
       }));
     } else {
-      alert("Số lượng blank không được vượt quá số lượng '_' trong câu hỏi.");
+      setError("Số lượng đáp án không được vượt quá số lượng '_'.");
     }
   };
 
@@ -29,20 +33,19 @@ const FillInTheBlankInput = ({ quizData, setQuizData }) => {
     }));
   };
 
+
+
   return (
     <div>
-      <textarea
-        placeholder="Text with blanks (use '_' for blanks)"
-        className="w-full mb-3 px-4 py-2 border rounded-lg"
-        value={quizData.fillText}
-        onChange={(e) => setQuizData((prev) => ({ ...prev, fillText: e.target.value }))}
-      />
+      <p className="text-gray-600 mb-3">
+        Tạo câu hỏi bằng cách sử dụng ký tự '_' để đánh dấu các vị trí cần điền.
+      </p>
       <div>
         {quizData.dragOptions.map((option, index) => (
           <div key={index} className="flex items-center space-x-2 mb-2">
             <input
               type="text"
-              placeholder={`Blank ${index + 1}`}
+              placeholder={`Đáp án ${index + 1}`}
               className="flex-1 px-4 py-2 border rounded-lg"
               value={option}
               onChange={(e) => handleBlankChange(index, e.target.value)}
@@ -56,9 +59,10 @@ const FillInTheBlankInput = ({ quizData, setQuizData }) => {
           </div>
         ))}
         <button onClick={addBlank} className="text-blue-500">
-          + Add Blank
+          + Thêm đáp án
         </button>
       </div>
+      {error && <p className="text-red-500 mt-2">{error}</p>}
     </div>
   );
 };
