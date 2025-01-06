@@ -61,24 +61,17 @@ const QuizsetDetail = () => {
 
   const handleSaveField = async (field) => {
     try {
-
       const updatedData = {
-        name: editedFields.name,
-        description: editedFields.description,
-        timeLimit: editedFields.timeLimit,
-        allowShowAnswer: editedFields.allowShowAnswer,
+        ...quizsetDetail,
+        [field]: editedFields[field],
       };
   
       const response = await QuizSetService.updateQuizSet(id, updatedData);
-  
       if (response.status === 200) {
         showSnackbar("Quiz set updated successfully");
-        setIsEditing({
-          name: false,
-          description: false,
-          timeLimit: false,
-        });
-        fetchQuizSetDetail();
+        setQuizsetDetail(updatedData);
+        localStorage.setItem("quizsetDetail", JSON.stringify(updatedData));
+        setIsEditing((prev) => ({ ...prev, [field]: false }));
       }
     } catch (err) {
       console.error(err);
@@ -95,6 +88,8 @@ const QuizsetDetail = () => {
     try {
       const responseDetail = await QuizSetService.getQuizSetDetail(id);
       setQuizsetDetail(responseDetail.data);
+      localStorage.setItem("quizsetDetail", JSON.stringify(responseDetail.data));
+  
       const responseQuizzes = await QuizSetService.getQuizOfQuizSet(id);
       setQuizsetQuizzes(responseQuizzes.data.quizzes || []);
     } catch (err) {
@@ -109,7 +104,20 @@ const QuizsetDetail = () => {
   }
 
   useEffect(() => {
+    const storedQuizSetDetail = localStorage.getItem("quizsetDetail");
+  const storedShowQuiz = localStorage.getItem("showQuiz");
+
+  if (storedQuizSetDetail) {
+    setQuizsetDetail(JSON.parse(storedQuizSetDetail));
+  } else {
     fetchQuizSetDetail();
+  }
+
+  if (storedShowQuiz) {
+    setShowQuiz(JSON.parse(storedShowQuiz));
+  }
+    
+    
   }, [id]);
 
   const handleAddQuiz = async (quizzed) => {
@@ -135,9 +143,10 @@ const QuizsetDetail = () => {
     }
   };
 
-  const handlePraticeCancel=()=>{
+  const handlePraticeCancel = () => {
     setShowQuiz(false);
-  }
+    localStorage.setItem("showQuiz", JSON.stringify(false));
+  };
 
   return (
     <div className="p-4">
@@ -168,7 +177,7 @@ const QuizsetDetail = () => {
                     className="text-xl font-bold cursor-pointer"
                     onClick={() => handleEditField("name")}
                   >
-                    {quizsetDetail.name}
+                    {quizsetDetail ? quizsetDetail.name : "Loading..."}
                   </h2>
                 )}
               </div>
@@ -218,7 +227,7 @@ const QuizsetDetail = () => {
                   className="text-gray-700 cursor-pointer"
                   onClick={() => handleEditField("timeLimit")}
                 >
-                  Time Limit: {quizsetDetail.timeLimit} minutes
+                  Time Limit: {quizsetDetail.timeLimit} seconds
                 </p>
               )}
             </div>

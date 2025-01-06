@@ -6,11 +6,11 @@ import AddQuizSetModal from "./AddQuizSetModal";
 import SearchBar from "../../components/SearchBar";
 import Sidebar from "../../components/Sidebar";
 import Pagination from "../topic/component/pagination";
-import avatar from "../../images/avatar.png";
 import QuizSetService from "../../data/service/quiz_set_service";
 import { format } from "date-fns";
 import { useSnackbar } from "../../components/NotificationBat";
 import ConfirmationModal from "../../components/ConfirmModal";
+import { FaSortAlphaDown, FaSortAlphaUp } from "react-icons/fa";
 
 const QuizSetPage = () => {
   const { showSnackbar } = useSnackbar();
@@ -23,27 +23,31 @@ const QuizSetPage = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [tempSearchQuery, setTempSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState(0); // 0: Your Quiz Set, 1: Save Quiz Set
+  const [activeTab, setActiveTab] = useState(0); 
   const sortOption = searchParams.get("sort") || "id";
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
-
+  const [sortOrder, setSortOrder] = useState("asc");
   const fetchQuizSets = async () => {
     setLoading(true);
     try {
       let data;
       if (activeTab === 0) {
-        data = await QuizSetService.getAllQuizSet(searchQuery, currentPage, 10, sortOption);
+        data = await QuizSetService.getAllQuizSetOfAllUser(searchQuery, currentPage, 10, sortOption, sortOrder);
+      } else if (activeTab === 1) {
+        data = await QuizSetService.getAllQuizSet(searchQuery, currentPage, 10, sortOption, sortOrder);
       } else {
-        data = await QuizSetService.getSaveQuizSet(searchQuery, currentPage, 10, sortOption);
+        data = await QuizSetService.getSaveQuizSet(searchQuery, currentPage, 10, sortOption, sortOrder);
       }
       setQuizSetData(
         data.quizSets.map((quizSet) => ({
+          creator:quizSet.creator.name,
           id: quizSet.id,
           name: quizSet.name,
           description: quizSet.description,
           createdTime: format(new Date(quizSet.createdTime), "MMMM d, yyyy h:mm:ss a"),
           isBookmarked: quizSet.isBookmarked ?? false,
           totalQuestion: quizSet.totalQuestion,
+          isYour:quizSet.allowShowAnswer??false
         }))
       );
       setTotalPages(data.totalPages);
@@ -53,10 +57,16 @@ const QuizSetPage = () => {
       setLoading(false);
     }
   };
+  
 
   useEffect(() => {
     fetchQuizSets();
-  }, [searchQuery, currentPage, sortOption, activeTab]);
+  }, [searchQuery, currentPage, sortOption, activeTab,sortOrder]);
+  useEffect(() => {
+    const tabMapping = { all: 0, "my-quiz": 1, "my-saved": 2 };
+    const currentTab = searchParams.get("tab") || "all";
+    setActiveTab(tabMapping[currentTab]);
+  }, [searchParams]);
 
   const handleDeleteRequest = (id) => {
     setQuizToDelete(id);
@@ -128,8 +138,16 @@ const QuizSetPage = () => {
 
   const handleTabChange = (tabIndex) => {
     setActiveTab(tabIndex);
-    setSearchParams({ search: searchQuery, sort: sortOption, page: 1 });
+    const tabMapping = ["all", "my-quiz", "my-saved"];
+    setSearchParams({ search: searchQuery, sort: sortOption, page: 1, tab: tabMapping[tabIndex] });
   };
+
+  const toggleSortOrder = () => {
+    const newSortOrder = sortOrder === "asc" ? "desc" : "asc";
+    setSortOrder(newSortOrder);
+    setSearchParams({ search: searchQuery, sort: sortOption, page: 1, tab: searchParams.get("tab") || "all", order: newSortOrder });
+  };
+
 
   return (
     <div className="flex">
@@ -147,10 +165,11 @@ const QuizSetPage = () => {
         {/* Tabs và Sort */}
         <div className="flex justify-between items-center mt-6 mb-6">
           <TabNavigation
-            tabs={["Your Quiz Set", "Save Quiz Set"]}
+            tabs={["All Quiz", "My Quiz Set", "My Saved Quiz Set"]}
             activeTab={activeTab}
             onTabChange={handleTabChange}
           />
+
           <div className="flex items-center space-x-4">
             <select
               value={sortOption}
@@ -160,6 +179,16 @@ const QuizSetPage = () => {
               <option value="name">Sort by Name</option>
               <option value="createdTime">Sort by Created Date</option>
             </select>
+            <button
+              onClick={toggleSortOrder}
+              className="px-4 py-2 bg-gray-300 text-black rounded-lg"
+            >
+              {sortOrder === "asc" ? (
+                                <FaSortAlphaDown className="text-lg" />
+                              ) : (
+                                <FaSortAlphaUp className="text-lg" />
+                              )}
+            </button>
             <button
               onClick={() => setShowAddModal(true)}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg"
@@ -176,6 +205,7 @@ const QuizSetPage = () => {
           <div>
             {quizSetData.map((quizSet) => (
               <QuizSetCard
+              creator={quizSet.creator}
                 questionCount={quizSet.totalQuestion}
                 key={quizSet.id}
                 name={quizSet.name}
@@ -194,8 +224,11 @@ const QuizSetPage = () => {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          onPageChange={(page) => setSearchParams({ search: searchQuery, sort: sortOption, page })}
+          onPageChange={(page) =>
+            setSearchParams({ search: searchQuery, sort: sortOption, page, tab: searchParams.get("tab") || "all" })
+          }
         />
+
 
         {/* Modal */}
         {showAddModal && (

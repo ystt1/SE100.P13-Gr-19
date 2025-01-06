@@ -24,7 +24,6 @@ const QuizStartPage = ({id,name,maxTime,onCancel}) => {
   };
 
   useEffect(() => {
-    console.log(id);
     
     fetchQuizData();
     const savedAnswers = localStorage.getItem(`quiz-${id}-answers`);
@@ -125,12 +124,12 @@ const QuizStartPage = ({id,name,maxTime,onCancel}) => {
           };
   
         default:
-          return null; // Bỏ qua các loại không hợp lệ
+          return null; 
       }
-    }).filter((answer) => answer !== null); // Loại bỏ các câu hỏi không hợp lệ
+    }).filter((answer) => answer !== null); 
   
     return {
-      time: 600 - timeLeft, // Thời gian đã làm bài
+      time: maxTime - timeLeft, 
       listAnswer,
     };
   };
@@ -139,7 +138,7 @@ const QuizStartPage = ({id,name,maxTime,onCancel}) => {
   const handleAnswerChange = (questionId, valueOrIndex, value) => {
     setUserAnswers((prev) => {
       if (typeof valueOrIndex === "number") {
-        // Trường hợp FILL_IN_THE_BLANK
+    
         const updatedAnswers = [...(prev[questionId] || [])];
         updatedAnswers[valueOrIndex] = value;
         return {
@@ -147,7 +146,7 @@ const QuizStartPage = ({id,name,maxTime,onCancel}) => {
           [questionId]: updatedAnswers.filter((answer) => answer !== undefined && answer !== ""),
         };
       } else if (Array.isArray(valueOrIndex)) {
-        // Trường hợp MULTIPLE_CHOICE
+
         return {
           ...prev,
           [questionId]: valueOrIndex,
@@ -169,6 +168,7 @@ const QuizStartPage = ({id,name,maxTime,onCancel}) => {
 
   const handleSubmit = async () => {
     const submitData = prepareSubmitData();
+    console.log(submitData);
     
     try {
       const response = await StartQuizService.submitQuiz(id, submitData);

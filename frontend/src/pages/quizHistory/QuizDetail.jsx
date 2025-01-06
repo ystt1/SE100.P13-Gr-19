@@ -137,7 +137,7 @@ const QuizDetails = () => {
             {quizDetails.numberCorrect}/{quizDetails.quizAnswers.length}
           </p>
           <p>
-            <span className="font-medium">Completion Time:</span> {quizDetails.completeTime} minutes
+            <span className="font-medium">Completion Time:</span> {quizDetails.completeTime} seconds
           </p>
         </div>
 

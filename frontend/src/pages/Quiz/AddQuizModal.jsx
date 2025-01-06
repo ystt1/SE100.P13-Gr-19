@@ -32,13 +32,88 @@ const AddQuizModal = ({ onClose, onSubmit,onSuccess }) => {
     fetchTopics();
   }, []);
 
+
+  
+
+  const validateQuizData = () => {
+    const { question, type, correctAnswer, answers, fillText, dragOptions } = quizData;
+
+    if (!question.trim()) {
+      alert("Câu hỏi không được để trống.");
+      return false;
+    }
+
+    if (!quizData.topic) {
+      alert("Vui lòng chọn topic.");
+      return false;
+    }
+
+    switch (type) {
+      case "SHORT_ANSWER":
+        if (!correctAnswer.trim()) {
+          alert("Câu trả lời cho Short Answer không được để trống.");
+          return false;
+        }
+        break;
+
+      case "SINGLE_CHOICE":
+      case "MULTIPLE_CHOICE":
+        const uniqueAnswers = new Set(answers.map((a) => a.text.trim()));
+        const hasEmptyAnswer = answers.some((a) => !a.text.trim());
+        const hasCorrectAnswer = answers.some((a) => a.isCorrect);
+
+        if (hasEmptyAnswer) {
+          alert("Không được để trống đáp án trong câu hỏi.");
+          return false;
+        }
+
+        if (uniqueAnswers.size !== answers.length) {
+          alert("Không được có đáp án trùng nhau.");
+          return false;
+        }
+
+        if (!hasCorrectAnswer) {
+          alert("Phải có ít nhất một đáp án đúng.");
+          return false;
+        }
+        break;
+
+      case "FILL_IN_THE_BLANK":
+        const blankCount = (question.match(/_/g) || []).length;
+        if (blankCount === 0) {
+          alert("Câu hỏi FILL_IN_THE_BLANK phải chứa ít nhất một ký tự '_'.");
+          return false;
+        }
+        if (dragOptions.length !== blankCount) {
+          alert(`Số lượng đáp án phải bằng số lượng '_' (${blankCount}).`);
+          return false;
+        }
+        break;
+
+      case "DRAG_AND_DROP":
+        const blankCount2 = (question.match(/_/g) || []).length;
+        if (blankCount2 < 2) {
+          alert("Câu hỏi DRAG_AND_DROP phải chứa ít nhất 2 ký tự '_'.");
+          return false;
+        }
+        if (dragOptions.length !== blankCount2) {
+          alert(`Số lượng đáp án phải bằng số lượng '_' (${blankCount2}).`);
+          return false;
+        }
+        break;
+
+      default:
+        break;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async () => {
-    console.log(quizData);
-    
-    if (quizData.topic === "") {
-      alert("Vui lòng chọn topic");
+    if (!validateQuizData()) {
       return;
     }
+
     const finalQuizData = {
       ...quizData,
       fillText: quizData.fillText,
@@ -46,7 +121,7 @@ const AddQuizModal = ({ onClose, onSubmit,onSuccess }) => {
     };
 
     try {
-      await onSubmit(finalQuizData); // Sử dụng hàm onSubmit từ props
+      await onSubmit(finalQuizData);
       onSuccess();
       onClose();
     } catch (error) {
