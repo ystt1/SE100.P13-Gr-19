@@ -26,11 +26,11 @@ const QuizDetails = () => {
   const renderShortAnswer = (answer) => (
     <div>
       <p className="mt-2">
-        <span className="font-medium">Your Answer:</span> {answer.shortAnswer.content}
+        <span className="font-medium">Your Answer:</span> {answer.shortAnswer.filledContent}
       </p>
       <p>
         <span className="font-medium">Correct Answer:</span>{" "}
-        {answer.shortAnswer.filledContent}
+        {answer.shortAnswer.content}
       </p>
     </div>
   );
