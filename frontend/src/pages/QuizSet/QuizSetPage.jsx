@@ -47,7 +47,7 @@ const QuizSetPage = () => {
           createdTime: format(new Date(quizSet.createdTime), "MMMM d, yyyy h:mm:ss a"),
           isBookmarked: quizSet.isBookmarked ?? false,
           totalQuestion: quizSet.totalQuestion,
-          isYour:quizSet.allowShowAnswer??false
+          
         }))
       );
       setTotalPages(data.totalPages);
@@ -215,6 +215,7 @@ const QuizSetPage = () => {
                 onClick={() => handleQuizSetClick(quizSet.id)}
                 onToggleSave={() => toggleSaveStatus(quizSet.id, quizSet.isBookmarked)}
                 onDelete={() => handleDeleteRequest(quizSet.id)}
+                canDelete={activeTab==1}
               />
             ))}
           </div>
