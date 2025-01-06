@@ -1,48 +1,58 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useSearchParams } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
 import { FaSearch } from "react-icons/fa";
-import TeamService from "../../data/service/team_service";
-import { useSnackbar } from "../../components/NotificationBat";
 
-const mockTeams = [
-  { id: 1, name: "Team A", owner: "User1", status: 1, members: 5, limit: 10, image: "/team_a.jpg" },
-  { id: 2, name: "Team B", owner: "User2", status: 0, members: 8, limit: 15, image: "/team_b.jpg" },
-  { id: 3, name: "Team C", owner: "User3", status: 2, members: 3, limit: 12, image: "/team_c.jpg" },
-  { id: 4, name: "Team D", owner: "User4", status: 3, members: 7, limit: 10, image: "/team_d.jpg" },
-];
+import { useSnackbar } from "../../components/NotificationBat";
+import TeamService from "../../data/service/team_service";
+import Pagination from "../topic/component/pagination";
 
 
 const TeamsPage = () => {
-  const { showSnackbar } = useSnackbar();
   const navigate = useNavigate();
+  const { showSnackbar } = useSnackbar();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [teams, setTeams] = useState([]);
-  const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [newTeam, setNewTeam] = useState({ name: "", description: "" });
+  const [newTeam, setNewTeam] = useState({ name: "", maxParticipant: 30 });
+  const [totalPages,setTotalPages]=useState(1)
+  const currentTab = searchParams.get("tab") || "all"; // Default tab is "all"
+  const currentPage = parseInt(searchParams.get("page") || "1", 10); // Default page is 1
+  const itemsPerPage = 6;
 
-  // Mock data logic
+  const fetchTeams = async () => {
+    try {
+      let data;
+      if (currentTab === "all") {
+        data = await TeamService.getAllTeam(currentPage, itemsPerPage, searchQuery);
+      } else if (currentTab === "my-team") {
+        data = await TeamService.getMyTeams(currentPage, itemsPerPage, searchQuery);
+      } else if (currentTab === "joined") {
+        data = await TeamService.getJoinedTeams(currentPage, itemsPerPage, searchQuery);
+      }
+      setTeams(data?.teams || []); // Assuming API returns { teams: [], totalPages: 0 }
+      setTotalPages(data.totalPages)
+    } catch (error) {
+      showSnackbar("Failed to fetch teams", "error");
+      console.error("Error fetching teams:", error);
+    }
+  };
+
+  const handleTabChange = (tab) => {
+    setSearchParams({ tab, page: "1" }); // Reset to page 1 on tab change
+  };
+
+  // Handle page change
+  const handlePageChange = (page) => {
+    setSearchParams({ tab: currentTab, page: page.toString() });
+  };
+
+  // Fetch teams whenever tab, page, or search query changes
   useEffect(() => {
-    const fetchMockTeams = () => {
-      setTeams(mockTeams);
-    };
-    fetchMockTeams();
-  }, []);
-
-  //API 
-  // useEffect(() => {
-  //   const fetchTeams = async () => {
-  //     try {
-  //       const fetchedTeams = await TeamService.getAllTeams();
-  //       setTeams(fetchedTeams);
-  //     } catch (error) {
-  //       console.error("Error fetching teams:", error);
-  //       showSnackbar("Failed to fetch teams", "error");
-  //     }
-  //   };
-  //   fetchTeams();
-  // }, []);
+    fetchTeams();
+  }, [currentTab, currentPage, searchQuery]);
 
   const handleCreateTeam = async () => {
     try {
@@ -50,9 +60,8 @@ const TeamsPage = () => {
       if (response === "success") {
         showSnackbar("Team created successfully", "success");
         setShowModal(false);
-        setNewTeam({ name: "", description: "" });
-        const updatedTeams = await TeamService.getAllTeams();
-        setTeams(updatedTeams);
+        setNewTeam({ name: "", maxParticipant: 30 });
+        fetchTeams()
       } else {
         showSnackbar(response, "error");
       }
@@ -62,101 +71,20 @@ const TeamsPage = () => {
     }
   };
 
-  const handleJoinTeam = async (teamId) => {
-    try {
-      const response = await TeamService.joinTeam(teamId);
-      if (response === "success") {
-        showSnackbar("Joined team successfully", "success");
-        const updatedTeams = await TeamService.getAllTeams();
-        setTeams(updatedTeams);
-      } else {
-        showSnackbar(response, "error");
-      }
-    } catch (error) {
-      console.error("Error joining team:", error);
-      showSnackbar("Failed to join team", "error");
-    }
-  };
-
-  const handleCancelRequest = async (teamId) => {
-    try {
-      const response = await TeamService.cancelJoinRequest(teamId);
-      if (response === "success") {
-        showSnackbar("Join request canceled", "success");
-        const updatedTeams = await TeamService.getAllTeams();
-        setTeams(updatedTeams);
-      } else {
-        showSnackbar(response, "error");
-      }
-    } catch (error) {
-      console.error("Error canceling join request:", error);
-      showSnackbar("Failed to cancel join request", "error");
-    }
-  };
-
-  const handleJoinTeamRequest = async (teamId) => {
-    // Mock
-    const updatedTeams = teams.map((team) =>
-      team.id === teamId ? { ...team, status: 3 } : team
-    );
-    setTeams(updatedTeams);
   
-    // API 
-    // try {
-    //   const response = await TeamService.joinTeamRequest(teamId);
-    //   if (response === "success") {
-    //     showSnackbar("Join request sent successfully", "success");
-    //     const updatedTeams = await TeamService.getAllTeams();
-    //     setTeams(updatedTeams);
-    //   } else {
-    //     showSnackbar(response, "error");
-    //   }
-    // } catch (error) {
-    //   console.error("Error sending join request:", error);
-    //   showSnackbar("Failed to send join request", "error");
-    // }
-  };
-  
-  const handleCancelJoinRequest = async (teamId) => {
-    // Mock 
-    const updatedTeams = teams.map((team) =>
-      team.id === teamId ? { ...team, status: 2 } : team
-    );
-    setTeams(updatedTeams);
-  
-    // API 
-    // try {
-    //   const response = await TeamService.cancelJoinRequest(teamId);
-    //   if (response === "success") {
-    //     showSnackbar("Join request canceled successfully", "success");
-    //     const updatedTeams = await TeamService.getAllTeams();
-    //     setTeams(updatedTeams);
-    //   } else {
-    //     showSnackbar(response, "error");
-    //   }
-    // } catch (error) {
-    //   console.error("Error canceling join request:", error);
-    //   showSnackbar("Failed to cancel join request", "error");
-    // }
-  };
 
 
   const handleTeamClick = (team) => {
-    if (team.status === 1) {
-      // My Team
-      navigate(`/teams/${team.id}/detail`);
-    } else if (team.status === 0) {
-      // Managed Team
-      navigate(`/teams/${team.id}/manage`);
-    }
+    console.log(team);
+    
+    // if (team.status === 1) {
+    //   // My Team
+    //   navigate(`/teams/${team.id}/detail`);
+    // } else if (team.status === 0) {
+    //   // Managed Team
+    //   navigate(`/teams/${team.id}/manage`);
+    // }
   };
-
-  const filteredTeams = teams.filter(
-    (team) =>
-      (activeTab === "all" || team.status.toString() === activeTab) &&
-      team.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   return (
     <div className="flex">
       <Sidebar />
@@ -164,23 +92,20 @@ const TeamsPage = () => {
         {/* Tabs */}
         <div className="mb-4 flex justify-between items-center">
           <ul className="flex space-x-4">
-            {["all", "1", "0", "2", "3"].map((tab) => (
+            {["all", "my-team", "joined"].map((tab) => (
               <li key={tab}>
                 <button
-                  className={`px-4 py-2 rounded ${
-                    activeTab === tab ? "bg-blue-500 text-white" : "bg-gray-200"
-                  }`}
-                  onClick={() => setActiveTab(tab)}
+                  className={`px-4 py-2 rounded ${currentTab === tab ? "bg-blue-500 text-white" : "bg-gray-200"
+                    }`}
+                  onClick={() => handleTabChange(tab)}
                 >
                   {tab === "all"
                     ? "All Teams"
-                    : tab === "1"
-                    ? "My Teams"
-                    : tab === "0"
-                    ? "Managed Teams"
-                    : tab === "2"
-                    ? "Not Joined"
-                    : "Pending Response"}
+                    : tab === "my-team"
+                      ? "My Teams"
+                      : 
+                         "Joined Teams"
+                        }
                 </button>
               </li>
             ))}
@@ -207,37 +132,23 @@ const TeamsPage = () => {
 
         {/* Team List */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredTeams.map((team) => (
-            <div
-              key={team.id}
-              className="p-4 border rounded shadow-md bg-white flex flex-col"
-              onClick={() => handleTeamClick(team)}
-            >
+          {teams.map((team) => (
+            <div onClick={()=>handleTeamClick(team)} key={team.id} className="p-4 border rounded shadow-md bg-white flex flex-col">
               <h2 className="text-xl font-bold mb-2">{team.name}</h2>
-              <p className="text-sm text-gray-500">Owner: {team.owner}</p>
+              <p className="text-sm text-gray-500">Owner: {team.creatorUser.name}</p>
               <p className="text-sm text-gray-500">
-                Members: {team.members}/{team.limit}
+                Members: {team.members}/{team.maxParticipant}
               </p>
-              {team.status === 2 && (
-                <button
-                  onClick={() => handleJoinTeamRequest(team.id)}
-                  className="mt-2 px-4 py-2 bg-green-500 text-white rounded"
-                >
-                  Join
-                </button>
-              )}
-              {team.status === 3 && (
-                <button
-                  onClick={() => handleCancelJoinRequest(team.id)}
-                  className="mt-2 px-4 py-2 bg-red-500 text-white rounded"
-                >
-                  Cancel Request
-                </button>
-              )}
             </div>
           ))}
         </div>
 
+        {/* Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages} // Replace with actual totalPages from API
+          onPageChange={handlePageChange}
+        />
 
         {/* Modal */}
         {showModal && (
@@ -250,20 +161,19 @@ const TeamsPage = () => {
                   type="text"
                   className="w-full px-4 py-2 border rounded"
                   value={newTeam.name}
-                  onChange={(e) =>
-                    setNewTeam({ ...newTeam, name: e.target.value })
-                  }
+                  onChange={(e) => setNewTeam({ ...newTeam, name: e.target.value })}
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Description</label>
-                <textarea
+                <label className="block text-sm font-medium mb-2">Max Participant</label>
+                <input
                   className="w-full px-4 py-2 border rounded"
-                  value={newTeam.description}
+                  type="number"
+                  value={newTeam.maxParticipant}
                   onChange={(e) =>
-                    setNewTeam({ ...newTeam, description: e.target.value })
+                    setNewTeam({ ...newTeam, maxParticipant: parseInt(e.target.value, 10) || "" })
                   }
-                ></textarea>
+                />
               </div>
               <div className="flex justify-end space-x-4">
                 <button
@@ -274,7 +184,7 @@ const TeamsPage = () => {
                 </button>
                 <button
                   className="px-4 py-2 bg-blue-500 text-white rounded"
-                  onClick={handleCreateTeam}
+                  onClick={() => handleCreateTeam()}
                 >
                   Create
                 </button>
