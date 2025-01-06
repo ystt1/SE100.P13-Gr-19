@@ -23,6 +23,29 @@ const QuizStartPage = ({id,name,maxTime,onCancel}) => {
     }
   };
 
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+    
+        setTimeLeft((prev) => {
+          const newTimeLeft = Math.max(prev - 60, 0);
+          alert("Bạn bị trừ 1 phút vì mở tab khác .");
+          localStorage.setItem(`quiz-${id}-timeLeft`, newTimeLeft);
+          return newTimeLeft;
+        });
+      }
+    };
+  
+  
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+  
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [id]);
+  
+
   useEffect(() => {
     
     fetchQuizData();
@@ -162,11 +185,42 @@ const QuizStartPage = ({id,name,maxTime,onCancel}) => {
   };
   
   
+  const getUnansweredQuestions = () => {
+    return quizData.filter((question) => {
+      const userAnswer = userAnswers[question.id];
+      switch (question.type) {
+        case "SINGLE_CHOICE":
+        case "SHORT_ANSWER":
+          return !userAnswer; // Chưa trả lời
+        case "MULTIPLE_CHOICE":
+        case "DRAG_AND_DROP":
+        case "FILL_IN_THE_BLANK":
+          return !userAnswer || userAnswer.length === 0; // Không có đáp án
+        default:
+          return false;
+      }
+    });
+  };
   
   
   
 
   const handleSubmit = async () => {
+
+    const unansweredQuestions = getUnansweredQuestions();
+
+    if (unansweredQuestions.length > 0) {
+      const confirmSubmit = window.confirm(
+        `You have ${unansweredQuestions.length} unanswered question(s):\n` +
+        unansweredQuestions.map((q, i) => `Question ${i + 1}`).join(", ") +
+        `\nAre you sure you want to submit?`
+      );
+  
+      if (!confirmSubmit) {
+        return; // Hủy nộp bài
+      }
+    }
+
     const submitData = prepareSubmitData();
     console.log(submitData);
     
@@ -184,7 +238,16 @@ const QuizStartPage = ({id,name,maxTime,onCancel}) => {
       console.error("Submit error:", error);
     }
   };
-  
+  const handleCancel = () => {
+    const confirmCancel = window.confirm(
+      "Are you sure you want to cancel the quiz? Your progress will be lost."
+    );
+    if (confirmCancel) {
+      localStorage.removeItem(`quiz-${id}-answers`);
+      localStorage.removeItem(`quiz-${id}-timeLeft`);
+      onCancel();
+    }
+  };
 
   const renderQuestion = (question, index) => {
     return (
@@ -334,7 +397,9 @@ const QuizStartPage = ({id,name,maxTime,onCancel}) => {
       <div className="ml-64 flex-1 p-6">
         <div className="flex justify-between items-center bg-blue-50 p-4 rounded-lg shadow mb-6">
           <button
-            onClick={onCancel}
+            onClick={()=>{
+             handleCancel()
+            }}
             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
           >
             Cancel

@@ -12,13 +12,15 @@ export const QuizSetCard = ({
   onClick,
   onToggleSave,
   onDelete,
-  isYour,
+  canDelete,
 }) => {
   const truncatedDescription =
     description && description.length > 50
       ? `${description.substring(0, 50)}...`
       : description || "No description available";
 
+    
+      
   return (
     <div
       onClick={onClick}
@@ -44,7 +46,7 @@ export const QuizSetCard = ({
       </div>
 
       {/* Nút thao tác bên phải */}
-      {isYour==true &&<div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-4">
         {/* Nút Save */}
         <button
           onClick={(e) => {
@@ -58,7 +60,7 @@ export const QuizSetCard = ({
         </button>
 
         {/* Nút Delete */}
-        <button
+       {canDelete && (<button
           onClick={(e) => {
             e.stopPropagation(); 
             onDelete();
@@ -67,8 +69,8 @@ export const QuizSetCard = ({
         >
           <FaTrashAlt size={20} />
           <span>Delete</span>
-        </button>
-      </div>}
+        </button>)}
+      </div>
     </div>
   );
 };

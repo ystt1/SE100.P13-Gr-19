@@ -18,8 +18,8 @@ const QuizSetService = {
           sortElement: sortElement,
           direction,
         },
-      });
-
+      })
+      console.log(response);
       
       return response.data;
     } catch (error) {
