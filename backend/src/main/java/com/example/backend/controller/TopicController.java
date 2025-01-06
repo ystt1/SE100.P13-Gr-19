@@ -49,7 +49,7 @@ public class TopicController {
       @RequestParam(required = false) String sortElement,
       @RequestParam(required = false) String direction,
       @RequestParam(required = false) String search,
-      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "1") int page,
       @RequestParam(defaultValue = "10") int limit) {
     return ResponseEntity.status(200).body(topicService.getAllTopics(principal.getName(), page, limit, sortElement, direction, search));
   }
