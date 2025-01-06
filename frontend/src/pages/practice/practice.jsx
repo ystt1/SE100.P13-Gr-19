@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
 import { FaClock } from "react-icons/fa";
 import StartQuizService from "../../data/service/start_quiz_set_service";
-
-const QuizStartPage = () => {
+import HistoryService from "../../data/service/history_service";
+const QuizStartPage = ({id,name,maxTime,onCancel}) => {
   const navigate = useNavigate();
-  const { id } = useParams();
   const [quizData, setQuizData] = useState([]);
   const [userAnswers, setUserAnswers] = useState({});
-  const [timeLeft, setTimeLeft] = useState(600); // 10 phút
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const savedTimeLeft = localStorage.getItem(`quiz-${id}-timeLeft`);
+    return savedTimeLeft ? Number(savedTimeLeft) : maxTime;
+  });
 
   const fetchQuizData = async () => {
     try {
@@ -22,23 +24,50 @@ const QuizStartPage = () => {
   };
 
   useEffect(() => {
+    console.log(id);
+    
     fetchQuizData();
+    const savedAnswers = localStorage.getItem(`quiz-${id}-answers`);
+    const savedTimeLeft = localStorage.getItem(`quiz-${id}-timeLeft`);
+  if (savedTimeLeft) {
+    console.log("Restoring timeLeft from localStorage:", savedTimeLeft); 
+    setTimeLeft(savedTimeLeft);
+  }
+    if (savedAnswers) {
+      setUserAnswers(JSON.parse(savedAnswers));
+    }
+  
   }, [id]);
+
+  useEffect(() => {
+    // Lưu câu trả lời vào localStorage
+    if (Object.keys(userAnswers).length > 0) {
+      localStorage.setItem(`quiz-${id}-answers`, JSON.stringify(userAnswers));
+    }
+  }, [userAnswers, id]);
+  
+  useEffect(() => {
+
+    if (timeLeft > 0) {
+      localStorage.setItem(`quiz-${id}-timeLeft`, timeLeft);
+    }
+  }, [timeLeft, id]);
+  
 
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 0) {
           clearInterval(timer);
-          handleSubmit();
+          handleSubmit(); 
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
-
+  
     return () => clearInterval(timer);
-  }, []);
+  }, [timeLeft]);
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -138,22 +167,24 @@ const QuizStartPage = () => {
   
   
 
-  const handleSubmit = async() => {
+  const handleSubmit = async () => {
+    const submitData = prepareSubmitData();
     
-    var submitData=prepareSubmitData()
-
-    console.log("Submit Result:", submitData);
-
-    var response=await StartQuizService.submitQuiz(id,submitData);
-    console.log(response)
-    if(response.status===200)
-    {
-      navigate("/complete")
-    }
-    else{
-      alert("You must complete all question")
+    try {
+      const response = await StartQuizService.submitQuiz(id, submitData);
+      if (response.status === 200) {
+        localStorage.removeItem(`quiz-${id}-answers`);
+        localStorage.removeItem(`quiz-${id}-timeLeft`);
+        const idHistory=await HistoryService.getLatestHistory();
+        navigate(`/history-detail/${idHistory}`,{ replace: true });
+      } else {
+        alert("You must complete all questions.");
+      }
+    } catch (error) {
+      console.error("Submit error:", error);
     }
   };
+  
 
   const renderQuestion = (question, index) => {
     return (
@@ -303,14 +334,14 @@ const QuizStartPage = () => {
       <div className="ml-64 flex-1 p-6">
         <div className="flex justify-between items-center bg-blue-50 p-4 rounded-lg shadow mb-6">
           <button
-            onClick={() => navigate(-1)}
+            onClick={onCancel}
             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
           >
             Cancel
           </button>
           <div className="text-center">
             <h2 className="text-lg font-bold text-blue-800 mb-1">
-              This is just a title of Quiz
+              {name}
             </h2>
             <div className="text-sm text-gray-600">
               Answered: {Object.keys(userAnswers).length} / {quizData.length}
