@@ -4,4 +4,6 @@ import com.example.backend.entity.Team;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TeamRepository extends JpaRepository<Team, Integer> {
+
+  boolean existsByNameAndTeamMemberDetailsUserIdAndTeamMemberDetailsRole(String name, int userId, String role);
 }

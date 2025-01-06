@@ -3,70 +3,47 @@ package com.example.backend.service;
 import com.example.backend.DTO.Team.CreateTeamRequestDTO;
 import com.example.backend.DTO.Team.TeamResponseDTO;
 import com.example.backend.entity.Team;
-import com.example.backend.entity.User;
+import com.example.backend.entity.TeamMemberDetail;
+import com.example.backend.entity.TeamRole;
+import com.example.backend.exception.ConflictException;
 import com.example.backend.repository.TeamRepository;
 import com.example.backend.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class TeamService {
 
-    private final TeamRepository teamRepository;
-    private final UserRepository userRepository;
+  private final TeamRepository teamRepository;
+  private final UserRepository userRepository;
+  private final ModelMapper modelMapper;
 
-    public TeamResponseDTO createTeam(CreateTeamRequestDTO request, int creatorId) {
-        User creator = userRepository.findById(creatorId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+  public Object createTeam(String name, CreateTeamRequestDTO createTeamRequestDTO) {
+    var user = userRepository.findByEmail(name);
 
-        // Tạo team
-        Team team = Team.builder()
-                .name(request.getName())
-                .description(request.getDescription())
-                .creator(creator)
-                .build();
-
-        teamRepository.save(team);
-
-        // Trả về response
-        return TeamResponseDTO.builder()
-                .id(team.getId())
-                .name(team.getName())
-                .description(team.getDescription())
-                .creatorId(creator.getId())
-                .memberIds(List.of(creator.getId())) // Ban đầu chỉ có creator là thành viên
-                .build();
+    //check name of team is exist or not
+    if (teamRepository.existsByNameAndTeamMemberDetailsUserIdAndTeamMemberDetailsRole(createTeamRequestDTO.getName(), user.get().getId(),
+        String.valueOf(TeamRole.ADMIN))) {
+      throw new ConflictException("Team name is already exist");
     }
 
-    public TeamResponseDTO joinTeam(int teamId, int userId) {
-        // Tìm team
-        Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new RuntimeException("Team not found"));
+    Team team = new Team();
+    team.setName(createTeamRequestDTO.getName());
+    team.setMaxParticipant(createTeamRequestDTO.getMaxParticipant());
 
-        // Tìm user
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    TeamMemberDetail teamMemberDetail = new TeamMemberDetail();
+    teamMemberDetail.setTeam(team);
+    teamMemberDetail.setUser(user.get());
+    teamMemberDetail.setRole(TeamRole.MEMBER);
 
-        // Kiểm tra nếu người dùng đã là thành viên
-        if (team.getMembers().contains(user)) {
-            throw new IllegalStateException("User is already a member of this team");
-        }
+    team.setTeamMemberDetails(List.of(teamMemberDetail));
 
-        // Thêm người dùng vào danh sách thành viên
-        team.getMembers().add(user);
-        teamRepository.save(team);
+    var result = modelMapper.map(teamRepository.save(team), TeamResponseDTO.class);
+    result.setCreatorUserId(user.get().getId());
 
-        // Trả về response
-        return TeamResponseDTO.builder()
-                .id(team.getId())
-                .name(team.getName())
-                .description(team.getDescription())
-                .creatorId(team.getCreator().getId())
-                .memberIds(team.getMembers().stream().map(User::getId).collect(Collectors.toList()))
-                .build();
-    }
+    return result;
+  }
 }

@@ -85,6 +85,8 @@ public class PracticeService {
                 //cast to multiplechoice DTO
                 var multipleChoiceAnswer = (MultipleChoiceAnswerDTO) answer;
 
+                System.out.println("Multiple choice answer : " + multipleChoiceAnswer);
+
                 //get the user answer
                 var userAnswer = multipleChoiceAnswer.getOptions().getFirst();
 
@@ -96,7 +98,7 @@ public class PracticeService {
                     .orElse(null);
 
 
-                if(multipleChoiceAnswer.getOptions().size()==1 || userAnswer.equals(correctAnswerContent)){
+                if(multipleChoiceAnswer.getOptions().size()==1 && userAnswer.equals(correctAnswerContent)){
                     isCorrect.set(true);
                 }
 
@@ -159,6 +161,10 @@ public class PracticeService {
                 var blankList = quiz.getBlanks();
 
                 isCorrect.set(true);
+
+                if(blankAnswerDTO.getBlanks().size() != blankList.size()){
+                    isCorrect.set(false);
+                }
 
                 List<BlankAnswer> blankAnswers = blankAnswerDTO.getBlanks().stream().map(blankDTO -> {
                     BlankAnswer blankAnswer = new BlankAnswer();

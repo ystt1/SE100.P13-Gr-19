@@ -118,12 +118,10 @@ public class QuizSetService {
     }
 
     QuizSetResponseDTO result = modelMapper.map(quizSet.get(), QuizSetResponseDTO.class);
-    if(user.getBookmarks().contains(quizSet.get())){
-      result.setIsBookmarked(true);
-    }
-    else {
-      result.setIsBookmarked(false);
-    }
+    result.setIsBookmarked(user.getBookmarks().contains(quizSet.get()));
+
+    result.setIsYourOwn(quizSet.get().getCreator().getEmail().equals(email));
+
     return result;
   }
 
