@@ -59,8 +59,11 @@ public class User implements UserDetails {
   @ManyToMany(fetch = FetchType.LAZY,cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
   private List<QuizSet> bookmarks;
 
-  @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
-  private List<TeamMemberDetail> teamMemberDetails;
+  @ManyToMany(fetch = FetchType.LAZY,cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+  private List<Team> joinedTeams;
+
+  @OneToMany(mappedBy = "creator",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+  private List<Team> myTeams;
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
