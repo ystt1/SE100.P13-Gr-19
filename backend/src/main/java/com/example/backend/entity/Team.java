@@ -28,4 +28,7 @@ public class Team {
 
     @OneToMany(mappedBy = "team",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private List<TeamQuizSetDetail> teamQuizSetDetails;
+
+    @OneToMany(mappedBy = "team",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private List<JoinTeamRequest> joinTeamRequests;
 }

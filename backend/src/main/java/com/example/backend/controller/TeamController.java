@@ -1,6 +1,7 @@
 package com.example.backend.controller;
 
 import com.example.backend.DTO.Team.CreateTeamRequestDTO;
+import com.example.backend.DTO.Team.TeamResponseDTO;
 import com.example.backend.service.TeamService;
 import java.security.Principal;
 import lombok.AllArgsConstructor;
@@ -18,7 +19,7 @@ public class TeamController {
   private final TeamService teamService;
 
   @PostMapping
-  public ResponseEntity createTeam(Principal principal, @RequestBody CreateTeamRequestDTO createTeamRequestDTO) {
+  public ResponseEntity<TeamResponseDTO> createTeam(Principal principal, @RequestBody CreateTeamRequestDTO createTeamRequestDTO) {
     return ResponseEntity.status(200).body(teamService.createTeam(principal.getName(), createTeamRequestDTO));
   }
 }

@@ -21,7 +21,7 @@ public class TeamService {
   private final UserRepository userRepository;
   private final ModelMapper modelMapper;
 
-  public Object createTeam(String name, CreateTeamRequestDTO createTeamRequestDTO) {
+  public TeamResponseDTO createTeam(String name, CreateTeamRequestDTO createTeamRequestDTO) {
     var user = userRepository.findByEmail(name);
 
     //check name of team is exist or not
