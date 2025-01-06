@@ -8,7 +8,8 @@ import OldQuizModal from "./components/quiz_add_modal";
 import { useSnackbar } from "../../components/NotificationBat";
 import QuizService from "../../data/service/quiz_service";
 import NewQuizModal from "../Quiz/AddQuizModal";
-import { useNavigate } from "react-router-dom";
+
+import QuizStartPage from "../practice/practice";
 const QuizsetDetail = () => {
   const { id } = useParams();
   const { showSnackbar } = useSnackbar();
@@ -17,7 +18,7 @@ const QuizsetDetail = () => {
   const [quizsetQuizzes, setQuizsetQuizzes] = useState([]);
   const [quizsetDetail, setQuizsetDetail] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const navigate = useNavigate();
+  const [showQuiz, setShowQuiz] = useState(false);
   const [isEditing, setIsEditing] = useState({
     name: false,
     description: false,
@@ -60,7 +61,7 @@ const QuizsetDetail = () => {
 
   const handleSaveField = async (field) => {
     try {
-      // Cập nhật toàn bộ các field
+
       const updatedData = {
         name: editedFields.name,
         description: editedFields.description,
@@ -103,32 +104,8 @@ const QuizsetDetail = () => {
 
   const handleAllowShowAnswer=async (quizsetData)=>
   {
-    navigate(`/dashboard/quiz/attempt/${id}`);
-  //   try{
-  //   var response;
-  //   if(quizsetData.allowShowAnswer!=true)
-  //   {
-  //       response=await QuizSetService.changeAllowShowAnswer(quizsetData.id)
-  //   }
-  //   else{
-  //     response=await QuizSetService.changDisableShowAnswer(quizsetData.id)
-  //   }
-  //   if(response.status==200)
-  //   {
-  //     showSnackbar(response.data);
-  //     fetchQuizSetDetail()
-  //   }
-  //   else{
-  //     alert(response)
-  //   }
-    
-  // }
-  // catch (e)
-  // {
-  //   throw e;
-  // }
-
-    
+    setShowQuiz(true);
+    // navigate(`/dashboard/quiz/attempt/${id}`);
   }
 
   useEffect(() => {
@@ -158,8 +135,13 @@ const QuizsetDetail = () => {
     }
   };
 
+  const handlePraticeCancel=()=>{
+    setShowQuiz(false);
+  }
+
   return (
-    <div className="flex">
+    <div className="p-4">
+    {!showQuiz ? ( <div className="flex">
       <Sidebar />
       <div className="flex-1 ml-64 p-6 bg-gray-50">
         {quizsetDetail ? (
@@ -255,7 +237,7 @@ const QuizsetDetail = () => {
                   quizsetDetail.allowShowAnswer ? "bg-red-500" : "bg-blue-500"
                 } text-white`}
               >
-                {/* {quizsetDetail.allowShowAnswer ? "Disable Quiz" : "Start Quiz"} */}
+                
                 Practice
               </button>
             </div>
@@ -322,6 +304,9 @@ const QuizsetDetail = () => {
           />
         )}
       </div>
+    </div>):
+   (
+      <QuizStartPage onCancel={()=>handlePraticeCancel()} id={id} name={quizsetDetail.name} maxTime={quizsetDetail.timeLimit}/>)}
     </div>
   );
 };
