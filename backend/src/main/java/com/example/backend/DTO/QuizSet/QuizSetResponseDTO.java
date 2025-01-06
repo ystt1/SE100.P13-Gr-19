@@ -31,5 +31,7 @@ public class QuizSetResponseDTO {
 
   private Boolean isBookmarked;
 
+  private Boolean isYourOwn;
+
   private UserResponseDTO creator;
 }
