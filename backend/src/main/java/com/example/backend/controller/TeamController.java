@@ -10,6 +10,7 @@ import com.example.backend.DTO.Team.JoinRequestDTO;
 import com.example.backend.DTO.Team.ListJoinRequestDTO;
 import com.example.backend.DTO.Team.ListMemberDTO;
 import com.example.backend.DTO.Team.ListTeamResponseDTO;
+import com.example.backend.DTO.Team.TeamDetail;
 import com.example.backend.DTO.Team.TeamResponseDTO;
 import com.example.backend.service.TeamService;
 import java.security.Principal;
@@ -150,5 +151,10 @@ public class TeamController {
       @RequestParam(defaultValue = "10") int limit) {
     var results = teamService.getAllPracticeResults(principal.getName(), id,quizSetId,sortElement, direction, search, page, limit);
     return ResponseEntity.ok(results);
+  }
+
+  @GetMapping("/{id}")
+  public ResponseEntity<TeamDetail> getTeam(Principal principal, @PathVariable int id) {
+    return ResponseEntity.status(200).body(teamService.getTeam(principal.getName(), id));
   }
 }
