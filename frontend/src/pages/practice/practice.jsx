@@ -4,7 +4,7 @@ import Sidebar from "../../components/Sidebar";
 import { FaClock } from "react-icons/fa";
 import StartQuizService from "../../data/service/start_quiz_set_service";
 import HistoryService from "../../data/service/history_service";
-const QuizStartPage = ({id,name,maxTime,onCancel}) => {
+const QuizStartPage = ({id,name,maxTime,onCancel,idClass}) => {
   const navigate = useNavigate();
   const [quizData, setQuizData] = useState([]);
   const [userAnswers, setUserAnswers] = useState({});
@@ -52,7 +52,7 @@ const QuizStartPage = ({id,name,maxTime,onCancel}) => {
     const savedAnswers = localStorage.getItem(`quiz-${id}-answers`);
     const savedTimeLeft = localStorage.getItem(`quiz-${id}-timeLeft`);
   if (savedTimeLeft) {
-    console.log("Restoring timeLeft from localStorage:", savedTimeLeft); 
+   
     setTimeLeft(savedTimeLeft);
   }
     if (savedAnswers) {
@@ -151,11 +151,19 @@ const QuizStartPage = ({id,name,maxTime,onCancel}) => {
       }
     }).filter((answer) => answer !== null); 
   
-    return {
-      time: maxTime - timeLeft, 
+    const submitData = {
+      time: maxTime - timeLeft,
       listAnswer,
     };
+  
+    // Thêm teamId nếu idClass tồn tại
+    if (idClass) {
+      submitData.teamId = idClass;
+    }
+  
+    return submitData;
   };
+  
   
   
   const handleAnswerChange = (questionId, valueOrIndex, value) => {

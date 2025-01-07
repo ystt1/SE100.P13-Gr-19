@@ -69,7 +69,8 @@ const TeamManagement = () => {
 
   const handleAccept = async (request) => {
     try {
-      await TeamService.ChangeRequestStatus(request.id, "ACCEPTED");
+     var response= await TeamService.ChangeRequestStatus(request.id, "ACCEPTED");
+     console.log( "accep"+ response)
       showSnackbar("Request accepted successfully", "success");
       fetchJoinRequests();
       fetchTeamUsers();

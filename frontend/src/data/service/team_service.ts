@@ -93,8 +93,7 @@ const TeamService = {
     try {
       const response = await axiosInstance.patch(`/team/join-request/${id}`, { status: status });
       console.log(response);
-      
-
+      return response
     } catch (error) {
       console.error("Error fetching topics:", error);
       throw error;

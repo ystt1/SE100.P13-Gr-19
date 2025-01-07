@@ -15,7 +15,7 @@ const QuizDetails = () => {
       try {
         const response = await HistoryService.getDetail(id);
         
-        console.log(response);
+
         const response2=await QuizSetService.getQuizSetDetail(response.quizSetId);
         setAllowShow(response2.data.allowShowAnswer)
         setQuizDetails(response);
