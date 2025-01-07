@@ -9,6 +9,7 @@ import com.example.backend.DTO.Team.CreateTeamRequestDTO;
 import com.example.backend.DTO.Team.JoinRequestDTO;
 import com.example.backend.DTO.Team.ListJoinRequestDTO;
 import com.example.backend.DTO.Team.ListMemberDTO;
+import com.example.backend.DTO.Team.ListTeamDetailDTO;
 import com.example.backend.DTO.Team.ListTeamResponseDTO;
 import com.example.backend.DTO.Team.TeamDetail;
 import com.example.backend.DTO.Team.TeamResponseDTO;
@@ -74,7 +75,7 @@ public class TeamService {
     return result;
   }
 
-  public ListTeamResponseDTO getAllOfAllUser(String sortElement,String direction,String search,int page,int limit) {
+  public ListTeamDetailDTO getAllOfAllUser(String email,String sortElement,String direction,String search,int page,int limit) {
     Sort sort = Sort.by(Sort.Direction.fromString(direction), sortElement);
     Pageable pageable = PageRequest.of(page - 1, limit, sort);
 
@@ -88,17 +89,18 @@ public class TeamService {
 
     var result = teamsPage.stream()
         .map(team -> {
-          var teamDTO = new TeamResponseDTO();
+          var teamDTO = new TeamDetail();
           teamDTO.setId(team.getId());
           teamDTO.setName(team.getName());
           teamDTO.setMaxParticipant(team.getMaxParticipant());
           teamDTO.setCreatorUser(modelMapper.map(team.getCreator(), UserResponseDTO.class));
           teamDTO.setCurrentParticipant(team.getMembers().size());
+          teamDTO.setStatus(getStatus(team,email));
           return teamDTO;})
         .collect(Collectors.toList());
 
 
-    return ListTeamResponseDTO.builder()
+    return ListTeamDetailDTO.builder()
         .teams(result)
         .totalElements((int)teamsPage.getTotalElements())
         .totalPages(teamsPage.getTotalPages())
@@ -383,6 +385,12 @@ public class TeamService {
     var teamDTO = modelMapper.map(team, TeamDetail.class);
     teamDTO.setCurrentParticipant(team.getMembers().size());
 
+    teamDTO.setStatus(getStatus(team,email));
+
+    return teamDTO;
+  }
+
+  public String getStatus(Team team, String email) {
     String status;
     if(team.getCreator().getEmail().equals(email)){
       status = "CREATOR";
@@ -391,15 +399,13 @@ public class TeamService {
       status = "MEMBER";
     }
     else if(
-        joinTeamRequestRepository.existsByTeamIdAndUserEmailAndStatusEquals(id,email,RequestStatus.PENDING)
+        joinTeamRequestRepository.existsByTeamIdAndUserEmailAndStatusEquals(team.getId(),email,RequestStatus.PENDING)
     ){
       status = "PENDING";
     }
     else {
       status = "NONE";
     }
-    teamDTO.setStatus(status);
-
-    return teamDTO;
+    return status;
   }
 }
