@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 
 const DragAndDropInput = ({ quizData, setQuizData }) => {
+   const [error, setError] = useState("");
   const addBlank = () => {
     const blankCount = (quizData.question.match(/_/g) || []).length;
 

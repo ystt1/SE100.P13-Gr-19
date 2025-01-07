@@ -120,7 +120,7 @@ const TeamManagement = () => {
       showSnackbar(response.data);
       navigate("/teams")
     } catch (error) {
-      showSnackbar("Failed to remove QuizSet", "error");
+      showSnackbar("Failed to remove teams", "error");
     }
   };
 

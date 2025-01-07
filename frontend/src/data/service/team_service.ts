@@ -152,7 +152,7 @@ const TeamService = {
   },
   removeTeam: async (idTeam) => {
     try {
-      const response = await axiosInstance.delete(`/team/${idTeam}}`);
+      const response = await axiosInstance.delete(`/team/${idTeam}`);
       return response
     } catch (error) {
       console.error("Error remove quizSet:", error);
