@@ -144,8 +144,7 @@ const TeamManagement = () => {
     <div className="flex">
       <Sidebar />
       <div className="flex-1 ml-64 p-6">
-        <h1 className="text-3xl font-bold mb-6">Manage Team: {teamId}</h1>
-
+        <h1 className="text-3xl font-bold mb-6 text-center">Manage Team: {teamId}</h1>
         <div className="flex justify-between items-center mb-6">
           <div className="absolute top-4 right-4 z-10">
             <button
@@ -160,6 +159,17 @@ const TeamManagement = () => {
               )}
             </button>
           </div>
+
+
+          <div className="mb-4">
+            <button
+              onClick={() => navigate("/teams")}
+              className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded shadow"
+            >
+              Back to Teams
+            </button>
+          </div>
+
 
           <button
             onClick={() => setShowDeleteConfirm(true)}

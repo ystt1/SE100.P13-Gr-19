@@ -83,41 +83,54 @@ const TeamDetail = () => {
           <h2></h2>
         <Sidebar />
         <div className="flex-1 ml-64 p-6">
+          <h1 className="text-4xl font-bold mb-6 text-center bg-gray-100 py-4 rounded shadow-md">
+            Team: {teamId}
+          </h1>
+
           <div className="flex justify-end">
 
-          {role === "CREATOR" && (
-                <button
-                  className="px-4 py-2 bg-blue-500 text-white rounded"
-                  onClick={() => navigate(`/teams/${teamId}/manage`)}
-                >
-                  Quản lý
-                </button>
-              )}
-              {role!=="CREATOR" && (
-                <button
-              className="px-4 py-2 bg-red-500 text-white rounded"
-              onClick={handleLeaveTeam}
-            >
-              Leave Team
-            </button>
-              )}
+            {role === "CREATOR" && (
+                  <button
+                    className="px-4 py-2 bg-blue-500 text-white rounded"
+                    onClick={() => navigate(`/teams/${teamId}/manage`)}
+                  >
+                    Quản lý
+                  </button>
+                )}
+                {role!=="CREATOR" && (
+                  <button
+                className="px-4 py-2 bg-red-500 text-white rounded"
+                onClick={handleLeaveTeam}
+              >
+                Leave Team
+              </button>
+                )}
           </div>
+
+                
+
 
           {/* Danh sách Quizsets */}
           <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-4">Quizsets</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {quizSet.map((quiz,index) => (
+            <h2 className="text-2xl font-semibold mb-6 border-b pb-2">Quizsets</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {quizSet.map((quiz, index) => (
                 <div
-                  key={`${index}- ${quiz.id}`}
-                  className="p-4 border rounded shadow-md bg-white hover:shadow-lg transition-shadow"
+                  key={`${index}-${quiz.id}`}
+                  className="p-6 border rounded-lg shadow-lg bg-white hover:border-blue-500 transition-all"
                 >
-                  <h3 className="text-lg font-bold mb-2">{quiz.name}</h3>
-                  <p className="text-sm text-gray-500 mb-2">Created: {quiz.createdTime}</p>
-                  <p className="text-sm text-gray-500 mb-2">Time Limit: {quiz.timeLimit} min</p>
-                  <p className="text-sm text-gray-500 mb-4">Owner: {quiz.creator.name}</p>
+                  <h3 className="text-xl font-bold mb-4 text-blue-600">{quiz.name}</h3>
+                  <p className="text-sm text-gray-500 mb-2">
+                    <strong>Created:</strong> {new Date(quiz.createdTime).toLocaleDateString()}
+                  </p>
+                  <p className="text-sm text-gray-500 mb-2">
+                    <strong>Time Limit:</strong> {quiz.timeLimit} min
+                  </p>
+                  <p className="text-sm text-gray-500 mb-4">
+                    <strong>Owner:</strong> {quiz.creator.name}
+                  </p>
                   <button
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 w-full"
                     onClick={() => handleQuizsetClick(quiz)}
                   >
                     Làm bài
@@ -126,6 +139,7 @@ const TeamDetail = () => {
               ))}
             </div>
           </div>
+
 
           {/* Danh sách thành viên */}
           <div>
