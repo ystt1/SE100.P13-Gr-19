@@ -1,5 +1,8 @@
 package com.example.backend.service;
 
+import com.example.backend.DTO.QuizSet.ListQuizSetDTO;
+import com.example.backend.DTO.QuizSet.QuizSetResponseDTO;
+import com.example.backend.DTO.Team.AddQuizSetDTO;
 import com.example.backend.DTO.Team.CreateTeamRequestDTO;
 import com.example.backend.DTO.Team.JoinRequestDTO;
 import com.example.backend.DTO.Team.ListJoinRequestDTO;
@@ -10,15 +13,21 @@ import com.example.backend.DTO.User.UserResponseDTO;
 import com.example.backend.entity.JoinTeamRequest;
 import com.example.backend.entity.RequestStatus;
 import com.example.backend.entity.Team;
+import com.example.backend.entity.TeamQuizSetDetail;
 import com.example.backend.entity.User;
 import com.example.backend.exception.ConflictException;
+import com.example.backend.exception.ForbiddenException;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.JoinTeamRequestRepository;
+import com.example.backend.repository.QuizSetRepository;
+import com.example.backend.repository.TeamQuizSetDetailRepository;
 import com.example.backend.repository.TeamRepository;
 import com.example.backend.repository.UserRepository;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.antlr.v4.runtime.misc.LogManager;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,6 +43,9 @@ public class TeamService {
   private final UserRepository userRepository;
   private final ModelMapper modelMapper;
   private final JoinTeamRequestRepository joinTeamRequestRepository;
+  private final QuizSetRepository quizSetRepository;
+  private final TeamQuizSetDetailRepository teamQuizSetDetailRepository;
+
 
   public TeamResponseDTO createTeam(String name, CreateTeamRequestDTO createTeamRequestDTO) {
     var user = userRepository.findByEmail(name);
@@ -267,5 +279,46 @@ public class TeamService {
     teamRepository.save(team);
   }
 
-  
+
+  public void addQuizSet(String email, int id, AddQuizSetDTO addQuizSetDTO) {
+    var team = teamRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Team not found"));
+    var quizSet = quizSetRepository.findById(addQuizSetDTO.getQuizSetId()).orElseThrow(() -> new ResourceNotFoundException("Quiz set not found"));
+
+    if(!team.getCreator().getEmail().equals(email)){
+      throw new ConflictException("You are not allowed to add quiz set to this team");
+    }
+
+    var teamQuizSetDetail = new TeamQuizSetDetail();
+    teamQuizSetDetail.setTeam(team);
+    teamQuizSetDetail.setQuizSet(quizSet);
+    teamQuizSetDetail.setStartTime(addQuizSetDTO.getStartTime());
+    teamQuizSetDetail.setEndTime(addQuizSetDTO.getEndTime());
+
+    teamQuizSetDetailRepository.save(teamQuizSetDetail);
+  }
+
+  public void deleteQuizSet(String email, int id, AddQuizSetDTO addQuizSetDTO) {
+    var team = teamRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Team not found"));
+    var quizSet = quizSetRepository.findById(addQuizSetDTO.getQuizSetId()).orElseThrow(() -> new ResourceNotFoundException("Quiz set not found"));
+
+    if(!team.getCreator().getEmail().equals(email)){
+      throw new ConflictException("You are not allowed to add quiz set to this team");
+    }
+
+    var teamQuizSetDetail = teamQuizSetDetailRepository.findByTeamAndQuizSet(team, quizSet)
+        .orElseThrow(() -> new ResourceNotFoundException("TeamQuizSetDetail not found"));
+
+    teamQuizSetDetailRepository.delete(teamQuizSetDetail);
+  }
+
+  public List<QuizSetResponseDTO> getQuizSet(String email, int id) {
+    var team = teamRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Team not found"));
+
+    if(!team.getCreator().getEmail().equals(email)){
+      throw new ForbiddenException("You are not allowed to view quiz set of this team");
+    }
+
+     return team.getTeamQuizSetDetails().stream().map(teamQuizSetDetail -> modelMapper.map(teamQuizSetDetail.getQuizSet(), QuizSetResponseDTO.class)).toList();
+
+  }
 }
