@@ -161,7 +161,7 @@ const TeamDetail = () => {
           </div>
         </div>
       </div>) : (
-        <QuizStartPage onCancel={() => handlePraticeCancel()} id={selectedQuiz.id} name={selectedQuiz.name} maxTime={selectedQuiz.timeLimit} />)}
+        <QuizStartPage onCancel={() => handlePraticeCancel()} id={selectedQuiz.id} name={selectedQuiz.name} maxTime={selectedQuiz.timeLimit} idClass={teamId} />)}
     </div>
   );
 };

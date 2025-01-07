@@ -255,10 +255,9 @@ const TeamManagement = () => {
                 onDelete={() => handleRemoveQuizSet(quiz.id)}
                 isTeam={true}
                 onClick={() => {
-                  console.log(teamId);
-                  console.log(quiz);
-                  // navigate(
-                  //   `/team/${teamId}/history/${quiz.id}`)
+                  
+                  navigate(
+                    `/team/${teamId}/history/${quiz.id}`)
                 }}
               />
             ))}

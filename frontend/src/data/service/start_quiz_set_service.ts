@@ -20,7 +20,9 @@ const StartQuizService = {
   
     submitQuiz: async (quizSetId: string, userAnswers: any) => {
       try {
-    
+        
+        console.log(userAnswers);
+        
         const response = await axiosInstance.post(
           `/practice/quizset/${quizSetId}`,
           userAnswers
@@ -33,6 +35,7 @@ const StartQuizService = {
         throw error;
       }
     },
+    
   };
 
 export default StartQuizService;
