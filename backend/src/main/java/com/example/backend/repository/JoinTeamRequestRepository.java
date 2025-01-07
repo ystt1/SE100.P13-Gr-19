@@ -17,4 +17,6 @@ public interface JoinTeamRequestRepository extends JpaRepository<JoinTeamRequest
   Page<JoinTeamRequest> findAllByTeamIdAndStatusEquals(int id, RequestStatus requestStatus, Pageable pageable);
 
   Page<JoinTeamRequest> findAllByTeamId(int id, Pageable pageable);
+
+  boolean existsByTeamIdAndUserEmailAndStatusEquals(int id, String email, RequestStatus requestStatus);
 }

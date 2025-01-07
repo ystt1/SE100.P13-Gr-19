@@ -10,6 +10,7 @@ import com.example.backend.DTO.Team.JoinRequestDTO;
 import com.example.backend.DTO.Team.ListJoinRequestDTO;
 import com.example.backend.DTO.Team.ListMemberDTO;
 import com.example.backend.DTO.Team.ListTeamResponseDTO;
+import com.example.backend.DTO.Team.TeamDetail;
 import com.example.backend.DTO.Team.TeamResponseDTO;
 import com.example.backend.DTO.Team.UserResponseWithScoreDTO;
 import com.example.backend.DTO.User.UserResponseDTO;
@@ -374,5 +375,31 @@ public class TeamService {
         .totalElements((int) resultsPage.getTotalElements())
         .build();
 
+  }
+
+  public TeamDetail getTeam(String email, int id) {
+    var team = teamRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Team not found"));
+
+    var teamDTO = modelMapper.map(team, TeamDetail.class);
+    teamDTO.setCurrentParticipant(team.getMembers().size());
+
+    String status;
+    if(team.getCreator().getEmail().equals(email)){
+      status = "CREATOR";
+    }
+    else if(team.getMembers().stream().anyMatch(user -> user.getEmail().equals(email))){
+      status = "MEMBER";
+    }
+    else if(
+        joinTeamRequestRepository.existsByTeamIdAndUserEmailAndStatusEquals(id,email,RequestStatus.PENDING)
+    ){
+      status = "PENDING";
+    }
+    else {
+      status = "NONE";
+    }
+    teamDTO.setStatus(status);
+
+    return teamDTO;
   }
 }
