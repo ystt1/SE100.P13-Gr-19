@@ -6,6 +6,9 @@ import lombok.Data;
 
 @Data
 public class JoinRequestDTO {
+
+  private Integer id;
+
   private Integer teamId;
 
   private TeamResponseDTO team;

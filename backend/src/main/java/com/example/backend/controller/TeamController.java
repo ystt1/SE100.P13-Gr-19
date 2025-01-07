@@ -1,7 +1,10 @@
 package com.example.backend.controller;
 
+import com.example.backend.DTO.Team.ChangeStatusDTO;
 import com.example.backend.DTO.Team.CreateTeamRequestDTO;
+import com.example.backend.DTO.Team.JoinRequestDTO;
 import com.example.backend.DTO.Team.ListJoinRequestDTO;
+import com.example.backend.DTO.Team.ListMemberDTO;
 import com.example.backend.DTO.Team.ListTeamResponseDTO;
 import com.example.backend.DTO.Team.TeamResponseDTO;
 import com.example.backend.service.TeamService;
@@ -9,6 +12,7 @@ import java.security.Principal;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -78,4 +82,13 @@ public class TeamController {
     return ResponseEntity.status(200).body(teamService.getJoinRequests(principal.getName(), id, sortElement, direction, status, page, limit));
   }
 
+  @PatchMapping("/join-request/{id}")
+  public ResponseEntity<JoinRequestDTO> changeJoinRequestStatus(Principal principal, @PathVariable int id, @RequestBody ChangeStatusDTO statusDTO) {
+    return ResponseEntity.status(200).body(teamService.changeJoinRequestStatus(principal.getName(), id, statusDTO.getStatus()));
+  }
+
+  @GetMapping("/{id}/members")
+  public ResponseEntity<ListMemberDTO> getMembers(@PathVariable int id) {
+    return ResponseEntity.status(200).body(teamService.getMembers(id));
+  }
 }
