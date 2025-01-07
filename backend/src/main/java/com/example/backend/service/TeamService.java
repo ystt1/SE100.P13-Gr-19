@@ -3,17 +3,20 @@ package com.example.backend.service;
 import com.example.backend.DTO.Team.CreateTeamRequestDTO;
 import com.example.backend.DTO.Team.JoinRequestDTO;
 import com.example.backend.DTO.Team.ListJoinRequestDTO;
+import com.example.backend.DTO.Team.ListMemberDTO;
 import com.example.backend.DTO.Team.ListTeamResponseDTO;
 import com.example.backend.DTO.Team.TeamResponseDTO;
 import com.example.backend.DTO.User.UserResponseDTO;
 import com.example.backend.entity.JoinTeamRequest;
 import com.example.backend.entity.RequestStatus;
 import com.example.backend.entity.Team;
+import com.example.backend.entity.User;
 import com.example.backend.exception.ConflictException;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.JoinTeamRequestRepository;
 import com.example.backend.repository.TeamRepository;
 import com.example.backend.repository.UserRepository;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -182,4 +185,87 @@ public class TeamService {
         .currentPage(page)
         .build();
   }
+
+  public JoinRequestDTO changeJoinRequestStatus(String email, int id, String status) {
+    var joinRequest = joinTeamRequestRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Join request not found"));
+
+    var team = joinRequest.getTeam();
+    if (!team.getCreator().getEmail().equals(email)) {
+      throw new ConflictException("You are not allowed to change the status of this join request");
+    }
+
+    RequestStatus requestStatus = Enum.valueOf(RequestStatus.class, status);
+    joinRequest.setStatus(requestStatus);
+    joinTeamRequestRepository.save(joinRequest);
+
+    if(requestStatus == RequestStatus.ACCEPTED){
+      addMemberToTeam(team, joinRequest.getUser());
+    }
+
+    return modelMapper.map(joinRequest, JoinRequestDTO.class);
+  }
+
+  public void addMemberToTeam(Team team, User user) {
+
+    if(team.getMembers() == null){
+      team.setMembers(new ArrayList<>());
+    }
+
+    if(team.getMembers().size() >= team.getMaxParticipant()){
+      throw new ConflictException("Team is full");
+    }
+
+    if(team.getMembers().contains(user)){
+      throw new ConflictException("User is already in the team");
+    }
+
+    team.getMembers().add(user);
+    teamRepository.save(team);
+  }
+
+  public ListMemberDTO getMembers(int id) {
+    var team = teamRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Team not found"));
+
+    var members = team.getMembers().stream().map(user -> modelMapper.map(user, UserResponseDTO.class)).toList();
+
+    return ListMemberDTO.builder()
+        .members(members)
+        .totalElements(members.size())
+        .totalPages(1)
+        .currentPage(1)
+        .build();
+  }
+
+  public void removeMember(String name, int id, int memberId) {
+    var team = teamRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Team not found"));
+    var user = userRepository.findById(memberId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+    if(!team.getCreator().getEmail().equals(name)){
+      throw new ConflictException("You are not allowed to remove member from this team");
+    }
+
+    if(!team.getMembers().contains(user)){
+      throw new ConflictException("User is not in the team");
+    }
+
+    team.getMembers().remove(user);
+    teamRepository.save(team);
+  }
+
+
+  public void leaveTeam(String email, int id) {
+    Team team = teamRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Team not found"));
+    var user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+    if(!team.getMembers().contains(user))
+    {
+      throw new ConflictException("You are not in the team");
+    }
+
+    team.getMembers().remove(user);
+    teamRepository.save(team);
+  }
+
+  
 }
