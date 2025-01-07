@@ -1,6 +1,7 @@
 package com.example.backend.repository;
 
 import com.example.backend.entity.Team;
+import com.example.backend.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,5 +24,12 @@ public interface TeamRepository extends JpaRepository<Team, Integer> {
 
   @Query("SELECT t FROM Team t JOIN t.members m WHERE m.email = :email AND t.name LIKE %:search%")
   Page<Team> findJoinedTeamsByEmail(@Param("email") String email, @Param("search") String search, Pageable pageable);
+
+  @Query("SELECT u FROM User u JOIN u.joinedTeams t WHERE t.id = :teamId " +
+      "AND (:name IS NULL OR :name = '' OR u.name LIKE %:name%)")
+  Page<User> findMembersByTeamIdWithSearchName(@Param("teamId") int teamId, @Param("name") String name, Pageable pageable);
+
+  @Query("SELECT m FROM Team t JOIN t.members m WHERE t.id = :teamId AND (:name IS NULL OR :name = '' OR m.name LIKE %:name%)")
+  Page<User> findMembersByTeamId(@Param("teamId") int teamId,@Param("name") String name ,Pageable pageable);
 
 }

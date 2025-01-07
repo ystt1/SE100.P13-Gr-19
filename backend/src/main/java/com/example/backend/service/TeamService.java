@@ -235,6 +235,13 @@ public class TeamService {
 
     if(team.getMembers() == null){
       team.setMembers(new ArrayList<>());
+      if(user.getJoinedTeams() != null){
+        user.getJoinedTeams().add(team);
+      }
+      else {
+        user.setJoinedTeams(new ArrayList<>());
+        user.getJoinedTeams().add(team);
+      }
     }
 
     if(team.getMembers().size() >= team.getMaxParticipant()){
@@ -253,11 +260,11 @@ public class TeamService {
     Sort sort = Sort.by(Sort.Direction.fromString(direction), sortElement);
     Pageable pageable = PageRequest.of(page - 1, limit, sort);
 
-    var member = userRepository.findByJoinedTeamsIdAndEmailContainingIgnoreCase(id, search, pageable);
+    var member = teamRepository.findMembersByTeamId(id, search, pageable);
 
     var resultMembersDTO = member.stream().map(user ->{
       var dto = modelMapper.map(user, UserResponseWithScoreDTO.class);
-      dto.setScore(resultRepository.getTotalScoreByTeamIdAndUserId(id, user.getId()));
+      dto.setScore(resultRepository.getTotalScoreByTeamIdAndUserId(id,user.getId()));
       return dto;
     }).toList();
 
@@ -333,10 +340,6 @@ public class TeamService {
 
   public List<QuizSetResponseDTO> getQuizSet(String email, int id) {
     var team = teamRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Team not found"));
-
-    if(!team.getCreator().getEmail().equals(email)){
-      throw new ForbiddenException("You are not allowed to view quiz set of this team");
-    }
 
      return team.getTeamQuizSetDetails().stream().map(teamQuizSetDetail -> modelMapper.map(teamQuizSetDetail.getQuizSet(), QuizSetResponseDTO.class)).toList();
 

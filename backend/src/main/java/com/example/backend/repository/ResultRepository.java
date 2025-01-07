@@ -28,6 +28,6 @@ public interface ResultRepository extends JpaRepository<Result, Integer> {
 
     Page<Result> findByQuizSetIdAndTeamId(int quizSetId,int teamId, Pageable pageable);
 
-    @Query("SELECT sum(r.numberCorrect) FROM Result r WHERE r.user.id = :userId AND r.team.id = :teamId")
+    @Query("SELECT COALESCE(sum(r.numberCorrect), 0) FROM Result r WHERE r.user.id = :userId AND r.team.id = :teamId")
     int getTotalScoreByTeamIdAndUserId(@Param("teamId") int teamId,@Param("userId") int userId);
 }
