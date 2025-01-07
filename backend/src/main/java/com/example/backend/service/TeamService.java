@@ -1,5 +1,7 @@
 package com.example.backend.service;
 
+import com.example.backend.DTO.Practice.ListSmallPracticeResultDTO;
+import com.example.backend.DTO.Practice.SmallPracticeResultDTO;
 import com.example.backend.DTO.QuizSet.ListQuizSetDTO;
 import com.example.backend.DTO.QuizSet.QuizSetResponseDTO;
 import com.example.backend.DTO.Team.AddQuizSetDTO;
@@ -12,6 +14,7 @@ import com.example.backend.DTO.Team.TeamResponseDTO;
 import com.example.backend.DTO.User.UserResponseDTO;
 import com.example.backend.entity.JoinTeamRequest;
 import com.example.backend.entity.RequestStatus;
+import com.example.backend.entity.Result;
 import com.example.backend.entity.Team;
 import com.example.backend.entity.TeamQuizSetDetail;
 import com.example.backend.entity.User;
@@ -20,6 +23,7 @@ import com.example.backend.exception.ForbiddenException;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.JoinTeamRequestRepository;
 import com.example.backend.repository.QuizSetRepository;
+import com.example.backend.repository.ResultRepository;
 import com.example.backend.repository.TeamQuizSetDetailRepository;
 import com.example.backend.repository.TeamRepository;
 import com.example.backend.repository.UserRepository;
@@ -45,6 +49,7 @@ public class TeamService {
   private final JoinTeamRequestRepository joinTeamRequestRepository;
   private final QuizSetRepository quizSetRepository;
   private final TeamQuizSetDetailRepository teamQuizSetDetailRepository;
+  private final ResultRepository resultRepository;
 
 
   public TeamResponseDTO createTeam(String name, CreateTeamRequestDTO createTeamRequestDTO) {
@@ -62,6 +67,7 @@ public class TeamService {
 
     var result = modelMapper.map(teamRepository.save(team), TeamResponseDTO.class);
     result.setCreatorUser(modelMapper.map(team.getCreator(), UserResponseDTO.class));
+    result.setCurrentParticipant(0);
 
     return result;
   }
@@ -85,6 +91,7 @@ public class TeamService {
           teamDTO.setName(team.getName());
           teamDTO.setMaxParticipant(team.getMaxParticipant());
           teamDTO.setCreatorUser(modelMapper.map(team.getCreator(), UserResponseDTO.class));
+          teamDTO.setCurrentParticipant(team.getMembers().size());
           return teamDTO;})
         .collect(Collectors.toList());
 
@@ -116,6 +123,7 @@ public class TeamService {
           teamDTO.setName(team.getName());
           teamDTO.setMaxParticipant(team.getMaxParticipant());
           teamDTO.setCreatorUser(modelMapper.map(team.getCreator(), UserResponseDTO.class));
+          teamDTO.setCurrentParticipant(team.getMembers().size());
           return teamDTO;})
         .collect(Collectors.toList());
 
@@ -141,6 +149,7 @@ public class TeamService {
           teamDTO.setName(team.getName());
           teamDTO.setMaxParticipant(team.getMaxParticipant());
           teamDTO.setCreatorUser(modelMapper.map(team.getCreator(), UserResponseDTO.class));
+          teamDTO.setCurrentParticipant(team.getMembers().size());
           return teamDTO;
         })
         .collect(Collectors.toList());
@@ -297,9 +306,9 @@ public class TeamService {
     teamQuizSetDetailRepository.save(teamQuizSetDetail);
   }
 
-  public void deleteQuizSet(String email, int id, AddQuizSetDTO addQuizSetDTO) {
+  public void deleteQuizSet(String email, int id, int quizSetId) {
     var team = teamRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Team not found"));
-    var quizSet = quizSetRepository.findById(addQuizSetDTO.getQuizSetId()).orElseThrow(() -> new ResourceNotFoundException("Quiz set not found"));
+    var quizSet = quizSetRepository.findById(quizSetId).orElseThrow(() -> new ResourceNotFoundException("Quiz set not found"));
 
     if(!team.getCreator().getEmail().equals(email)){
       throw new ConflictException("You are not allowed to add quiz set to this team");
@@ -319,6 +328,43 @@ public class TeamService {
     }
 
      return team.getTeamQuizSetDetails().stream().map(teamQuizSetDetail -> modelMapper.map(teamQuizSetDetail.getQuizSet(), QuizSetResponseDTO.class)).toList();
+
+  }
+
+  public void deleteTeam(String name, int id) {
+    var team = teamRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Team not found"));
+
+    if(!team.getCreator().getEmail().equals(name)){
+      throw new ForbiddenException("You are not allowed to delete this team");
+    }
+
+    teamRepository.delete(team);
+
+  }
+
+  public ListSmallPracticeResultDTO getAllPracticeResults(String email, int id, int quizSetId, String sortElement, String direction, String search,
+      int page, int limit) {
+
+    Sort sort = Sort.by(Sort.Direction.fromString(direction), sortElement);
+    Pageable pageable = PageRequest.of(page - 1, limit, sort);
+
+    Page<Result> resultsPage;
+
+    if (search != null && !search.isEmpty()) {
+      resultsPage = resultRepository.findByQuizSetIdAndTeamIdAndUserEmailContainingIgnoreCase(quizSetId,id, search, pageable);
+    } else {
+      resultsPage = resultRepository.findByQuizSetIdAndTeamId(quizSetId,id, pageable);
+    }
+
+    List<SmallPracticeResultDTO> results = resultsPage.stream()
+        .map(result -> modelMapper.map(result, SmallPracticeResultDTO.class))
+        .toList();
+
+    return ListSmallPracticeResultDTO.builder()
+        .results(results)
+        .totalPages(resultsPage.getTotalPages())
+        .totalElements((int) resultsPage.getTotalElements())
+        .build();
 
   }
 }

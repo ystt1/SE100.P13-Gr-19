@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PracticeRequestDTO {
 
+  private Integer teamId;
+
   private Integer time;
 
   private List<Answer> listAnswer;

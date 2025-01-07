@@ -1,5 +1,6 @@
 package com.example.backend.controller;
 
+import com.example.backend.DTO.Practice.ListSmallPracticeResultDTO;
 import com.example.backend.DTO.QuizSet.ListQuizSetDTO;
 import com.example.backend.DTO.QuizSet.QuizSetResponseDTO;
 import com.example.backend.DTO.Team.AddQuizSetDTO;
@@ -45,6 +46,12 @@ public class TeamController {
       @RequestParam(defaultValue = "1") int page,
       @RequestParam(defaultValue = "10") int limit) {
     return ResponseEntity.status(200).body(teamService.getAllOfAllUser(sortElement, direction, search, page, limit));
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<String> deleteTeam(Principal principal, @PathVariable int id) {
+    teamService.deleteTeam(principal.getName(), id);
+    return ResponseEntity.status(200).body("Team deleted");
   }
 
   @GetMapping("/my-teams")
@@ -103,7 +110,7 @@ public class TeamController {
     return ResponseEntity.status(200).body("Member removed");
   }
 
-  @DeleteMapping("/{id}")
+  @DeleteMapping("/{id}/leave")
   public ResponseEntity<String> leaveTeam(Principal principal, @PathVariable int id) {
     teamService.leaveTeam(principal.getName(), id);
     return ResponseEntity.status(200).body("Leave team successfully");
@@ -118,5 +125,24 @@ public class TeamController {
   @GetMapping("/{id}/quiz-set")
   public ResponseEntity<List<QuizSetResponseDTO>> getQuizSet(Principal principal, @PathVariable int id) {
     return ResponseEntity.status(200).body(teamService.getQuizSet(principal.getName(), id));
+  }
+
+  @DeleteMapping("/{id}/quiz-set/{quizSetId}")
+  public ResponseEntity<String> removeQuizSet(Principal principal, @PathVariable int id, @PathVariable int quizSetId) {
+    teamService.deleteQuizSet(principal.getName(), id, quizSetId);
+    return ResponseEntity.status(200).body("Quiz set removed");
+  }
+
+  @GetMapping("/{id}/quiz-set/{quizSetId}/practice")
+  public ResponseEntity<ListSmallPracticeResultDTO> getAllPracticeResults(Principal principal,
+      @PathVariable int id,
+      @PathVariable int quizSetId,
+      @RequestParam(defaultValue = "createdAt") String sortElement,
+      @RequestParam(defaultValue = "asc") String direction,
+      @RequestParam(required = false) String search,
+      @RequestParam(defaultValue = "1") int page,
+      @RequestParam(defaultValue = "10") int limit) {
+    var results = teamService.getAllPracticeResults(principal.getName(), id,quizSetId,sortElement, direction, search, page, limit);
+    return ResponseEntity.ok(results);
   }
 }

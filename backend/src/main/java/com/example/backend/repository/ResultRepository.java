@@ -13,8 +13,6 @@ import java.util.List;
 
 @Repository
 public interface ResultRepository extends JpaRepository<Result, Integer> {
-    List<Result> findByUserId(int userId);
-
     @Query("SELECT COUNT(r) FROM Result r WHERE r.quizSet.id = :quizSetId")
     long countAttemptsByQuizSetId(@Param("quizSetId") int quizSetId);
 
@@ -25,4 +23,8 @@ public interface ResultRepository extends JpaRepository<Result, Integer> {
 
     @Query("SELECT DISTINCT r.quizSet FROM Result r WHERE r.user.email = :email ORDER BY r.quizSet.createdTime DESC")
     List<QuizSet> findDistinctQuizSetByUserEmail(@Param("email") String email, Pageable pageable);
+
+    Page<Result> findByQuizSetIdAndTeamIdAndUserEmailContainingIgnoreCase(int quizSetId, int teamId, String email, Pageable pageable);
+
+    Page<Result> findByQuizSetIdAndTeamId(int quizSetId,int teamId, Pageable pageable);
 }
