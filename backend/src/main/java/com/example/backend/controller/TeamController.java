@@ -1,5 +1,8 @@
 package com.example.backend.controller;
 
+import com.example.backend.DTO.QuizSet.ListQuizSetDTO;
+import com.example.backend.DTO.QuizSet.QuizSetResponseDTO;
+import com.example.backend.DTO.Team.AddQuizSetDTO;
 import com.example.backend.DTO.Team.ChangeStatusDTO;
 import com.example.backend.DTO.Team.CreateTeamRequestDTO;
 import com.example.backend.DTO.Team.JoinRequestDTO;
@@ -9,6 +12,7 @@ import com.example.backend.DTO.Team.ListTeamResponseDTO;
 import com.example.backend.DTO.Team.TeamResponseDTO;
 import com.example.backend.service.TeamService;
 import java.security.Principal;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -103,5 +107,16 @@ public class TeamController {
   public ResponseEntity<String> leaveTeam(Principal principal, @PathVariable int id) {
     teamService.leaveTeam(principal.getName(), id);
     return ResponseEntity.status(200).body("Leave team successfully");
+  }
+
+  @PostMapping("/{id}/quiz-set")
+  public ResponseEntity<String> addQuizSet(Principal principal, @PathVariable int id, @RequestBody AddQuizSetDTO addQuizSetDTO) {
+    teamService.addQuizSet(principal.getName(), id, addQuizSetDTO);
+    return ResponseEntity.status(200).body("Quiz set added");
+  }
+
+  @GetMapping("/{id}/quiz-set")
+  public ResponseEntity<List<QuizSetResponseDTO>> getQuizSet(Principal principal, @PathVariable int id) {
+    return ResponseEntity.status(200).body(teamService.getQuizSet(principal.getName(), id));
   }
 }

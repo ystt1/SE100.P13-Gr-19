@@ -30,7 +30,6 @@ public class TeamQuizSetDetail {
   @JoinColumn(name = "quiz_set_id")
   private QuizSet quizSet;
 
-  private LocalDateTime createdAt;
   private LocalDateTime startTime;
   private LocalDateTime endTime;
 }
