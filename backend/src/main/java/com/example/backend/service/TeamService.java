@@ -236,4 +236,36 @@ public class TeamService {
         .currentPage(1)
         .build();
   }
+
+  public void removeMember(String name, int id, int memberId) {
+    var team = teamRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Team not found"));
+    var user = userRepository.findById(memberId).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+    if(!team.getCreator().getEmail().equals(name)){
+      throw new ConflictException("You are not allowed to remove member from this team");
+    }
+
+    if(!team.getMembers().contains(user)){
+      throw new ConflictException("User is not in the team");
+    }
+
+    team.getMembers().remove(user);
+    teamRepository.save(team);
+  }
+
+
+  public void leaveTeam(String email, int id) {
+    Team team = teamRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Team not found"));
+    var user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+    if(!team.getMembers().contains(user))
+    {
+      throw new ConflictException("You are not in the team");
+    }
+
+    team.getMembers().remove(user);
+    teamRepository.save(team);
+  }
+
+  
 }

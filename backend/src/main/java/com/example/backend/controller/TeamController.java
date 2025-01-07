@@ -11,6 +11,7 @@ import com.example.backend.service.TeamService;
 import java.security.Principal;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -90,5 +91,17 @@ public class TeamController {
   @GetMapping("/{id}/members")
   public ResponseEntity<ListMemberDTO> getMembers(@PathVariable int id) {
     return ResponseEntity.status(200).body(teamService.getMembers(id));
+  }
+
+  @DeleteMapping("/{id}/members/{memberId}")
+  public ResponseEntity<String> removeMember(Principal principal,@PathVariable int id, @PathVariable int memberId) {
+    teamService.removeMember(principal.getName(),id, memberId);
+    return ResponseEntity.status(200).body("Member removed");
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<String> leaveTeam(Principal principal, @PathVariable int id) {
+    teamService.leaveTeam(principal.getName(), id);
+    return ResponseEntity.status(200).body("Leave team successfully");
   }
 }
