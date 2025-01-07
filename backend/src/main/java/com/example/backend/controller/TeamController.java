@@ -100,8 +100,14 @@ public class TeamController {
   }
 
   @GetMapping("/{id}/members")
-  public ResponseEntity<ListMemberDTO> getMembers(@PathVariable int id) {
-    return ResponseEntity.status(200).body(teamService.getMembers(id));
+  public ResponseEntity<ListMemberDTO> getMembers(
+      @PathVariable int id,
+      @RequestParam(defaultValue = "id") String sortElement,
+      @RequestParam(defaultValue = "asc") String direction,
+      @RequestParam(defaultValue = "") String search,
+      @RequestParam(defaultValue = "1") int page,
+      @RequestParam(defaultValue = "10") int limit) {
+    return ResponseEntity.status(200).body(teamService.getMembers(id, sortElement, direction, search, page, limit));
   }
 
   @DeleteMapping("/{id}/members/{memberId}")

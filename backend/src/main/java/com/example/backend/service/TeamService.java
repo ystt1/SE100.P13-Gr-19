@@ -245,15 +245,18 @@ public class TeamService {
     teamRepository.save(team);
   }
 
-  public ListMemberDTO getMembers(int id) {
-    var team = teamRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Team not found"));
+  public ListMemberDTO getMembers(int id, String sortElement, String direction, String search, int page, int limit) {
+    Sort sort = Sort.by(Sort.Direction.fromString(direction), sortElement);
+    Pageable pageable = PageRequest.of(page - 1, limit, sort);
 
-    var members = team.getMembers().stream().map(user -> modelMapper.map(user, UserResponseDTO.class)).toList();
+    var member = userRepository.findByJoinedTeamsIdAndEmailContainingIgnoreCase(id, search, pageable);
+
+    var resultMembersDTO = member.stream().map(user -> modelMapper.map(user, UserResponseDTO.class)).toList();
 
     return ListMemberDTO.builder()
-        .members(members)
-        .totalElements(members.size())
-        .totalPages(1)
+        .members(resultMembersDTO)
+        .totalElements((int)member.getTotalElements())
+        .totalPages(member.getTotalPages())
         .currentPage(1)
         .build();
   }
