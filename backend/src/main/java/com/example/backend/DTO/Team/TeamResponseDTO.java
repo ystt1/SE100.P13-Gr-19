@@ -16,5 +16,6 @@ public class TeamResponseDTO {
     private Integer id;
     private String name;
     private Integer maxParticipant;
+    private Integer currentParticipant;
     private UserResponseDTO creatorUser;
 }
