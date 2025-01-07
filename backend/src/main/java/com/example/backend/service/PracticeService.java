@@ -69,6 +69,12 @@ public class PracticeService {
         result.setCreatedAt(LocalDateTime.now());
         result.setAttemptTime(getAttemptTime + 1);
 
+        if(practiceRequestDTO.getTeamId() != null){
+            var team = new Team();
+            team.setId(practiceRequestDTO.getTeamId());
+            result.setTeam(team);
+        }
+
         //save record for eachquiz
         practiceRequestDTO.getListAnswer().forEach(answer -> {
             var quiz = quizRepository.findById(answer.getId()).orElseThrow(() -> new ResourceNotFoundException("Quiz not found"));
