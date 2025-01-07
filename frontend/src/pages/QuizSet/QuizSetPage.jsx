@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { QuizSetCard } from "./QuizSetCard";
+import { QuizSetCard } from "./QuizsetCard";
 import TabNavigation from "../../components/TabNavigation";
 import AddQuizSetModal from "./AddQuizSetModal";
 import SearchBar from "../../components/SearchBar";
