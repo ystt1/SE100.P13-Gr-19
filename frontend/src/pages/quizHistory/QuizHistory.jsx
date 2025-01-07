@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate,useParams, useLocation } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
 import Pagination from "../topic/component/pagination";
 import HistoryService from "../../data/service/history_service";
@@ -8,8 +8,12 @@ import { FaSortAlphaDown, FaSortAlphaUp } from "react-icons/fa";
 const QuizHistory = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
   const queryParams = new URLSearchParams(location.search);
+
+  // Lấy teamId và quizSetId từ URL (nếu có)
+  const { teamId, quizSetId } = useParams(); 
+
+  // Các state
   const [page, setPage] = useState(Number(queryParams.get("page")) || 1);
   const [limit, setLimit] = useState(Number(queryParams.get("limit")) || 5);
   const [sortElement, setSortElement] = useState(queryParams.get("sortElement") || "createdAt");
@@ -29,13 +33,26 @@ const QuizHistory = () => {
   useEffect(() => {
     const fetchQuizHistory = async () => {
       try {
-        const response = await HistoryService.getAllHistory({
-          page,
-          limit,
-          sortElement,
-          direction,
-        });
-
+        let response;
+        if (teamId && quizSetId) {
+          // Nếu có teamId và quizSetId, gọi API với tham số bổ sung
+          response = await HistoryService.getHistoryByTeamAndQuizSet({
+            teamId,
+            quizSetId,
+            page,
+            limit,
+            sortElement,
+            direction,
+          });
+        } else {
+          // Nếu không có teamId và quizSetId, gọi API mặc định
+          response = await HistoryService.getAllHistory({
+            page,
+            limit,
+            sortElement,
+            direction,
+          });
+        }
         setQuizHistory(response.results);
         setTotalPages(response.totalPages);
       } catch (error) {
@@ -44,7 +61,7 @@ const QuizHistory = () => {
     };
 
     fetchQuizHistory();
-  }, [page, limit, sortElement, direction]);
+  }, [teamId, quizSetId, page, limit, sortElement, direction]);
 
   const updateUrl = () => {
     const params = new URLSearchParams({
@@ -53,10 +70,12 @@ const QuizHistory = () => {
       sortElement,
       direction,
     });
+    if (teamId) params.append("teamId", teamId);
+    if (quizSetId) params.append("quizSetId", quizSetId);
     navigate(`?${params.toString()}`);
   };
 
-  useEffect(updateUrl, [page, limit, sortElement, direction]);
+  useEffect(updateUrl, [page, limit, sortElement, direction, teamId, quizSetId]);
 
   const handleSortChange = (event) => {
     setSortElement(event.target.value);
@@ -70,8 +89,6 @@ const QuizHistory = () => {
     <div className="p-6 bg-gray-50 min-h-screen">
       <Sidebar className="fixed top-0 left-0 w-64 h-full bg-white shadow-md z-50" />
       <div className="ml-64 flex-1 p-6">
-
-        {/* Dropdown Sort Options */}
         <div className="flex items-center gap-4 mb-4">
           <label htmlFor="sort" className="text-lg font-medium text-gray-700">
             Sort by:
@@ -92,11 +109,11 @@ const QuizHistory = () => {
             onClick={toggleDirection}
             className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg"
           >
-           {direction === "asc" ? (
-                             <FaSortAlphaDown className="text-lg" />
-                           ) : (
-                             <FaSortAlphaUp className="text-lg" />
-                           )}
+            {direction === "asc" ? (
+              <FaSortAlphaDown className="text-lg" />
+            ) : (
+              <FaSortAlphaUp className="text-lg" />
+            )}
           </button>
         </div>
 

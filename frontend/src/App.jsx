@@ -55,6 +55,14 @@ function App() {
             }
           />
           <Route
+            path="/team/:teamId/history/:quizSetId"
+            element={
+              <ProtectedRoute>
+                <QuizHistory />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/topic/:id/quizzes"
             element={
               <ProtectedRoute>

@@ -9,7 +9,7 @@ import AddQuizSetModal from "./component/add_quizset_to_team_model";
 import { useNavigate } from "react-router-dom";
 const TeamManagement = () => {
   const { teamId } = useParams();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const { showSnackbar } = useSnackbar();
   const [requests, setRequests] = useState([]);
   const [users, setUsers] = useState([]);
@@ -17,7 +17,7 @@ const TeamManagement = () => {
   const [quizSet, setQuizSet] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-
+  const [role, setRole] = useState("NONE");
   const fetchJoinRequests = async () => {
     try {
       if (!teamId) {
@@ -39,7 +39,7 @@ const TeamManagement = () => {
       }
       const data = await TeamService.GetAllMember(teamId);
       console.log(data);
-      
+
       setUsers(data.data.members || []);
     } catch (error) {
       showSnackbar("Failed to fetch team users", "error");
@@ -58,19 +58,28 @@ const TeamManagement = () => {
       showSnackbar("Failed to fetch quizset", "error");
     }
   };
+  const fetchUserStatus = async () => {
+    const data = await TeamService.getStatusOfUser(teamId);
+    setRole(data.data.status);
+  }
 
   useEffect(() => {
     if (teamId) {
+      fetchUserStatus();
+
+
       fetchTeamUsers();
       fetchJoinRequests();
       fetchTeamQuizSet();
+
+
     }
   }, [teamId]);
 
   const handleAccept = async (request) => {
     try {
-     var response= await TeamService.ChangeRequestStatus(request.id, "ACCEPTED");
-     console.log( "accep"+ response)
+      var response = await TeamService.ChangeRequestStatus(request.id, "ACCEPTED");
+      console.log("accep" + response)
       showSnackbar("Request accepted successfully", "success");
       fetchJoinRequests();
       fetchTeamUsers();
@@ -81,11 +90,13 @@ const TeamManagement = () => {
 
   const handleReject = async (request) => {
     try {
-      await TeamService.ChangeRequestStatus(request.id, "REJECTED");
+      var response = await TeamService.ChangeRequestStatus(request.id, "REJECTED");
+      console.log("accep" + response)
       showSnackbar("Request rejected successfully", "success");
-      setRequests((prev) => prev.filter((r) => r.id !== request.id));
+      fetchJoinRequests();
+      fetchTeamUsers();
     } catch (error) {
-      showSnackbar("Failed to reject request", "error");
+      showSnackbar("Failed to rejected request", "error");
     }
   };
 
@@ -126,7 +137,9 @@ const TeamManagement = () => {
       showSnackbar("Failed to remove teams", "error");
     }
   };
-
+  if (role !== "CREATOR") {
+    return <div>You don't have permision to join this Page</div>
+  }
   return (
     <div className="flex">
       <Sidebar />
@@ -134,19 +147,19 @@ const TeamManagement = () => {
         <h1 className="text-3xl font-bold mb-6">Manage Team: {teamId}</h1>
 
         <div className="flex justify-between items-center mb-6">
-        <div className="absolute top-4 right-4 z-10">
-  <button
-    onClick={handleToggleNotification}
-    className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-lg focus:outline-none shadow-md"
-  >
-    <FaBell className="mr-2" />
-    {requests.length > 0 && (
-      <span className="bg-red-500 text-white rounded-full px-2 py-1 text-xs">
-        {requests.length}
-      </span>
-    )}
-  </button>
-</div>
+          <div className="absolute top-4 right-4 z-10">
+            <button
+              onClick={handleToggleNotification}
+              className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-lg focus:outline-none shadow-md"
+            >
+              <FaBell className="mr-2" />
+              {requests.length > 0 && (
+                <span className="bg-red-500 text-white rounded-full px-2 py-1 text-xs">
+                  {requests.length}
+                </span>
+              )}
+            </button>
+          </div>
 
           <button
             onClick={() => setShowDeleteConfirm(true)}
@@ -241,6 +254,12 @@ const TeamManagement = () => {
                 canDelete={true}
                 onDelete={() => handleRemoveQuizSet(quiz.id)}
                 isTeam={true}
+                onClick={() => {
+                  console.log(teamId);
+                  console.log(quiz);
+                  // navigate(
+                  //   `/team/${teamId}/history/${quiz.id}`)
+                }}
               />
             ))}
           </div>

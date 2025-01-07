@@ -158,6 +158,24 @@ const TeamService = {
       throw error;
     }
   },
+  leaveTeam:async(idTeam)=>{
+    try {
+      const response = await axiosInstance.delete(`/team/${idTeam}/leave`);
+      return response
+    } catch (error) {
+      console.error("Error remove quizSet:", error);
+      throw error;
+    }
+  },
+  getStatusOfUser:async(idTeam)=>{
+    try {
+      const response = await axiosInstance.get(`/team/${idTeam}`);
+      return response
+    } catch (error) {
+      console.error("Error remove quizSet:", error);
+      throw error;
+    }
+  }
 }
 
 export default TeamService;

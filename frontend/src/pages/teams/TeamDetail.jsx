@@ -13,7 +13,9 @@ const TeamDetail = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [startQuiz, setStartQuiz] = useState(false);
   const [selectedQuiz,setSelectedQuiz]=useState(false)
+  const [role,setRole]=useState("NONE");
   useEffect(() => {
+    fetchUserStatus();
     fetchTeamQuizSet();
     fetchTeamUsers();
   }, [teamId]);
@@ -31,6 +33,11 @@ const TeamDetail = () => {
     }
   };
 
+  const fetchUserStatus=async()=>{
+    const data = await TeamService.getStatusOfUser(teamId);
+    setRole(data.data.status);
+  }
+
   const fetchTeamQuizSet = async () => {
     try {
       const data = await TeamService.getAllQuizSet(teamId);
@@ -46,10 +53,16 @@ const TeamDetail = () => {
     setStartQuiz(true);
   };
 
-  const handleLeaveTeam = () => {
-    showSnackbar("You have left the team", "success");
-    navigate("/teams");
+  const handleLeaveTeam = async () => {
+    try {
+      const response = await TeamService.leaveTeam(teamId);
+      showSnackbar(response.data);
+      navigate("/teams")
+    } catch (error) {
+      showSnackbar("Failed to remove teams", "error");
+    }
   };
+
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
@@ -59,19 +72,35 @@ const TeamDetail = () => {
     setStartQuiz(false);
   }
 
+
+  if(role!=="MEMBER" && role!=="CREATOR")
+  {
+    return <div>You don't have permision to join this Page</div>
+  }
   return (
     <div className="p-4">
       {!startQuiz ? (<div className="flex">
-
+          <h2></h2>
         <Sidebar />
         <div className="flex-1 ml-64 p-6">
           <div className="flex justify-end">
-            <button
+
+          {role === "CREATOR" && (
+                <button
+                  className="px-4 py-2 bg-blue-500 text-white rounded"
+                  onClick={() => navigate(`/teams/${teamId}/manage`)}
+                >
+                  Quản lý
+                </button>
+              )}
+              {role!=="CREATOR" && (
+                <button
               className="px-4 py-2 bg-red-500 text-white rounded"
               onClick={handleLeaveTeam}
             >
               Leave Team
             </button>
+              )}
           </div>
 
           {/* Danh sách Quizsets */}

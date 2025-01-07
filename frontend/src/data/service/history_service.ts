@@ -35,6 +35,19 @@ const HistoryService = {
       throw error;
     }
   },
+  getHistoryByTeamAndQuizSet: async ({teamId,
+    quizSetId, page, limit, sortElement, direction }) => {
+    try {
+      const response = await axiosInstance.get(
+        `/team/${teamId}/quiz-set/${quizSetId}/practice?page=${page}&limit=${limit}&sortElement=${sortElement}&direction=${direction}`
+      );
+  
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching history:", error);
+      throw error;
+    }
+  },
 }
 
 export default HistoryService;
