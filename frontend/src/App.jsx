@@ -20,6 +20,8 @@ import QuizHistory from "./pages/quizHistory/QuizHistory";
 import Profile from "./pages/Profile/quizProfile";
 import Complete from "./pages/dash_board/commponent/complete";
 import HistoryDetail from "./pages/quizHistory/QuizDetail";
+import TeamDetail from "./pages/teams/TeamDetail";
+import TeamManagement from "./pages/teams/TeamManagement";
 function App() {
   return (
 
@@ -153,7 +155,22 @@ function App() {
               </ProtectedRoute>
             }
           />
-
+ <Route
+            path="/teams/:id/detail"
+            element={
+              <ProtectedRoute>
+                <TeamDetail />
+              </ProtectedRoute>
+            }
+          />
+           <Route
+            path="/teams/:teamId/manage"
+            element={
+              <ProtectedRoute>
+                <TeamManagement />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/complete" element={<Complete />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -21,7 +21,9 @@ const TeamsPage = () => {
   const currentTab = searchParams.get("tab") || "all"; // Default tab is "all"
   const currentPage = parseInt(searchParams.get("page") || "1", 10); // Default page is 1
   const itemsPerPage = 6;
-
+  const [selectedTeam, setSelectedTeam] = useState(null);
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  
   const fetchTeams = async () => {
     try {
       let data;
@@ -71,20 +73,40 @@ const TeamsPage = () => {
     }
   };
 
+  const handleTeamClick = (team) => {
+
+    if (currentTab === "all") {
+
+      setSelectedTeam(team);
+      setShowInfoModal(true);
+    } else if(currentTab==="my-team")  {
+    
+      navigate(`/teams/${team.id}/manage`);
+    }
+    else{
+      navigate(`/teams/${team.id}/detail`);
+    }
+  };
+
+
+
+  const sendJoinRequest = async (teamId) => {
+    try {
+      const response = await TeamService.sendJoinRequest(teamId);
+      if (response.status === 200) {
+        showSnackbar(response.data);
+      } else {
+        showSnackbar( "error");
+      }
+    } catch (error) {
+      console.error("Error sending join request:", error);
+      showSnackbar("Failed to send join request", "error");
+    } finally {
+      setShowInfoModal(false); // Close the modal after sending request
+    }
+  };
   
 
-
-  const handleTeamClick = (team) => {
-    console.log(team);
-    
-    // if (team.status === 1) {
-    //   // My Team
-    //   navigate(`/teams/${team.id}/detail`);
-    // } else if (team.status === 0) {
-    //   // Managed Team
-    //   navigate(`/teams/${team.id}/manage`);
-    // }
-  };
   return (
     <div className="flex">
       <Sidebar />
@@ -192,6 +214,37 @@ const TeamsPage = () => {
             </div>
           </div>
         )}
+
+{showInfoModal && selectedTeam && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div className="bg-white p-6 rounded shadow-md w-1/3">
+      <h2 className="text-xl font-bold mb-4">{selectedTeam.name}</h2>
+      <p className="mb-2">
+        <strong>Owner:</strong> {selectedTeam.creatorUser.name}
+      </p>
+      <p className="mb-2">
+        <strong>Members:</strong> {selectedTeam.members}/{selectedTeam.maxParticipant}
+      </p>
+      <p className="mb-4">
+        <strong>Description:</strong> {selectedTeam.description || "No description available"}
+      </p>
+      <div className="flex justify-end space-x-4">
+        <button
+          className="px-4 py-2 bg-gray-300 rounded"
+          onClick={() => setShowInfoModal(false)}
+        >
+          Close
+        </button>
+        <button
+          className="px-4 py-2 bg-blue-500 text-white rounded"
+          onClick={() => sendJoinRequest(selectedTeam.id)}
+        >
+          Send Join Request
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       </div>
     </div>
   );
