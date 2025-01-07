@@ -16,6 +16,7 @@ import com.example.backend.entity.Team;
 import com.example.backend.entity.TeamQuizSetDetail;
 import com.example.backend.entity.User;
 import com.example.backend.exception.ConflictException;
+import com.example.backend.exception.ForbiddenException;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.JoinTeamRequestRepository;
 import com.example.backend.repository.QuizSetRepository;
@@ -290,12 +291,32 @@ public class TeamService {
     var teamQuizSetDetail = new TeamQuizSetDetail();
     teamQuizSetDetail.setTeam(team);
     teamQuizSetDetail.setQuizSet(quizSet);
+    teamQuizSetDetail.setStartTime(addQuizSetDTO.getStartTime());
+    teamQuizSetDetail.setEndTime(addQuizSetDTO.getEndTime());
 
     teamQuizSetDetailRepository.save(teamQuizSetDetail);
   }
 
-  public List<QuizSetResponseDTO> getQuizSet(String name, int id) {
+  public void deleteQuizSet(String email, int id, AddQuizSetDTO addQuizSetDTO) {
     var team = teamRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Team not found"));
+    var quizSet = quizSetRepository.findById(addQuizSetDTO.getQuizSetId()).orElseThrow(() -> new ResourceNotFoundException("Quiz set not found"));
+
+    if(!team.getCreator().getEmail().equals(email)){
+      throw new ConflictException("You are not allowed to add quiz set to this team");
+    }
+
+    var teamQuizSetDetail = teamQuizSetDetailRepository.findByTeamAndQuizSet(team, quizSet)
+        .orElseThrow(() -> new ResourceNotFoundException("TeamQuizSetDetail not found"));
+
+    teamQuizSetDetailRepository.delete(teamQuizSetDetail);
+  }
+
+  public List<QuizSetResponseDTO> getQuizSet(String email, int id) {
+    var team = teamRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Team not found"));
+
+    if(!team.getCreator().getEmail().equals(email)){
+      throw new ForbiddenException("You are not allowed to view quiz set of this team");
+    }
 
      return team.getTeamQuizSetDetails().stream().map(teamQuizSetDetail -> modelMapper.map(teamQuizSetDetail.getQuizSet(), QuizSetResponseDTO.class)).toList();
 
