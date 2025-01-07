@@ -2,19 +2,24 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
 import HistoryService from "../../data/service/history_service";
-
+import QuizSetService from "../../data/service/quiz_set_service";
+import QuizsetDetail from "../QuizSet/QuizsetDetail";
 const QuizDetails = () => {
   const { id } = useParams(); // Lấy id từ URL
   const [quizDetails, setQuizDetails] = useState(null);
-
+  const [quizSetDetails,setQuizSetDetails]=useState(null);
+  const [allowShow,setAllowShow]=useState(false);
   // Lấy chi tiết bài kiểm tra từ API
   useEffect(() => {
     const fetchQuizDetails = async () => {
       try {
         const response = await HistoryService.getDetail(id);
-   
+        const response2=await QuizSetService.getQuizSetDetail(id);
+        console.log(response);
         
+        setAllowShow(response2.data.allowShowAnswer)
         setQuizDetails(response);
+        setQuizSetDetails(response2.data);
       } catch (error) {
         console.error("Error fetching quiz details:", error);
       }
@@ -125,7 +130,7 @@ const QuizDetails = () => {
 
       {/* Main Content */}
       <div className="ml-64 flex-1 p-6 bg-gray-50 min-h-screen">
-        <h1 className="text-3xl font-bold mb-4">Quiz Details</h1>
+        <h1 className="text-3xl font-bold mb-4">{quizSetDetails.name||"UnKnown"}</h1>
 
         {/* Quiz Summary */}
         <div className="bg-white p-6 mb-6 rounded-lg shadow-md">
@@ -137,7 +142,7 @@ const QuizDetails = () => {
             {quizDetails.numberCorrect}/{quizDetails.quizAnswers.length}
           </p>
           <p>
-            <span className="font-medium">Completion Time:</span> {quizDetails.completeTime} seconds
+            <span className="font-medium">Completion Time:</span> {quizDetails.completeTime} / {quizSetDetails.timeLimit} seconds
           </p>
         </div>
 

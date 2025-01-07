@@ -1,106 +1,114 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate,useSearchParams } from "react-router-dom";
 import Sidebar from "../../components/Sidebar";
 import { FaSearch } from "react-icons/fa";
-import TeamService from "../../data/service/team_service";
+
 import { useSnackbar } from "../../components/NotificationBat";
-const Teams = () => { 
-   const { showSnackbar } = useSnackbar();
+import TeamService from "../../data/service/team_service";
+import Pagination from "../topic/component/pagination";
+
+
+const TeamsPage = () => {
+  const navigate = useNavigate();
+  const { showSnackbar } = useSnackbar();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [teams, setTeams] = useState([]);
-  const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [newTeam, setNewTeam] = useState({ name: "", description: "" });
+  const [newTeam, setNewTeam] = useState({ name: "", maxParticipant: 30 });
+  const [totalPages,setTotalPages]=useState(1)
+  const currentTab = searchParams.get("tab") || "all"; // Default tab is "all"
+  const currentPage = parseInt(searchParams.get("page") || "1", 10); // Default page is 1
+  const itemsPerPage = 6;
 
-  useEffect(() => {
-    const fetchTeams = async () => {
-      const mockData = [
-        { id: 1, name: "Team A", owner: "User1", status: 1, members: 5, limit: 10 },
-        { id: 2, name: "Team C", owner: "User1", status: 0, members: 8, limit: 10 },
-        { id: 3, name: "Team D", owner: "User1", status: 2, members: 3, limit: 10 },
-        { id: 4, name: "Team B", owner: "User1", status: 3, members: 7, limit: 10 },
-      ];
-      setTeams(mockData);
-    };
-
-    fetchTeams();
-  }, []);
-
-  const handleCreateTeam = async() => {
-    var response= await TeamService.addTeams({newTeam});
-    if(response=="success")
-    {
-        showSnackbar("Add Team success");
-        setShowModal(false);
-        
+  const fetchTeams = async () => {
+    try {
+      let data;
+      if (currentTab === "all") {
+        data = await TeamService.getAllTeam(currentPage, itemsPerPage, searchQuery);
+      } else if (currentTab === "my-team") {
+        data = await TeamService.getMyTeams(currentPage, itemsPerPage, searchQuery);
+      } else if (currentTab === "joined") {
+        data = await TeamService.getJoinedTeams(currentPage, itemsPerPage, searchQuery);
+      }
+      setTeams(data?.teams || []); // Assuming API returns { teams: [], totalPages: 0 }
+      setTotalPages(data.totalPages)
+    } catch (error) {
+      showSnackbar("Failed to fetch teams", "error");
+      console.error("Error fetching teams:", error);
     }
-    else{
-        alert(response);
-    }
-    
   };
 
-  const filteredTeams = teams.filter(
-    (team) =>
-      (activeTab === "all" || team.status.toString() === activeTab) &&
-      team.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleTabChange = (tab) => {
+    setSearchParams({ tab, page: "1" }); // Reset to page 1 on tab change
+  };
 
+  // Handle page change
+  const handlePageChange = (page) => {
+    setSearchParams({ tab: currentTab, page: page.toString() });
+  };
+
+  // Fetch teams whenever tab, page, or search query changes
+  useEffect(() => {
+    fetchTeams();
+  }, [currentTab, currentPage, searchQuery]);
+
+  const handleCreateTeam = async () => {
+    try {
+      const response = await TeamService.addTeam(newTeam);
+      if (response === "success") {
+        showSnackbar("Team created successfully", "success");
+        setShowModal(false);
+        setNewTeam({ name: "", maxParticipant: 30 });
+        fetchTeams()
+      } else {
+        showSnackbar(response, "error");
+      }
+    } catch (error) {
+      console.error("Error creating team:", error);
+      showSnackbar("Failed to create team", "error");
+    }
+  };
+
+  
+
+
+  const handleTeamClick = (team) => {
+    console.log(team);
+    
+    // if (team.status === 1) {
+    //   // My Team
+    //   navigate(`/teams/${team.id}/detail`);
+    // } else if (team.status === 0) {
+    //   // Managed Team
+    //   navigate(`/teams/${team.id}/manage`);
+    // }
+  };
   return (
     <div className="flex">
       <Sidebar />
       <div className="flex-1 ml-64 p-6">
+        {/* Tabs */}
         <div className="mb-4 flex justify-between items-center">
           <ul className="flex space-x-4">
-            <li>
-              <button
-                className={`px-4 py-2 rounded ${
-                  activeTab === "all" ? "bg-blue-500 text-white" : "bg-gray-200"
-                }`}
-                onClick={() => setActiveTab("all")}
-              >
-                All Teams
-              </button>
-            </li>
-            <li>
-              <button
-                className={`px-4 py-2 rounded ${
-                  activeTab === "1" ? "bg-blue-500 text-white" : "bg-gray-200"
-                }`}
-                onClick={() => setActiveTab("1")}
-              >
-                My Teams
-              </button>
-            </li>
-            <li>
-              <button
-                className={`px-4 py-2 rounded ${
-                  activeTab === "0" ? "bg-blue-500 text-white" : "bg-gray-200"
-                }`}
-                onClick={() => setActiveTab("0")}
-              >
-                Managed Teams
-              </button>
-            </li>
-            <li>
-              <button
-                className={`px-4 py-2 rounded ${
-                  activeTab === "2" ? "bg-blue-500 text-white" : "bg-gray-200"
-                }`}
-                onClick={() => setActiveTab("2")}
-              >
-                Not Joined
-              </button>
-            </li>
-            <li>
-              <button
-                className={`px-4 py-2 rounded ${
-                  activeTab === "3" ? "bg-blue-500 text-white" : "bg-gray-200"
-                }`}
-                onClick={() => setActiveTab("3")}
-              >
-                Pending Response
-              </button>
-            </li>
+            {["all", "my-team", "joined"].map((tab) => (
+              <li key={tab}>
+                <button
+                  className={`px-4 py-2 rounded ${currentTab === tab ? "bg-blue-500 text-white" : "bg-gray-200"
+                    }`}
+                  onClick={() => handleTabChange(tab)}
+                >
+                  {tab === "all"
+                    ? "All Teams"
+                    : tab === "my-team"
+                      ? "My Teams"
+                      : 
+                         "Joined Teams"
+                        }
+                </button>
+              </li>
+            ))}
           </ul>
           <button
             className="px-4 py-2 bg-green-500 text-white rounded"
@@ -110,6 +118,7 @@ const Teams = () => {
           </button>
         </div>
 
+        {/* Search Bar */}
         <div className="mb-4 flex items-center">
           <input
             type="text"
@@ -121,31 +130,27 @@ const Teams = () => {
           <FaSearch className="ml-2 text-gray-500" />
         </div>
 
+        {/* Team List */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredTeams.map((team) => (
-            <div
-              key={team.id}
-              className="p-4 border rounded shadow-md bg-white flex flex-col"
-            >
+          {teams.map((team) => (
+            <div onClick={()=>handleTeamClick(team)} key={team.id} className="p-4 border rounded shadow-md bg-white flex flex-col">
               <h2 className="text-xl font-bold mb-2">{team.name}</h2>
-              <p className="text-sm text-gray-500">Owner: {team.owner}</p>
+              <p className="text-sm text-gray-500">Owner: {team.creatorUser.name}</p>
               <p className="text-sm text-gray-500">
-                Members: {team.members}/{team.limit}
+                Members: {team.members}/{team.maxParticipant}
               </p>
-              {team.status === 2 && (
-                <button className="mt-2 px-4 py-2 bg-green-500 text-white rounded">
-                  Join
-                </button>
-              )}
-              {team.status === 3 && (
-                <button className="mt-2 px-4 py-2 bg-red-500 text-white rounded">
-                  Cancel Request
-                </button>
-              )}
             </div>
           ))}
         </div>
 
+        {/* Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages} // Replace with actual totalPages from API
+          onPageChange={handlePageChange}
+        />
+
+        {/* Modal */}
         {showModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
             <div className="bg-white p-6 rounded shadow-md w-1/3">
@@ -160,14 +165,15 @@ const Teams = () => {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium mb-2">Description</label>
-                <textarea
+                <label className="block text-sm font-medium mb-2">Max Participant</label>
+                <input
                   className="w-full px-4 py-2 border rounded"
-                  value={newTeam.description}
+                  type="number"
+                  value={newTeam.maxParticipant}
                   onChange={(e) =>
-                    setNewTeam({ ...newTeam, description: e.target.value })
+                    setNewTeam({ ...newTeam, maxParticipant: parseInt(e.target.value, 10) || "" })
                   }
-                ></textarea>
+                />
               </div>
               <div className="flex justify-end space-x-4">
                 <button
@@ -178,7 +184,7 @@ const Teams = () => {
                 </button>
                 <button
                   className="px-4 py-2 bg-blue-500 text-white rounded"
-                  onClick={handleCreateTeam}
+                  onClick={() => handleCreateTeam()}
                 >
                   Create
                 </button>
@@ -191,4 +197,4 @@ const Teams = () => {
   );
 };
 
-export default Teams;
+export default TeamsPage;
