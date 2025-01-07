@@ -9,6 +9,7 @@ import com.example.backend.DTO.Team.CreateTeamRequestDTO;
 import com.example.backend.DTO.Team.JoinRequestDTO;
 import com.example.backend.DTO.Team.ListJoinRequestDTO;
 import com.example.backend.DTO.Team.ListMemberDTO;
+import com.example.backend.DTO.Team.ListTeamDetailDTO;
 import com.example.backend.DTO.Team.ListTeamResponseDTO;
 import com.example.backend.DTO.Team.TeamDetail;
 import com.example.backend.DTO.Team.TeamResponseDTO;
@@ -40,13 +41,14 @@ public class TeamController {
   }
 
   @GetMapping("/all")
-  public ResponseEntity<ListTeamResponseDTO> getAllOfAllUser(
+  public ResponseEntity<ListTeamDetailDTO> getAllOfAllUser(
+      Principal principal,
       @RequestParam(defaultValue = "name") String sortElement,
       @RequestParam(defaultValue = "asc") String direction,
       @RequestParam(defaultValue = "") String search,
       @RequestParam(defaultValue = "1") int page,
       @RequestParam(defaultValue = "10") int limit) {
-    return ResponseEntity.status(200).body(teamService.getAllOfAllUser(sortElement, direction, search, page, limit));
+    return ResponseEntity.status(200).body(teamService.getAllOfAllUser(principal.getName(),sortElement, direction, search, page, limit));
   }
 
   @DeleteMapping("/{id}")
