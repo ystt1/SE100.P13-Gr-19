@@ -14,9 +14,9 @@ const QuizDetails = () => {
     const fetchQuizDetails = async () => {
       try {
         const response = await HistoryService.getDetail(id);
-        const response2=await QuizSetService.getQuizSetDetail(id);
-        console.log(response);
         
+        console.log(response);
+        const response2=await QuizSetService.getQuizSetDetail(response.quizSetId);
         setAllowShow(response2.data.allowShowAnswer)
         setQuizDetails(response);
         setQuizSetDetails(response2.data);
