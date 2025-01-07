@@ -38,6 +38,8 @@ const TeamManagement = () => {
         return;
       }
       const data = await TeamService.GetAllMember(teamId);
+      console.log(data);
+      
       setUsers(data.data.members || []);
     } catch (error) {
       showSnackbar("Failed to fetch team users", "error");

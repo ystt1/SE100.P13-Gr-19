@@ -91,9 +91,9 @@ const TeamService = {
   },
   ChangeRequestStatus: async (id, status) => {
     try {
-
       const response = await axiosInstance.patch(`/team/join-request/${id}`, { status: status });
-
+      console.log(response);
+      
 
     } catch (error) {
       console.error("Error fetching topics:", error);

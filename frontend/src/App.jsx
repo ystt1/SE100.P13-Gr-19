@@ -156,7 +156,7 @@ function App() {
             }
           />
  <Route
-            path="/teams/:id/detail"
+            path="/teams/:teamId/detail"
             element={
               <ProtectedRoute>
                 <TeamDetail />
