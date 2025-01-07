@@ -27,4 +27,7 @@ public interface ResultRepository extends JpaRepository<Result, Integer> {
     Page<Result> findByQuizSetIdAndTeamIdAndUserEmailContainingIgnoreCase(int quizSetId, int teamId, String email, Pageable pageable);
 
     Page<Result> findByQuizSetIdAndTeamId(int quizSetId,int teamId, Pageable pageable);
+
+    @Query("SELECT sum(r.numberCorrect) FROM Result r WHERE r.user.id = :userId AND r.team.id = :teamId")
+    int getTotalScoreByTeamIdAndUserId(@Param("teamId") int teamId,@Param("userId") int userId);
 }

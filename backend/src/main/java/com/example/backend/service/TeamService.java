@@ -11,6 +11,7 @@ import com.example.backend.DTO.Team.ListJoinRequestDTO;
 import com.example.backend.DTO.Team.ListMemberDTO;
 import com.example.backend.DTO.Team.ListTeamResponseDTO;
 import com.example.backend.DTO.Team.TeamResponseDTO;
+import com.example.backend.DTO.Team.UserResponseWithScoreDTO;
 import com.example.backend.DTO.User.UserResponseDTO;
 import com.example.backend.entity.JoinTeamRequest;
 import com.example.backend.entity.RequestStatus;
@@ -251,7 +252,11 @@ public class TeamService {
 
     var member = userRepository.findByJoinedTeamsIdAndEmailContainingIgnoreCase(id, search, pageable);
 
-    var resultMembersDTO = member.stream().map(user -> modelMapper.map(user, UserResponseDTO.class)).toList();
+    var resultMembersDTO = member.stream().map(user ->{
+      var dto = modelMapper.map(user, UserResponseWithScoreDTO.class);
+      dto.setScore(resultRepository.getTotalScoreByTeamIdAndUserId(id, user.getId()));
+      return dto;
+    }).toList();
 
     return ListMemberDTO.builder()
         .members(resultMembersDTO)
