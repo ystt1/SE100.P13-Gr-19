@@ -417,20 +417,35 @@ public class TeamService {
   public TeamQuizSetResult getTeamQuizSetResult(int id, int quizSetId) {
     var team = teamRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Team not found"));
 
+    //member score
     var members = teamRepository.findMembersByTeamId(id, "", Pageable.unpaged());
 
     var list = members.stream().map(member -> {
       var result = resultRepository.findByQuizSetIdAndTeamIdAndUserId(quizSetId, id,member.getId());
       UserTeamQuizSetResult dto = new UserTeamQuizSetResult();
-      dto.setUser(modelMapper.map(userRepository.findById(member.getId()).get(), UserResponseDTO.class));
-      dto.setNumberOfCorrectAnswers(result.getNumberCorrect());
-      dto.setNumberOfWrongAnswers(result.getQuizSet().getTotalQuestion()-result.getNumberCorrect());
+      if(result == null){
+        dto.setUser(modelMapper.map(userRepository.findById(member.getId()).get(), UserResponseDTO.class));
+        dto.setNumberOfCorrectAnswers(0);
+        dto.setNumberOfWrongAnswers(0);
+      }
+      else {
+        dto.setUser(
+            modelMapper.map(userRepository.findById(member.getId()).get(), UserResponseDTO.class));
+        dto.setNumberOfCorrectAnswers(result.getNumberCorrect());
+        dto.setNumberOfWrongAnswers(
+            result.getQuizSet().getTotalQuestion() - result.getNumberCorrect());
+      }
 
       return dto;
     }).toList();
 
     TeamQuizSetResult dto = new TeamQuizSetResult();
     dto.setListResult(list);
+
+    //quiz
+
+
+
 
     return dto;
   }
