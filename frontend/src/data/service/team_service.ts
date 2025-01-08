@@ -175,6 +175,15 @@ const TeamService = {
       console.error("Error remove quizSet:", error);
       throw error;
     }
+  },
+  getReport:async(idTeam,idQuizSet)=>{
+    try {
+      const response = await axiosInstance.get(`/team/${idTeam}/quiz-set/${idQuizSet}/result`);
+      return response
+    } catch (error) {
+      console.error("Error remove quizSet:", error);
+      throw error;
+    }
   }
 }
 

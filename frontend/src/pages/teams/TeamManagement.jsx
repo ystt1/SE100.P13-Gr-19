@@ -16,8 +16,11 @@ const TeamManagement = () => {
   const [isNotificationOpen, setNotificationOpen] = useState(false);
   const [quizSet, setQuizSet] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [role, setRole] = useState("NONE");
+  const [selectedQuizSet,setSelectedQuizSet]=useState();
+  const [report,setReport]=useState([]);
   const fetchJoinRequests = async () => {
     try {
       if (!teamId) {
@@ -62,12 +65,19 @@ const TeamManagement = () => {
     const data = await TeamService.getStatusOfUser(teamId);
     setRole(data.data.status);
   }
+  const fetchReport=async(quizset)=>{
+    console.log(quizset.id);
+    const data=await TeamService.getReport(teamId,quizset.id,)
+    console.log(data.data.listResult);
+    
+    
+    setReport(data.data.listResult);
+    
+  }
 
   useEffect(() => {
     if (teamId) {
       fetchUserStatus();
-
-
       fetchTeamUsers();
       fetchJoinRequests();
       fetchTeamQuizSet();
@@ -215,6 +225,9 @@ const TeamManagement = () => {
           </div>
         )}
 
+
+
+
         <div className="mb-6">
           <h2 className="text-2xl font-semibold mb-3">Team Members</h2>
           <table className="w-full table-auto border-collapse">
@@ -267,9 +280,11 @@ const TeamManagement = () => {
                 onDelete={() => handleRemoveQuizSet(quiz.id)}
                 isTeam={true}
                 onClick={() => {
-                  
-                  navigate(
-                    `/team/${teamId}/history/${quiz.id}`)
+                  setSelectedQuizSet(quiz)
+                  setShowReportModal(true);
+                  fetchReport(quiz)
+                  // navigate(
+                  //   `/team/${teamId}/history/${quiz.id}`)
                 }}
               />
             ))}
@@ -307,6 +322,71 @@ const TeamManagement = () => {
             </div>
           </div>
         )}
+
+
+
+{showReportModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity">
+    <div className="bg-white p-6 rounded-lg shadow-2xl w-96 relative animate-slide-in">
+      {/* Icon close */}
+      <button
+        className="absolute top-3 right-3 text-gray-400 hover:text-red-500 transition-colors"
+        onClick={() => setShowReportModal(false)}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
+
+      {/* Title */}
+      <h3 className="text-lg font-bold mb-4 text-gray-800 text-center">
+        Report of 
+      </h3>
+
+      {/* Members list */}
+      <ul className="space-y-3">
+        {report.map((member,index) => (
+          <li
+            key={index}
+            className="text-gray-700 flex justify-between items-center"
+          >
+            <span>{member.user.name}</span>
+            <span className="text-sm text-gray-500">
+              TrueAns: {member.numberOfCorrectAnswers} - FalseAns: {member.numberOfWrongAnswers}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      {/* Close button */}
+      <button
+        className="mt-6 w-full px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+        onClick={() => setShowReportModal(false)}
+      >
+        Close
+      </button>
+      <button
+        className="mt-6 w-full px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+        onClick={() => { navigate(
+             `/team/${teamId}/history/${selectedQuizSet.id}`)}}
+      >
+        GetHistory
+      </button>
+    </div>
+  </div>
+)}
+
       </div>
     </div>
   );
