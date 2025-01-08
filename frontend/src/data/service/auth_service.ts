@@ -43,7 +43,7 @@ const AuthService = {
       } else {
         return "Unexpected error";
       }
-      console.log(error);
+      
       return "Login Fail";
     }
   },
@@ -53,7 +53,6 @@ const AuthService = {
     const response = await axiosInstance.post("/auth/register", payload);
     if(response.status==200)
     {
-        localStorage.setItem("authToken", response.data.token); 
         return "success";
     }
     }
@@ -64,7 +63,7 @@ const AuthService = {
 
           if (status === 400) {
   
-            console.log("Error 400:", data.message);
+            
             return data.message;
           }
         } else {

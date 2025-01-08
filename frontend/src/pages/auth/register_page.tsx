@@ -21,7 +21,7 @@ export const RegisterPage: React.FC = () => {
 
     const response = await AuthService.register({ email, password, name });
     if (response === "success") {
-      window.location.href = "/quiz";
+      window.location.href = "/login";
     }
     showSnackbar(response);
   };
