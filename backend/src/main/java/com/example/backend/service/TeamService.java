@@ -12,8 +12,10 @@ import com.example.backend.DTO.Team.ListMemberDTO;
 import com.example.backend.DTO.Team.ListTeamDetailDTO;
 import com.example.backend.DTO.Team.ListTeamResponseDTO;
 import com.example.backend.DTO.Team.TeamDetail;
+import com.example.backend.DTO.Team.TeamQuizSetResult;
 import com.example.backend.DTO.Team.TeamResponseDTO;
 import com.example.backend.DTO.Team.UserResponseWithScoreDTO;
+import com.example.backend.DTO.Team.UserTeamQuizSetResult;
 import com.example.backend.DTO.User.UserResponseDTO;
 import com.example.backend.entity.JoinTeamRequest;
 import com.example.backend.entity.RequestStatus;
@@ -411,4 +413,26 @@ public class TeamService {
     }
     return status;
   }
+
+  public TeamQuizSetResult getTeamQuizSetResult(int id, int quizSetId) {
+    var team = teamRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Team not found"));
+
+    var members = teamRepository.findMembersByTeamId(id, "", Pageable.unpaged());
+
+    var list = members.stream().map(member -> {
+      var result = resultRepository.findByQuizSetIdAndTeamIdAndUserId(quizSetId, id,member.getId());
+      UserTeamQuizSetResult dto = new UserTeamQuizSetResult();
+      dto.setUser(modelMapper.map(userRepository.findById(member.getId()).get(), UserResponseDTO.class));
+      dto.setNumberOfCorrectAnswers(result.getNumberCorrect());
+      dto.setNumberOfWrongAnswers(result.getQuizSet().getTotalQuestion()-result.getNumberCorrect());
+
+      return dto;
+    }).toList();
+
+    TeamQuizSetResult dto = new TeamQuizSetResult();
+    dto.setListResult(list);
+
+    return dto;
+  }
+
 }

@@ -49,4 +49,5 @@ public class PracticeController {
         var results = practiceService.getAllPracticeResults(principal.getName(), sortElement, direction, search, page, limit);
         return ResponseEntity.ok(results);
     }
+
 }

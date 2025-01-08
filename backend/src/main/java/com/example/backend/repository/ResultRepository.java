@@ -30,4 +30,6 @@ public interface ResultRepository extends JpaRepository<Result, Integer> {
 
     @Query("SELECT COALESCE(sum(r.numberCorrect), 0) FROM Result r WHERE r.user.id = :userId AND r.team.id = :teamId")
     int getTotalScoreByTeamIdAndUserId(@Param("teamId") int teamId,@Param("userId") int userId);
+
+    Result findByQuizSetIdAndTeamIdAndUserId(int quizSetId, int teamId, int userId);
 }

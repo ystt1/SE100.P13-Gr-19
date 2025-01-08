@@ -12,6 +12,7 @@ import com.example.backend.DTO.Team.ListMemberDTO;
 import com.example.backend.DTO.Team.ListTeamDetailDTO;
 import com.example.backend.DTO.Team.ListTeamResponseDTO;
 import com.example.backend.DTO.Team.TeamDetail;
+import com.example.backend.DTO.Team.TeamQuizSetResult;
 import com.example.backend.DTO.Team.TeamResponseDTO;
 import com.example.backend.service.TeamService;
 import java.security.Principal;
@@ -158,5 +159,10 @@ public class TeamController {
   @GetMapping("/{id}")
   public ResponseEntity<TeamDetail> getTeam(Principal principal, @PathVariable int id) {
     return ResponseEntity.status(200).body(teamService.getTeam(principal.getName(), id));
+  }
+
+@GetMapping("/{id}/quiz-set/{quizSetId}/result")
+  public ResponseEntity<TeamQuizSetResult> getQuizSetResult(@PathVariable int id, @PathVariable int quizSetId) {
+    return ResponseEntity.status(200).body(teamService.getTeamQuizSetResult( id, quizSetId));
   }
 }
