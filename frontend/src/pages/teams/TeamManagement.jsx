@@ -221,6 +221,7 @@ const TeamManagement = () => {
             <thead>
               <tr>
                 <th className="border px-4 py-2">User Name</th>
+                <th className="border px-4 py-1">Score</th>
                 <th className="border px-4 py-2">Actions</th>
               </tr>
             </thead>
@@ -228,6 +229,7 @@ const TeamManagement = () => {
               {users.map((user) => (
                 <tr key={user.id}>
                   <td className="border px-4 py-2">{user.name}</td>
+                  <td className="border px-4 py-1">{user.score}</td>
                   <td className="border px-4 py-2">
                     <button
                       onClick={() => handleKickUser(user.id)}
