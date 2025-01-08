@@ -48,6 +48,16 @@ const HistoryService = {
       throw error;
     }
   },
+  getUser: async (id) => {
+    try {
+      const response = await axiosInstance.get(`/user/${id}`);
+      return response;
+      
+    } catch (error) {
+      console.error("Error fetching topics:", error);
+      throw error;
+    }
+  },
 }
 
 export default HistoryService;

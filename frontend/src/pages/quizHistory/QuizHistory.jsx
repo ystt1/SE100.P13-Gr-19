@@ -53,7 +53,21 @@ const QuizHistory = () => {
             direction,
           });
         }
-        setQuizHistory(response.results);
+
+        const resultsWithUser = await Promise.all(
+          response.results.map(async (result) => {
+            try {
+              const user = await HistoryService.getUser(result.userId);
+              return { ...result, userName: user.data.name };
+            } catch (error) {
+              console.error(`Error fetching user for ID ${result.userId}:`, error);
+              return { ...result, userName: "Unknown" };
+            }
+          })
+        );
+        
+       
+        setQuizHistory(resultsWithUser);
         setTotalPages(response.totalPages);
       } catch (error) {
         console.error("Error fetching quiz history:", error);
@@ -119,40 +133,43 @@ const QuizHistory = () => {
 
         {/* Quiz History List */}
         <div className="grid grid-cols-1 gap-4">
-          {quizHistory.length > 0 ? (
-            quizHistory.map((history) => (
-              <div
-                key={history.id}
-                className="flex items-center bg-white p-4 shadow-md rounded-lg"
-              >
-                <div className="flex-grow ml-4">
-                  <p className="text-sm text-gray-500">
-                    Created At: {new Date(history.createdAt).toLocaleString()}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Quiz Set Name: {history.quizSetName}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Attempt Time: {history.attemptTime}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Complete Time: {history.completeTime} seconds
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Number Correct: {history.numberCorrect}
-                  </p>
-                </div>
-                <button
-                  onClick={() => navigate(`/history-detail/${history.id}`)}
-                  className="bg-green-500 text-white px-4 py-2 rounded-lg"
-                >
-                  Xem lại
-                </button>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500">No quiz history found.</p>
-          )}
+        {quizHistory.length > 0 ? (
+  quizHistory.map((history) => (
+    <div
+      key={history.id}
+      className="flex items-center bg-white p-4 shadow-md rounded-lg"
+    >
+      <div className="flex-grow ml-4">
+        <p className="text-sm text-gray-500">
+          Created At: {new Date(history.createdAt).toLocaleString()}
+        </p>
+        <p className="text-sm text-gray-500">
+          Quiz Set Name: {history.quizSetName}
+        </p>
+        <p className="text-sm text-gray-500">
+          Attempt Time: {history.attemptTime}
+        </p>
+        <p className="text-sm text-gray-500">
+          Complete Time: {history.completeTime} seconds
+        </p>
+        <p className="text-sm text-gray-500">
+          Number Correct: {history.numberCorrect}
+        </p>
+        <p className="text-sm text-gray-500">
+          User Name: {history.userName}
+        </p>
+      </div>
+      <button
+        onClick={() => navigate(`/history-detail/${history.id}`)}
+        className="bg-green-500 text-white px-4 py-2 rounded-lg"
+      >
+        Xem lại
+      </button>
+    </div>
+  ))
+) : (
+  <p className="text-gray-500">No quiz history found.</p>
+)}
         </div>
 
         {/* Pagination */}
