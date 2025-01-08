@@ -12,6 +12,7 @@ import com.example.backend.DTO.Practice.ShortAnswerDTO;
 import com.example.backend.DTO.Practice.ShortResultDTO;
 import com.example.backend.DTO.Practice.SmallPracticeResultDTO;
 import com.example.backend.DTO.Quiz.Quiz.QuizResponseDTO;
+import com.example.backend.DTO.User.UserResponseDTO;
 import com.example.backend.entity.*;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.repository.*;
@@ -305,5 +306,12 @@ public class PracticeService {
             .totalPages(resultsPage.getTotalPages())
             .totalElements((int) resultsPage.getTotalElements())
             .build();
+    }
+
+    public UserResponseDTO getUserById(int id) {
+        var user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        return modelMapper.map(user, UserResponseDTO.class);
     }
 }
